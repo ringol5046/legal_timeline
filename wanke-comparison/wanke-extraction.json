@@ -1,0 +1,349 @@
+{
+  "case": {
+    "id": "wanke_v_av_builder_2020",
+    "caption": "Wanke, Industrial, Commercial, Residential, Inc. v. AV Builder Corp.",
+    "court": "Cal. Ct. App. 4th Dist., Div. 1",
+    "docket": "D074392 (Super. Ct. No. 37-2016-00023774-CU-EN-CTL)",
+    "jurisdiction": "California state appellate",
+    "date_range": ["2008-01-01", "2020-06-01"],
+    "cause_of_action": ["creditor's suit (§ 708.210)", "warranty setoff (§ 431.70)"],
+    "status": "judgment",
+    "summary": "Wanke obtained a 2013 judgment against Keck and WP Solutions for $1,190,929. To collect, Wanke filed a creditor's suit against third party AVB seeking $109,327 AVB owed WP Solutions under five waterproofing subcontracts. After bench trial, the court entered judgment for Wanke for $83,418.94, largely rejecting AVB's setoff claims. The Court of Appeal affirmed on Feb. 19, 2020, rejecting AVB's standing/capacity, statute-of-limitations, and warranty-setoff challenges."
+  },
+
+  "parties": [
+    { "id": "wanke",            "name": "Wanke, Industrial, Commercial, Residential, Inc.", "short_name": "Wanke",        "role": ["plaintiff", "respondent", "judgment_creditor"], "type": "corporation", "representation": ["Lindborg & Mazor — Peter F. Lindborg, Irina J. Mazor"] },
+    { "id": "avb",              "name": "AV Builder Corp.",                                  "short_name": "AVB",          "role": ["defendant", "appellant", "third_party"],         "type": "corporation", "representation": ["Greco Traficante Schulz & Brick — Peter J. Schulz; Williams Iagmin — Jon R. Williams"] },
+    { "id": "wp_solutions",     "name": "WP Solutions, Inc.",                                "short_name": "WP Solutions", "role": ["judgment_debtor", "non_party"],                  "type": "corporation" },
+    { "id": "keck",             "name": "Scott Keck",                                        "short_name": "Keck",         "role": ["judgment_debtor", "non_party", "witness"],       "type": "individual" },
+    { "id": "trial_court",      "name": "San Diego County Superior Court (Hon. Timothy B. Taylor)", "short_name": "Trial Court", "role": ["court"],                                "type": "court" },
+    { "id": "court_of_appeal",  "name": "California Court of Appeal, 4th District, Division 1",     "short_name": "Court of Appeal", "role": ["court"],                            "type": "court" }
+  ],
+
+  "lanes": [
+    { "id": "wanke",   "label": "Plaintiff/Respondent",     "sub": "Wanke",                     "party_id": "wanke",           "color": "#2b6cb0", "order": 0 },
+    { "id": "avb",     "label": "Defendant/Appellant",      "sub": "AVB",                       "party_id": "avb",             "color": "#b04a2b", "order": 1 },
+    { "id": "debtors", "label": "Judgment Debtors",         "sub": "WP Solutions · Keck",       "party_id": "wp_solutions",    "color": "#6b46c1", "order": 2 },
+    { "id": "court",   "label": "Court",                     "sub": "Trial · Court of Appeal",   "party_id": "trial_court",     "color": "#4a5568", "order": 3 }
+  ],
+
+  "events": [
+    {
+      "id": "e_2008_trade_secret_suit",
+      "label": "Wanke sues Keck (trade secrets)",
+      "detail": "Wanke sued Keck and another former employee in 2008 for trade secret misappropriation after they left to form competing business WP Solutions. Collateral context for the later judgment.",
+      "date": "2008-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": ["wanke", "keck"],
+      "kind": "external",
+      "category": "related_proceeding",
+      "jurisdictional_significance": "Origin of the dispute that produced the predicate $1.19M judgment.",
+      "source_ids": ["s_op_p2"]
+    },
+    {
+      "id": "e_subcontract_saratoga",
+      "label": "Saratoga West subcontract",
+      "detail": "WP Solutions ↔ AVB waterproofing subcontract for Saratoga West project. Earliest of five subcontracts between the two companies.",
+      "date": "2009-11-16",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": ["wp_solutions", "avb"],
+      "kind": "fact",
+      "category": "contract",
+      "source_ids": ["s_op_p3_fn3"]
+    },
+    {
+      "id": "e_subcontract_pointloma",
+      "label": "Point Loma Tennis Club subcontract",
+      "detail": "WP Solutions ↔ AVB waterproofing subcontract. Pool deck on this project later caused $57,055.95 in repair damage (incompatible materials).",
+      "date": "2012-06-11",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": ["wp_solutions", "avb"],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Source of the only setoff the trial court partially allowed ($25,908 for pool deck repair).",
+      "source_ids": ["s_op_p3_fn3"]
+    },
+    {
+      "id": "e_subcontract_promenade",
+      "label": "133 Promenade subcontract",
+      "detail": "WP Solutions ↔ AVB waterproofing subcontract.",
+      "date": "2013-04-25",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": ["wp_solutions", "avb"],
+      "kind": "fact",
+      "category": "contract",
+      "source_ids": ["s_op_p3_fn3"]
+    },
+    {
+      "id": "e_subcontract_taitz",
+      "label": "Taitz Residence subcontract",
+      "detail": "WP Solutions ↔ AVB waterproofing subcontract. One of two subcontracts (with Oxford Court) carrying open balances per Keck's testimony.",
+      "date": "2013-09-09",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": ["wp_solutions", "avb"],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Within four years of Wanke's 2016 creditor's suit; anchors § 708.230(a)(1) timeliness analysis (Wanke's framework).",
+      "source_ids": ["s_op_p3_fn3", "s_op_p15", "s_op_p16"]
+    },
+    {
+      "id": "e_subcontract_oxford",
+      "label": "Oxford Court subcontract",
+      "detail": "WP Solutions ↔ AVB waterproofing subcontract. One of two subcontracts (with Taitz Residence) carrying open balances per Keck's testimony at trial (Ex. 13).",
+      "date": "2013-12-23",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": ["wp_solutions", "avb"],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Within four years of Wanke's 2016 creditor's suit; anchors § 708.230(a)(1) timeliness analysis (Wanke's framework).",
+      "source_ids": ["s_op_p3_fn3", "s_op_p15", "s_op_p16"]
+    },
+    {
+      "id": "e_wanke_keck_appellate",
+      "label": "Wanke v. Keck (2012) (collateral)",
+      "detail": "Earlier appellate decision (Wanke I) at 209 Cal.App.4th 1151, 1156-1162. Background for the breach-of-settlement litigation that produced the 2013 judgment.",
+      "date": "2012-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["wanke", "keck", "court_of_appeal"],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": ["s_op_p2"]
+    },
+    {
+      "id": "e_predicate_judgment",
+      "label": "Predicate judgment entered ($1,190,929)",
+      "detail": "Trial court enters judgment in favor of Wanke, holding Keck and WP Solutions jointly and severally liable for $1,190,929 — the predicate obligation Wanke later sought to collect through the creditor's suit.",
+      "date": "2013-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["wanke", "keck", "wp_solutions", "trial_court"],
+      "kind": "ruling",
+      "category": "judgment",
+      "jurisdictional_significance": "Predicate judgment supporting Wanke's § 708.210 standing to bring creditor's suit against AVB.",
+      "source_ids": ["s_op_p2"]
+    },
+    {
+      "id": "e_wp_corp_suspension",
+      "label": "WP Solutions corporate suspension",
+      "detail": "WP Solutions was suspended as a corporation during 2014 (Rev. & Tax. Code § 23301). Remained suspended at all times relevant. Source of the capacity-to-sue argument AVB pressed on appeal.",
+      "date": "2014-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "debtors",
+      "party_ids": ["wp_solutions"],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "Extinguished WP Solutions' capacity to sue; foundation of AVB's standing/capacity argument under Casiopea and Cal-Western.",
+      "source_ids": ["s_op_p4", "s_op_p8"]
+    },
+    {
+      "id": "e_work_complete_bankruptcy",
+      "label": "Work complete; Keck bankruptcy; WP dissolved",
+      "detail": "Around June 2014, Keck completed the subcontract work, declared bankruptcy facing the 2013 judgment, and dissolved WP Solutions. WP Solutions could no longer perform ongoing warranty obligations built into each subcontract — basis for AVB's warranty setoff theory.",
+      "date": "2014-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "debtors",
+      "party_ids": ["keck", "wp_solutions"],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Triggered AVB's argument that warranty work bargained-for could no longer be performed.",
+      "source_ids": ["s_op_p3"]
+    },
+    {
+      "id": "e_levy_served",
+      "label": "Writ of execution & notice of levy on AVB",
+      "detail": "Wanke serves writ of execution and notice of levy on AVB in June 2014, targeting any property of WP Solutions in AVB's hands. Two-year levy lien arises under § 697.710.",
+      "date": "2014-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": ["wanke", "avb"],
+      "kind": "filing",
+      "category": "notice",
+      "jurisdictional_significance": "Creates a two-year levy lien under § 697.710 (later expired before creditor's suit).",
+      "source_ids": ["s_op_p3", "s_op_p7"]
+    },
+    {
+      "id": "e_examination_proceedings",
+      "label": "Examination proceedings; $109,327 debt identified",
+      "detail": "Wanke conducts examination proceedings of AVB's president Antonio Madureira under § 708.120. Learns AVB owed WP Solutions $109,327 under the subcontracts. One-year examination lien arises under § 708.120(c).",
+      "date": "2014-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": ["wanke", "avb"],
+      "kind": "discovery",
+      "category": "deposition",
+      "jurisdictional_significance": "Identified the specific receivable underlying the creditor's suit; created one-year examination lien.",
+      "source_ids": ["s_op_p3", "s_op_p7"]
+    },
+    {
+      "id": "e_license_suspended",
+      "label": "WP Solutions contractor's license suspended",
+      "detail": "WP Solutions' contractor's license suspended in July 2014. After this, WP Solutions was statutorily precluded from pursuing a collection action against AVB under Bus. & Prof. Code § 7031(a). AVB anchors its statute-of-limitations theory to this date.",
+      "date": "2014-07-01",
+      "date_certainty": "approximate",
+      "lane_id": "debtors",
+      "party_ids": ["wp_solutions"],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "AVB's anchor date for SoL theory: WP Solutions could not 'bring an action' after this date, so § 708.230(a)(1) two-year window ran out July 2016.",
+      "source_ids": ["s_op_p13"],
+      "disputed": true,
+      "dispute_id": "d_sol_anchor"
+    },
+    {
+      "id": "e_subcontract_breach_accrual",
+      "label": "Subcontract accrual (Wanke's theory)",
+      "detail": "Wanke's theory: § 708.230(a)(1) borrows the underlying contract limitations period (§ 337(a)'s four-year written-contract clock), measured from when AVB failed to meet payment obligations. The 2013 subcontracts (Taitz, Oxford) are within four years of the July 2016 creditor's suit regardless.",
+      "date": "2013-12-23",
+      "date_certainty": "disputed",
+      "lane_id": "wanke",
+      "party_ids": ["wanke"],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Wanke's anchor for SoL: contract accrual under § 337(a), 4-year clock from breach.",
+      "source_ids": ["s_op_p15", "s_op_p16"],
+      "disputed": true,
+      "dispute_id": "d_sol_anchor"
+    },
+    {
+      "id": "e_exam_lien_expired",
+      "label": "Examination lien expired (1-year)",
+      "detail": "One-year examination lien under § 708.120(c) expired in mid-2015 — before Wanke filed the July 2016 creditor's suit. Eliminated this path for § 708.230(a)(2) timeliness.",
+      "date": "2015-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["wanke"],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "Forced timeliness analysis onto § 708.230(a)(1) (judgment-debtor accrual window).",
+      "source_ids": ["s_op_p7"]
+    },
+    {
+      "id": "e_levy_lien_expired",
+      "label": "Levy lien expired (2-year)",
+      "detail": "Two-year levy lien under § 697.710 expired ~June 2016 — before Wanke filed the July 2016 creditor's suit. Eliminated this path for § 708.230(a)(2) timeliness.",
+      "date": "2016-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["wanke", "avb"],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "Forced timeliness analysis onto § 708.230(a)(1) (judgment-debtor accrual window).",
+      "source_ids": ["s_op_p7"]
+    },
+    {
+      "id": "e_creditors_suit",
+      "label": "Creditor's suit filed ($109,327)",
+      "detail": "Wanke files creditor's suit against AVB under § 708.210 seeking to recover $109,327 toward outstanding judgment. Filed in San Diego Superior Court (Hon. Timothy B. Taylor).",
+      "date": "2016-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": ["wanke", "avb", "trial_court"],
+      "kind": "filing",
+      "category": "pleading",
+      "jurisdictional_significance": "Commenced the § 708.210 creditor's suit; date against which § 708.230(a)(1) timeliness is measured.",
+      "source_ids": ["s_op_p3", "s_op_p7"]
+    },
+    {
+      "id": "e_avb_trial_brief_standing",
+      "label": "AVB trial brief: standing/capacity",
+      "detail": "AVB first presented its standing/capacity argument in its trial brief, invoking assignment principles from Cal-Western and Casiopea to argue Wanke stood in WP Solutions' shoes.",
+      "date": "2018-05-01",
+      "date_certainty": "approximate",
+      "lane_id": "avb",
+      "party_ids": ["avb"],
+      "kind": "filing",
+      "category": "brief",
+      "source_ids": ["s_op_p9"]
+    },
+    {
+      "id": "e_bench_trial",
+      "label": "Two-day bench trial",
+      "detail": "Two-day bench trial in June 2018. Parties stipulated to judgment, bankruptcy, levy, and debt facts. Sole trial issues: AVB's setoff claims (§ 431.70) and Wanke's ability to collect given WP Solutions' incapacity. AVB called four witnesses (Canup, Keck, Madureira, Bagnall); Wanke called rebuttal expert Kushner.",
+      "date": "2018-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["wanke", "avb", "keck", "trial_court"],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": ["s_op_p3"]
+    },
+    {
+      "id": "e_trial_judgment",
+      "label": "Trial judgment for Wanke ($83,418.94)",
+      "detail": "Trial court enters judgment in favor of Wanke for $83,418.94, after allowing a $25,908 Point Loma pool deck repair offset and rejecting AVB's remaining setoff claims. Court found AVB failed to carry its burden to establish the value of warranty setoffs.",
+      "date": "2018-08-01",
+      "date_certainty": "unknown",
+      "lane_id": "court",
+      "party_ids": ["wanke", "avb", "trial_court"],
+      "kind": "ruling",
+      "category": "judgment",
+      "jurisdictional_significance": "Operative trial-court judgment under review on appeal.",
+      "source_ids": ["s_op_p4", "s_op_p5"]
+    },
+    {
+      "id": "e_appeal_affirmed",
+      "label": "Court of Appeal affirms",
+      "detail": "Court of Appeal (Dato, J., with Benke, Acting P.J., and O'Rourke, J. concurring) files opinion affirming the judgment. Rejects all three contentions: (1) standing/capacity — § 708.210 creditor's suit is not derivative of WP Solutions' rights; (2) statute of limitations — AVB failed to meet burden of proof; (3) warranty setoffs — AVB failed to establish nonspeculative value. Costs to Wanke.",
+      "date": "2020-02-19",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["wanke", "avb", "court_of_appeal"],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Disposes of all three appellate issues; affirmance.",
+      "source_ids": ["s_op_p1", "s_op_p22"]
+    }
+  ],
+
+  "relationships": [
+    { "id": "r_2008_to_judgment",        "from_event_id": "e_2008_trade_secret_suit",  "to_event_id": "e_predicate_judgment",        "type": "causal",   "strength": "undisputed" },
+    { "id": "r_judgment_to_levy",        "from_event_id": "e_predicate_judgment",      "to_event_id": "e_levy_served",                "type": "causal",   "strength": "undisputed", "detail": "Unsatisfied judgment is the foundation for the levy on AVB." },
+    { "id": "r_levy_to_examination",     "from_event_id": "e_levy_served",             "to_event_id": "e_examination_proceedings",    "type": "causal",   "strength": "undisputed" },
+    { "id": "r_levy_lien_expiry",        "from_event_id": "e_levy_served",             "to_event_id": "e_levy_lien_expired",          "type": "tolls",    "strength": "undisputed", "clock_id": "levy_lien_697_710", "clock_effect": "expire", "detail": "2-year levy lien under § 697.710 expires June 2016." },
+    { "id": "r_exam_lien_expiry",        "from_event_id": "e_examination_proceedings", "to_event_id": "e_exam_lien_expired",          "type": "tolls",    "strength": "undisputed", "clock_id": "exam_lien_708_120c", "clock_effect": "expire", "detail": "1-year examination lien under § 708.120(c) expires mid-2015." },
+    { "id": "r_examination_to_suit",     "from_event_id": "e_examination_proceedings", "to_event_id": "e_creditors_suit",             "type": "causal",   "strength": "undisputed", "detail": "Examination identified the $109,327 receivable that became the subject of the creditor's suit." },
+    { "id": "r_suit_to_trialbrief",      "from_event_id": "e_creditors_suit",          "to_event_id": "e_avb_trial_brief_standing",   "type": "response", "strength": "undisputed" },
+    { "id": "r_trialbrief_to_trial",     "from_event_id": "e_avb_trial_brief_standing","to_event_id": "e_bench_trial",                "type": "response", "strength": "undisputed" },
+    { "id": "r_trial_to_judgment",       "from_event_id": "e_bench_trial",             "to_event_id": "e_trial_judgment",             "type": "response", "strength": "adjudicated" },
+    { "id": "r_judgment_to_appeal",      "from_event_id": "e_trial_judgment",          "to_event_id": "e_appeal_affirmed",            "type": "response", "strength": "adjudicated" },
+    { "id": "r_license_tolls",           "from_event_id": "e_license_suspended",       "to_event_id": "e_creditors_suit",             "type": "tolls",    "strength": "alleged",   "clock_id": "sol_708_230_a1_avb_theory", "clock_effect": "start", "detail": "AVB's theory: license suspension started the two-year SoL window under § 708.230(a)(1); rejected on the merits." },
+    { "id": "r_subcontract_accrual_tolls","from_event_id": "e_subcontract_breach_accrual","to_event_id": "e_creditors_suit",            "type": "tolls",    "strength": "adjudicated","clock_id": "sol_708_230_a1_wanke_theory","clock_effect": "start", "detail": "Wanke's theory (adopted): contract accrual under § 337(a) 4-year clock; suit timely as to 2013 subcontracts." }
+  ],
+
+  "disputes": [
+    {
+      "id": "d_sol_anchor",
+      "subject": "What event starts the § 708.230(a)(1) limitations clock for Wanke's creditor's suit?",
+      "type": "meaning",
+      "versions": [
+        { "event_id": "e_license_suspended",          "asserting_party_id": "avb",   "basis": "AVB: WP Solutions' July 2014 contractor's-license suspension under Bus. & Prof. Code § 7031 ended the period in which WP Solutions 'may bring an action.' Two-year clock under § 708.230(a)(1) ran out July 2016." },
+        { "event_id": "e_subcontract_breach_accrual", "asserting_party_id": "wanke", "basis": "Wanke: § 708.230(a)(1) effectively borrows § 337(a)'s four-year contract clock from when AVB failed to meet payment obligations under the subcontracts. 2013 subcontracts (Taitz, Oxford) are within four years of July 2016 suit." }
+      ],
+      "resolution": "adjudicated_for_wanke",
+      "materiality": "Determines whether Wanke's July 2016 creditor's suit is time-barred. Court of Appeal held the statute deals with accrual of the underlying claim, without regard to factors like incapacity or licensure; also held AVB failed to meet its burden of proof either way."
+    }
+  ],
+
+  "sources": [
+    { "id": "s_op_p1",    "type": "opinion", "citation": "Slip op. p. 1 (caption)",                                            "authenticity": "admitted" },
+    { "id": "s_op_p2",    "type": "opinion", "citation": "Slip op. p. 2",                                                     "authenticity": "admitted" },
+    { "id": "s_op_p3",    "type": "opinion", "citation": "Slip op. p. 3",                                                     "authenticity": "admitted" },
+    { "id": "s_op_p3_fn3","type": "opinion", "citation": "Slip op. p. 3 fn. 3 (subcontract dates)",                            "authenticity": "admitted" },
+    { "id": "s_op_p4",    "type": "opinion", "citation": "Slip op. p. 4",                                                     "authenticity": "admitted" },
+    { "id": "s_op_p5",    "type": "opinion", "citation": "Slip op. p. 5",                                                     "authenticity": "admitted" },
+    { "id": "s_op_p7",    "type": "opinion", "citation": "Slip op. p. 7",                                                     "authenticity": "admitted" },
+    { "id": "s_op_p8",    "type": "opinion", "citation": "Slip op. p. 8 (capacity / Casiopea)",                                "authenticity": "admitted" },
+    { "id": "s_op_p9",    "type": "opinion", "citation": "Slip op. p. 9 (AVB trial brief)",                                    "authenticity": "admitted" },
+    { "id": "s_op_p13",   "type": "opinion", "citation": "Slip op. p. 13 (AVB SoL theory; Bus. & Prof. Code § 7031)",          "authenticity": "admitted" },
+    { "id": "s_op_p15",   "type": "opinion", "citation": "Slip op. p. 15 (§ 337(a) 4-year contract clock)",                    "authenticity": "admitted" },
+    { "id": "s_op_p16",   "type": "opinion", "citation": "Slip op. p. 16 (2013 subcontracts within 4 years of 2016 suit)",     "authenticity": "admitted" },
+    { "id": "s_op_p22",   "type": "opinion", "citation": "Slip op. p. 22 (Disposition: judgment affirmed)",                    "authenticity": "admitted" }
+  ]
+}

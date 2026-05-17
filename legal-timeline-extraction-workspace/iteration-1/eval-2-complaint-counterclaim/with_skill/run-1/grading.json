@@ -1,0 +1,81 @@
+{
+  "eval_id": 2,
+  "condition": "with_skill",
+  "passed": 11,
+  "total": 11,
+  "pass_rate": 1.0,
+  "expectations": [
+    {
+      "id": "valid-json",
+      "text": "Output is valid JSON parseable by json.loads",
+      "passed": true,
+      "evidence": "json.loads succeeded"
+    },
+    {
+      "id": "has-six-arrays",
+      "text": "Top-level JSON contains case, parties, events, relationships, disputes, sources, lanes",
+      "passed": true,
+      "evidence": "all present"
+    },
+    {
+      "id": "pelham-multi-role",
+      "text": "Pelham appears as ONE Party with role array containing both 'defendant' and 'counterclaimant' (not two separate parties)",
+      "passed": true,
+      "evidence": "Pelham roles: ['defendant', 'counterclaimant']"
+    },
+    {
+      "id": "three-lanes-min",
+      "text": "Has at least 3 lanes: plaintiff/Northstar, defendant/Pelham, court (additional lanes acceptable)",
+      "passed": true,
+      "evidence": "lane count: 3; ids: ['plaintiff', 'defendant', 'court']"
+    },
+    {
+      "id": "substantial-completion-disputed",
+      "text": "Captures the disputed substantial-completion date (Oct 22, 2023 per Northstar vs Jan 30, 2024 per Pelham) as a Dispute with two version Events",
+      "passed": true,
+      "evidence": "Oct 22=True, Jan 30=True, dispute about completion=True, total disputes=1"
+    },
+    {
+      "id": "change-orders-captured",
+      "text": "Includes both Change Order No. 1 (Nov 4, 2022) and Change Order No. 2 (Feb 28, 2023) as Events",
+      "passed": true,
+      "evidence": "Change Order 1=True, Change Order 2=True"
+    },
+    {
+      "id": "counterclaim-events",
+      "text": "Includes counterclaim-specific events: Wexford report (Aug 4, 2023), Notice of Defective Work (Dec 4, 2023)",
+      "passed": true,
+      "evidence": "Wexford=True, Notice of Defective Work=True"
+    },
+    {
+      "id": "filing-relationships",
+      "text": "Has at least one 'response' Relationship linking Complaint -> Answer/Counterclaim",
+      "passed": true,
+      "evidence": "response relationship count: 3"
+    },
+    {
+      "id": "mechanics-lien-event",
+      "text": "Includes the Mechanic's Lien recording (Dec 18, 2023) as an Event",
+      "passed": true,
+      "evidence": "found Mechanic's Lien event on Dec 18"
+    },
+    {
+      "id": "sources-verbatim",
+      "text": "Sources preserve citation format verbatim (e.g., 'Ex. A', 'Ex. P-CC-2', not 'Plaintiff's Counterclaim Exhibit 2')",
+      "passed": true,
+      "evidence": "Ex. A found=True, Ex. P-CC found=True"
+    },
+    {
+      "id": "render-succeeds",
+      "text": "diagram.html exists and is non-empty",
+      "passed": true,
+      "evidence": "diagram.html size: 36987"
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 11,
+    "failed": 0,
+    "total": 11
+  }
+}

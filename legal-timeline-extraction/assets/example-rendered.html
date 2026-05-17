@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Acme Corp. v. Beta LLC — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 10.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.5px; fill: none; stroke-dasharray: 2 2; }
+  .dispute-label { font-size: 9.5px; fill: var(--dispute); font-style: italic; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Acme Corp. v. Beta LLC <span style="color:var(--muted);font-weight:400">— S.D.N.Y. · 1:23-cv-04567</span></h1>
+  <p class="subtitle">Five-year enterprise software license; Beta withheld payment citing defects, Acme sued for breach. Counterclaim for breach of warranty. Partial summary judgment for Acme on liability; jury awarded $3.1M; appeal pending.</p>
+</header>
+
+<div class="controls" id="controls"></div>
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "acme_v_beta_2023",
+    "caption": "Acme Corp. v. Beta LLC",
+    "court": "S.D.N.Y.",
+    "docket": "1:23-cv-04567",
+    "jurisdiction": "federal",
+    "date_range": [
+      "2022-01-01",
+      "2025-07-01"
+    ],
+    "cause_of_action": [
+      "breach of contract",
+      "breach of warranty (counterclaim)"
+    ],
+    "status": "appeal",
+    "summary": "Five-year enterprise software license; Beta withheld payment citing defects, Acme sued for breach. Counterclaim for breach of warranty. Partial summary judgment for Acme on liability; jury awarded $3.1M; appeal pending."
+  },
+  "parties": [
+    {
+      "id": "acme_corp",
+      "name": "Acme Corporation",
+      "short_name": "Acme",
+      "role": [
+        "plaintiff",
+        "counter_defendant"
+      ],
+      "type": "corporation",
+      "representation": [
+        "Goldstein & Park LLP"
+      ]
+    },
+    {
+      "id": "beta_llc",
+      "name": "Beta LLC",
+      "short_name": "Beta",
+      "role": [
+        "defendant",
+        "counterclaimant"
+      ],
+      "type": "llc",
+      "representation": [
+        "Marlow Stein PC"
+      ]
+    },
+    {
+      "id": "court_sdny",
+      "name": "United States District Court for the Southern District of New York",
+      "short_name": "S.D.N.Y.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Plaintiff",
+      "sub": "Acme Corp.",
+      "party_id": "acme_corp",
+      "color": "#2b6cb0",
+      "order": 1
+    },
+    {
+      "id": "defendant",
+      "label": "Defendant",
+      "sub": "Beta LLC",
+      "party_id": "beta_llc",
+      "color": "#b04a2b",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "S.D.N.Y.",
+      "party_id": "court_sdny",
+      "color": "#4a5568",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_license_signed",
+      "label": "License agreement signed",
+      "detail": "Five-year enterprise license; Acme grants Beta access to platform. Payment terms net-30 monthly.",
+      "date": "2022-03-15",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "acme_corp",
+        "beta_llc"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Establishes contractual obligations; cure-period mechanism in \u00a77.2",
+      "source_ids": [
+        "s_license_agreement"
+      ]
+    },
+    {
+      "id": "e_license_signed_beta",
+      "label": "Counter-signs agreement",
+      "detail": "Beta CEO counter-signs same agreement same day.",
+      "date": "2022-03-15",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "beta_llc"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "source_ids": [
+        "s_license_agreement"
+      ]
+    },
+    {
+      "id": "e_v2_delivered",
+      "label": "v2.0 delivered",
+      "detail": "Major platform release deployed to Beta production environment.",
+      "date": "2022-09-01",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "acme_corp"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_deployment_log_ex11"
+      ]
+    },
+    {
+      "id": "e_notice_beta_version",
+      "label": "Defect notice (Beta version)",
+      "detail": "Beta asserts it sent written notice of defects on Jan 10, 2023 via email to Acme's account manager.",
+      "date": "2023-01-10",
+      "date_certainty": "disputed",
+      "lane_id": "defendant",
+      "party_ids": [
+        "beta_llc"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "If Jan 10 controls, Acme's cure period expired Feb 9, 2023 \u2014 affecting breach analysis",
+      "source_ids": [
+        "s_beta_email_ex8"
+      ],
+      "disputed": true,
+      "dispute_id": "d_defect_notice_date",
+      "asserting_party_id": "beta_llc",
+      "confidence": "high"
+    },
+    {
+      "id": "e_notice_acme_version",
+      "label": "Defect notice (Acme version)",
+      "detail": "Acme contends no formal \u00a77.2 notice was received until Feb 15, 2023; the Jan 10 email did not invoke the cure-notice mechanism.",
+      "date": "2023-02-15",
+      "date_certainty": "disputed",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "acme_corp"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "If Feb 15 controls, Acme's cure period had not expired before payment stoppage on Apr 20",
+      "source_ids": [
+        "s_acme_decl_chen"
+      ],
+      "disputed": true,
+      "dispute_id": "d_defect_notice_date",
+      "asserting_party_id": "acme_corp",
+      "confidence": "high"
+    },
+    {
+      "id": "e_payments_stopped",
+      "label": "Payments stopped",
+      "detail": "Beta withholds April invoice citing unresolved defects.",
+      "date": "2023-04-20",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "beta_llc"
+      ],
+      "kind": "fact",
+      "category": "payment",
+      "jurisdictional_significance": "Alleged breach giving rise to Acme's claim",
+      "source_ids": [
+        "s_invoice_ex12",
+        "s_beta_letter_ex13"
+      ]
+    },
+    {
+      "id": "e_demand_letter",
+      "label": "Demand letter",
+      "detail": "Acme demands cure of nonpayment within 14 days.",
+      "date": "2023-05-01",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "acme_corp"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Triggers Acme's own cure-notice clock under \u00a77.2",
+      "source_ids": [
+        "s_demand_letter_ex14"
+      ]
+    },
+    {
+      "id": "e_counter_demand",
+      "label": "Counter-demand",
+      "detail": "Beta demands credit for service-level breaches; rejects Acme's demand.",
+      "date": "2023-06-15",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "beta_llc"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_beta_letter_ex15"
+      ]
+    },
+    {
+      "id": "e_complaint",
+      "label": "Complaint filed",
+      "detail": "Acme files breach of contract; seeks $4.2M.",
+      "date": "2023-08-01",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "acme_corp",
+        "court_sdny"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_dkt1"
+      ]
+    },
+    {
+      "id": "e_mtd",
+      "label": "Motion to dismiss",
+      "detail": "Beta moves to dismiss for failure to state a claim under FRCP 12(b)(6).",
+      "date": "2023-09-15",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "beta_llc"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_dkt18"
+      ]
+    },
+    {
+      "id": "e_mtd_denied",
+      "label": "MTD denied",
+      "detail": "Court denies MTD; complaint stands.",
+      "date": "2023-11-20",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_sdny"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_dkt34"
+      ]
+    },
+    {
+      "id": "e_counterclaim",
+      "label": "Counterclaim filed",
+      "detail": "Beta files counterclaim for breach of warranty.",
+      "date": "2024-02-10",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "beta_llc"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_dkt42"
+      ]
+    },
+    {
+      "id": "e_discovery_close",
+      "label": "Discovery closes",
+      "detail": "Fact discovery cutoff per scheduling order.",
+      "date": "2024-06-01",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_sdny"
+      ],
+      "kind": "discovery",
+      "category": "subpoena",
+      "source_ids": [
+        "s_dkt28_scheduling"
+      ]
+    },
+    {
+      "id": "e_msj",
+      "label": "Acme MSJ",
+      "detail": "Acme moves for summary judgment on liability for breach of contract.",
+      "date": "2024-09-15",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "acme_corp"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_dkt81"
+      ]
+    },
+    {
+      "id": "e_msj_ruling",
+      "label": "MSJ ruling (partial)",
+      "detail": "Court grants MSJ in part: liability for nonpayment established; denies as to damages, which remain for trial.",
+      "date": "2024-12-01",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_sdny"
+      ],
+      "kind": "ruling",
+      "category": "summary_judgment",
+      "source_ids": [
+        "s_dkt112"
+      ]
+    },
+    {
+      "id": "e_trial_begins",
+      "label": "Trial begins",
+      "detail": "Damages-only jury trial begins before Judge Smith.",
+      "date": "2025-03-10",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_sdny",
+        "acme_corp",
+        "beta_llc"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_dkt140"
+      ]
+    },
+    {
+      "id": "e_verdict",
+      "label": "Verdict",
+      "detail": "Jury awards $3.1M to Acme. Beta files notice of appeal April 28, 2025.",
+      "date": "2025-04-20",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_sdny"
+      ],
+      "kind": "ruling",
+      "category": "judgment",
+      "source_ids": [
+        "s_dkt158_verdict"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_payments_to_demand",
+      "from_event_id": "e_payments_stopped",
+      "to_event_id": "e_demand_letter",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Demand letter sent in direct response to nonpayment"
+    },
+    {
+      "id": "r_demand_to_counter",
+      "from_event_id": "e_demand_letter",
+      "to_event_id": "e_counter_demand",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_counter_to_compl",
+      "from_event_id": "e_counter_demand",
+      "to_event_id": "e_complaint",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_compl_to_mtd",
+      "from_event_id": "e_complaint",
+      "to_event_id": "e_mtd",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_mtd_to_ruling",
+      "from_event_id": "e_mtd",
+      "to_event_id": "e_mtd_denied",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_ruling_to_countercl",
+      "from_event_id": "e_mtd_denied",
+      "to_event_id": "e_counterclaim",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_msj_to_ruling",
+      "from_event_id": "e_msj",
+      "to_event_id": "e_msj_ruling",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_ruling_to_trial",
+      "from_event_id": "e_msj_ruling",
+      "to_event_id": "e_trial_begins",
+      "type": "causal",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_notice_tolls_cure",
+      "from_event_id": "e_notice_beta_version",
+      "to_event_id": "e_payments_stopped",
+      "type": "tolls",
+      "strength": "alleged",
+      "detail": "Beta's theory: Jan 10 notice triggered \u00a77.2 cure period; expiration justified payment stop",
+      "clock_id": "cure_period_\u00a77_2",
+      "clock_effect": "start"
+    },
+    {
+      "id": "r_demand_tolls_cure",
+      "from_event_id": "e_demand_letter",
+      "to_event_id": "e_complaint",
+      "type": "tolls",
+      "strength": "undisputed",
+      "clock_id": "cure_period_acme_\u00a77_2",
+      "clock_effect": "start"
+    }
+  ],
+  "disputes": [
+    {
+      "id": "d_defect_notice_date",
+      "subject": "Date when defect notice was effectively given under \u00a77.2",
+      "type": "date",
+      "versions": [
+        {
+          "event_id": "e_notice_beta_version",
+          "asserting_party_id": "beta_llc",
+          "basis": "Jan 10, 2023 email from Beta CTO (Ex. 8) referencing 'serious defects'"
+        },
+        {
+          "event_id": "e_notice_acme_version",
+          "asserting_party_id": "acme_corp",
+          "basis": "Chen Decl. \u00b6\u00b6 4-7 (Ex. 22) \u2014 Jan 10 email did not invoke \u00a77.2 mechanism; first formal notice was Feb 15"
+        }
+      ],
+      "resolution": "adjudicated_for_acme_corp",
+      "materiality": "Determines whether Acme's cure period had expired before Beta stopped payment on Apr 20; if Feb 15 controls, payment stoppage was premature and itself a breach"
+    }
+  ],
+  "sources": [
+    {
+      "id": "s_license_agreement",
+      "type": "contract",
+      "citation": "License Agreement (Compl. Ex. A)",
+      "authenticity": "stipulated"
+    },
+    {
+      "id": "s_deployment_log_ex11",
+      "type": "exhibit",
+      "citation": "Ex. 11 (deployment log)",
+      "authenticity": "admitted",
+      "produced_by": "acme_corp"
+    },
+    {
+      "id": "s_beta_email_ex8",
+      "type": "exhibit",
+      "citation": "Ex. 8 (Jan 10, 2023 email)",
+      "authenticity": "challenged",
+      "produced_by": "beta_llc"
+    },
+    {
+      "id": "s_acme_decl_chen",
+      "type": "declaration",
+      "citation": "Chen Decl. \u00b6\u00b6 4-7 (Ex. 22)",
+      "authenticity": "admitted",
+      "produced_by": "acme_corp"
+    },
+    {
+      "id": "s_invoice_ex12",
+      "type": "exhibit",
+      "citation": "Ex. 12 (Apr 2023 invoice)",
+      "authenticity": "stipulated"
+    },
+    {
+      "id": "s_beta_letter_ex13",
+      "type": "exhibit",
+      "citation": "Ex. 13 (Apr 20, 2023 Beta letter)",
+      "authenticity": "stipulated"
+    },
+    {
+      "id": "s_demand_letter_ex14",
+      "type": "exhibit",
+      "citation": "Ex. 14 (May 1, 2023 demand letter)",
+      "authenticity": "stipulated"
+    },
+    {
+      "id": "s_beta_letter_ex15",
+      "type": "exhibit",
+      "citation": "Ex. 15 (Jun 15, 2023 Beta response)",
+      "authenticity": "stipulated"
+    },
+    {
+      "id": "s_dkt1",
+      "type": "pleading",
+      "citation": "Dkt. 1 (Complaint)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt18",
+      "type": "motion",
+      "citation": "Dkt. 18 (MTD)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt28_scheduling",
+      "type": "order",
+      "citation": "Dkt. 28 (Scheduling Order)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt34",
+      "type": "order",
+      "citation": "Dkt. 34 (Order denying MTD)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt42",
+      "type": "pleading",
+      "citation": "Dkt. 42 (Counterclaim)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt81",
+      "type": "motion",
+      "citation": "Dkt. 81 (Acme MSJ)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt112",
+      "type": "order",
+      "citation": "Dkt. 112 (MSJ Order)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt140",
+      "type": "order",
+      "citation": "Dkt. 140 (Trial scheduling minute)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt158_verdict",
+      "type": "order",
+      "citation": "Dkt. 158 (Verdict form)",
+      "authenticity": "admitted"
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+const margin = { top: 50, right: 40, bottom: 40, left: 160 };
+const width  = 1240;
+const laneHeight = 110;
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+const innerW = width - margin.left - margin.right;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width).attr("height", height);
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+const [start, end] = DATA.case.date_range;
+const xScale = d3.scaleTime().domain([parseDate(start), parseDate(end)]).range([0, innerW]);
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+g.selectAll(".grid").data(xScale.ticks(d3.timeMonth.every(3)))
+  .join("line").attr("class","grid").attr("x1", d=>xScale(d)).attr("x2", d=>xScale(d))
+  .attr("y1",0).attr("y2", lanes.length*laneHeight).attr("stroke","var(--rule)").attr("stroke-dasharray","1 3").attr("opacity",0.5);
+
+g.append("g").attr("class","axis").call(d3.axisTop(xScale).ticks(d3.timeMonth.every(3))
+  .tickFormat(d => d.getMonth() === 0 ? d3.timeFormat("%Y")(d) : d3.timeFormat("%b")(d)));
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
+  });
+}
+
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  (DATA.disputes || []).forEach(d => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const midY = Math.min(y1, y2) - 22;
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1-12} L${x1},${midY} L${x2},${midY} L${x2},${y2-12}`);
+    disputeG.append("text").attr("class","dispute-label")
+      .attr("x", (x1+x2)/2).attr("y", midY - 4).attr("text-anchor","middle")
+      .text(`◆ disputed: ${d.subject}`);
+  });
+}
+
+const tooltip = d3.select("#tooltip");
+const eventG = g.append("g").attr("class","events");
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  const sel = eventG.selectAll(".event").data(visible, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${laneY(d.lane_id)})`);
+  all.select("circle").attr("r", 6)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+  all.select(".event-label").attr("x",0).attr("y",(d,i)=>i%2===0?22:-14).attr("text-anchor","middle").text(d=>d.label);
+  all.select(".event-date").attr("x",0).attr("y",(d,i)=>i%2===0?34:-26).attr("text-anchor","middle")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? ` (${d.date_certainty})` : ""));
+  all.on("mouseenter", function(event, d) {
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function() { tooltip.style("opacity",0); });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+</script>
+</body>
+</html>

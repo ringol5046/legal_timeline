@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Halverson v. Smith Capital Partners — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 10.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.5px; fill: none; stroke-dasharray: 2 2; }
+  .dispute-label { font-size: 9.5px; fill: var(--dispute); font-style: italic; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Halverson v. Smith Capital Partners <span style="color:var(--muted);font-weight:400">— S.D. Cal. · 24-CV-00891</span></h1>
+  <p class="subtitle">Partnership dispute arising from removal of managing partner Halverson. Deponent Gregory Smith testified the removal-discussion meeting occurred on Friday, May 3, 2024 with no scheduling emails, but contemporaneous emails (Ex. 4 and Ex. 7) show the meeting was scheduled May 7, confirmed May 8, and actually occurred Friday, May 10, 2024. Relevant to a motion in limine.</p>
+</header>
+
+<div class="controls" id="controls"></div>
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "halverson_v_smith_capital_2024",
+    "caption": "Halverson v. Smith Capital Partners",
+    "court": "S.D. Cal.",
+    "docket": "24-CV-00891",
+    "jurisdiction": "federal",
+    "date_range": [
+      "2024-04-01",
+      "2024-12-01"
+    ],
+    "cause_of_action": [
+      "partnership dispute / wrongful removal"
+    ],
+    "status": "pending",
+    "summary": "Partnership dispute arising from removal of managing partner Halverson. Deponent Gregory Smith testified the removal-discussion meeting occurred on Friday, May 3, 2024 with no scheduling emails, but contemporaneous emails (Ex. 4 and Ex. 7) show the meeting was scheduled May 7, confirmed May 8, and actually occurred Friday, May 10, 2024. Relevant to a motion in limine."
+  },
+  "parties": [
+    {
+      "id": "halverson",
+      "name": "J. Halverson",
+      "short_name": "Halverson",
+      "role": [
+        "plaintiff"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "smith_capital_partners",
+      "name": "Smith Capital Partners",
+      "short_name": "Smith Capital",
+      "role": [
+        "defendant"
+      ],
+      "type": "partnership"
+    },
+    {
+      "id": "gregory_smith",
+      "name": "Gregory T. Smith",
+      "short_name": "G. Smith",
+      "role": [
+        "defendant",
+        "witness"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "mark_wilkes",
+      "name": "Mark Wilkes",
+      "short_name": "Wilkes",
+      "role": [
+        "witness",
+        "third_party"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "priya_anand",
+      "name": "Priya Anand",
+      "short_name": "Anand",
+      "role": [
+        "witness",
+        "third_party"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "court_sd_cal",
+      "name": "United States District Court for the Southern District of California",
+      "short_name": "S.D. Cal.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Plaintiff",
+      "sub": "Halverson",
+      "party_id": "halverson",
+      "color": "#2b6cb0",
+      "order": 1
+    },
+    {
+      "id": "deponent_smith",
+      "label": "Deponent (Smith) \u2014 Sworn Testimony",
+      "sub": "Smith Dep. 88-89",
+      "party_id": "gregory_smith",
+      "color": "#b04a2b",
+      "order": 2
+    },
+    {
+      "id": "contemporaneous_emails",
+      "label": "Contemporaneous Record",
+      "sub": "Ex. 4 & Ex. 7 emails",
+      "party_id": "smith_capital_partners",
+      "color": "#2f855a",
+      "order": 3
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "S.D. Cal.",
+      "party_id": "court_sd_cal",
+      "color": "#4a5568",
+      "order": 4
+    }
+  ],
+  "events": [
+    {
+      "id": "e_meeting_smith_version",
+      "label": "Removal-discussion meeting (Smith's version)",
+      "detail": "Smith testified the three managing partners (Smith, Wilkes, Anand) met Friday, May 3, 2024, starting around 10 a.m. and finishing a little after noon (~2 hours). He stated he was 'certain' it was May 3rd because it was 'the day before my daughter's birthday party that weekend.' Halverson was not invited. Smith further testified no notes were taken and the meeting was arranged verbally in person \u2014 'to the best of my recollection' no scheduling emails exist.",
+      "date": "2024-05-03",
+      "date_certainty": "disputed",
+      "lane_id": "deponent_smith",
+      "party_ids": [
+        "gregory_smith",
+        "mark_wilkes",
+        "priya_anand"
+      ],
+      "kind": "fact",
+      "category": "meeting",
+      "jurisdictional_significance": "Central to motion in limine: timing and circumstances of the partner meeting at which Halverson's removal was decided",
+      "source_ids": [
+        "s_smith_dep_88",
+        "s_smith_dep_89"
+      ],
+      "disputed": true,
+      "dispute_id": "d_removal_meeting_date",
+      "asserting_party_id": "gregory_smith",
+      "confidence": "high"
+    },
+    {
+      "id": "e_smith_schedule_email",
+      "label": "Smith email proposing Friday May 10 meeting",
+      "detail": "Gregory Smith emailed Wilkes and Anand on Tuesday, May 7, 2024 at 4:33 PM PT: 'Both \u2014 let's lock in Friday the 10th for the partner discussion re: J.H. 10am? Small conf room. No notes, just talk it through. I'll pull together the framework over the next two days.' Directly contradicts Smith's deposition testimony that scheduling was done verbally and no emails exist.",
+      "date": "2024-05-07",
+      "date_certainty": "exact",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": [
+        "gregory_smith",
+        "mark_wilkes",
+        "priya_anand"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Documentary evidence contradicting Smith's testimony that no scheduling emails existed and that the meeting was on May 3",
+      "source_ids": [
+        "s_ex4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "e_anand_confirmation_email",
+      "label": "Anand confirms Friday May 10 meeting",
+      "detail": "Priya Anand emailed Smith and Wilkes on Wednesday, May 8, 2024 at 9:14 AM PT: 'Confirming for Friday May 10 at 10:00 a.m. in the small conference room. I've blocked the next 2 hours just in case. Per Greg's note yesterday, we are not looping in anyone else \u2014 strictly the three of us. Also confirming we will NOT be issuing the removal notice until after we have all aligned in the room. No drafts circulating until then.'",
+      "date": "2024-05-08",
+      "date_certainty": "exact",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": [
+        "priya_anand",
+        "gregory_smith",
+        "mark_wilkes"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Documentary confirmation of May 10 meeting date and that no removal notice would issue beforehand \u2014 directly contradicts Smith's May 3 testimony",
+      "source_ids": [
+        "s_ex4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "id": "e_meeting_emails_version",
+      "label": "Removal-discussion meeting (contemporaneous-record version)",
+      "detail": "Contemporaneous emails show the meeting actually occurred Friday, May 10, 2024. Smith emailed at 10:02 AM ('Starting now. See you both in the SCR.'); Anand emailed at 12:22 PM ('Wrapped up. Three of us aligned. Greg to draft notice over weekend, send Monday May 13.'); Wilkes emailed at 12:47 PM ('That worked out about how I expected. Two hours, decision unanimous, no one outside the room.'). Duration ~2 hours, three partners present, unanimous decision \u2014 matching Smith's description except for the date.",
+      "date": "2024-05-10",
+      "date_certainty": "disputed",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": [
+        "gregory_smith",
+        "mark_wilkes",
+        "priya_anand"
+      ],
+      "kind": "fact",
+      "category": "meeting",
+      "jurisdictional_significance": "Documentary version of the removal meeting; if credited, Smith's sworn testimony placing the meeting on May 3 is false",
+      "source_ids": [
+        "s_ex7"
+      ],
+      "disputed": true,
+      "dispute_id": "d_removal_meeting_date",
+      "asserting_party_id": "halverson",
+      "confidence": "high"
+    },
+    {
+      "id": "e_notice_sent_smith_version",
+      "label": "Removal notice sent (Smith's version: May 6)",
+      "detail": "Smith testified the removal notice was sent 'The following Monday. May 6th. I drafted it over the weekend and sent it Monday morning.'",
+      "date": "2024-05-06",
+      "date_certainty": "disputed",
+      "lane_id": "deponent_smith",
+      "party_ids": [
+        "gregory_smith",
+        "smith_capital_partners"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "source_ids": [
+        "s_smith_dep_89"
+      ],
+      "disputed": true,
+      "dispute_id": "d_removal_notice_date",
+      "asserting_party_id": "gregory_smith",
+      "confidence": "high"
+    },
+    {
+      "id": "e_notice_planned_emails_version",
+      "label": "Removal notice planned for Monday May 13 (emails)",
+      "detail": "Anand's May 10, 12:22 PM email states: 'Greg to draft notice over weekend, send Monday May 13.' Wilkes's 12:47 PM reply asks Smith to 'have the notice ready for Monday's morning send.' The contemporaneous record places the planned notice send on May 13, 2024 \u2014 one week after the May 6 date Smith gave under oath.",
+      "date": "2024-05-13",
+      "date_certainty": "disputed",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": [
+        "gregory_smith",
+        "priya_anand",
+        "mark_wilkes"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Documentary version of when removal notice was to issue; contradicts Smith's May 6 testimony",
+      "source_ids": [
+        "s_ex7"
+      ],
+      "disputed": true,
+      "dispute_id": "d_removal_notice_date",
+      "asserting_party_id": "halverson",
+      "confidence": "high"
+    },
+    {
+      "id": "e_smith_deposition",
+      "label": "Smith deposition taken",
+      "detail": "Deposition of Gregory T. Smith taken October 22, 2024, reported by Linda Chen, CSR No. 14882. Testimony at pages 88-89 concerns the timing and circumstances of the partner meeting at which Halverson's removal was discussed.",
+      "date": "2024-10-22",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "gregory_smith"
+      ],
+      "kind": "discovery",
+      "category": "deposition",
+      "source_ids": [
+        "s_smith_dep_88",
+        "s_smith_dep_89"
+      ],
+      "confidence": "high"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_schedule_to_confirm",
+      "from_event_id": "e_smith_schedule_email",
+      "to_event_id": "e_anand_confirmation_email",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Anand's May 8 email replies to and confirms Smith's May 7 proposal of Friday May 10"
+    },
+    {
+      "id": "r_confirm_to_meeting",
+      "from_event_id": "e_anand_confirmation_email",
+      "to_event_id": "e_meeting_emails_version",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "The May 8 confirmation set the May 10 meeting that the Ex. 7 thread shows actually occurred"
+    },
+    {
+      "id": "r_meeting_to_notice_plan",
+      "from_event_id": "e_meeting_emails_version",
+      "to_event_id": "e_notice_planned_emails_version",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Per Ex. 7 thread, decision at May 10 meeting was to send removal notice Monday May 13"
+    },
+    {
+      "id": "r_dep_references_meeting",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_smith_deposition",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "Smith's Oct 22, 2024 deposition is the testimonial source for the May 3 version"
+    },
+    {
+      "id": "r_contradicts_meeting_date",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_meeting_emails_version",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 88:5-6 places meeting on May 3, 2024; Ex. 4 + Ex. 7 emails place it on May 10, 2024 \u2014 they cannot both be true"
+    },
+    {
+      "id": "r_contradicts_no_emails",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_smith_schedule_email",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 89:10-17 testified scheduling was verbal and 'no emails' relating to the meeting exist; Ex. 4 is Smith's own May 7 scheduling email \u2014 direct contradiction"
+    },
+    {
+      "id": "r_contradicts_no_emails_2",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_anand_confirmation_email",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 89:14-17 testified 'no emails' relate to the meeting; Anand's May 8 confirmation email (Ex. 4) directly refutes this"
+    },
+    {
+      "id": "r_contradicts_notice_date",
+      "from_event_id": "e_notice_sent_smith_version",
+      "to_event_id": "e_notice_planned_emails_version",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 89:1-2 testified notice was sent Monday May 6; Ex. 7 (Anand 12:22 PM and Wilkes 12:47 PM, May 10) plans the notice send for Monday May 13"
+    }
+  ],
+  "disputes": [
+    {
+      "id": "d_removal_meeting_date",
+      "subject": "Date on which the partner meeting to discuss Halverson's removal occurred",
+      "type": "date",
+      "versions": [
+        {
+          "event_id": "e_meeting_smith_version",
+          "asserting_party_id": "gregory_smith",
+          "basis": "Smith Dep. 88:5-10 \u2014 Smith testified 'Yes. It was the first week of May 2024. Specifically, May 3rd. That was a Friday.' and stated he was 'certain' because it was 'the day before my daughter's birthday party that weekend.'"
+        },
+        {
+          "event_id": "e_meeting_emails_version",
+          "asserting_party_id": "halverson",
+          "basis": "Ex. 4 (May 7 Smith email scheduling 'Friday the 10th'; May 8 Anand email confirming 'Friday May 10 at 10:00 a.m.') and Ex. 7 (May 10 emails at 10:02 AM, 12:22 PM, and 12:47 PM PT bracketing the actual two-hour meeting)"
+        }
+      ],
+      "resolution": "unresolved",
+      "materiality": "Smith's sworn date is one week earlier than the date documented in the contemporaneous email record. The contradiction is the basis for plaintiff's anticipated motion in limine and goes directly to Smith's credibility as a fact witness about the removal decision."
+    },
+    {
+      "id": "d_removal_notice_date",
+      "subject": "Date on which the formal removal notice to Halverson was (or was to be) sent",
+      "type": "date",
+      "versions": [
+        {
+          "event_id": "e_notice_sent_smith_version",
+          "asserting_party_id": "gregory_smith",
+          "basis": "Smith Dep. 89:1-2 \u2014 'The following Monday. May 6th. I drafted it over the weekend and sent it Monday morning.'"
+        },
+        {
+          "event_id": "e_notice_planned_emails_version",
+          "asserting_party_id": "halverson",
+          "basis": "Ex. 7 \u2014 Anand (May 10, 12:22 PM): 'Greg to draft notice over weekend, send Monday May 13.' Wilkes (May 10, 12:47 PM): 'Greg \u2014 can you have the notice ready for Monday's morning send?'"
+        }
+      ],
+      "resolution": "unresolved",
+      "materiality": "Corroborates the meeting-date dispute: if notice was actually sent May 13 (not May 6), the entire timeline shifts by one week and confirms the meeting could not have occurred May 3."
+    }
+  ],
+  "sources": [
+    {
+      "id": "s_smith_dep_88",
+      "type": "deposition",
+      "citation": "Smith Dep. 88:1-24",
+      "line_range": "88:1-24",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_smith_dep_89",
+      "type": "deposition",
+      "citation": "Smith Dep. 89:1-17",
+      "line_range": "89:1-17",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_ex4",
+      "type": "email",
+      "citation": "Ex. 4 (May 7-8, 2024 email thread: Smith to Wilkes/Anand re: scheduling Friday May 10 meeting; Anand May 8 confirmation)",
+      "authenticity": "not_yet_offered"
+    },
+    {
+      "id": "s_ex7",
+      "type": "email",
+      "citation": "Ex. 7 (May 10, 2024 email thread: Smith 10:02 AM; Anand 12:22 PM; Wilkes 12:47 PM PT)",
+      "authenticity": "not_yet_offered"
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+const margin = { top: 50, right: 40, bottom: 40, left: 160 };
+const width  = 1240;
+const laneHeight = 110;
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+const innerW = width - margin.left - margin.right;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width).attr("height", height);
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+const [start, end] = DATA.case.date_range;
+const xScale = d3.scaleTime().domain([parseDate(start), parseDate(end)]).range([0, innerW]);
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+g.selectAll(".grid").data(xScale.ticks(d3.timeMonth.every(3)))
+  .join("line").attr("class","grid").attr("x1", d=>xScale(d)).attr("x2", d=>xScale(d))
+  .attr("y1",0).attr("y2", lanes.length*laneHeight).attr("stroke","var(--rule)").attr("stroke-dasharray","1 3").attr("opacity",0.5);
+
+g.append("g").attr("class","axis").call(d3.axisTop(xScale).ticks(d3.timeMonth.every(3))
+  .tickFormat(d => d.getMonth() === 0 ? d3.timeFormat("%Y")(d) : d3.timeFormat("%b")(d)));
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
+  });
+}
+
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  (DATA.disputes || []).forEach(d => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const midY = Math.min(y1, y2) - 22;
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1-12} L${x1},${midY} L${x2},${midY} L${x2},${y2-12}`);
+    disputeG.append("text").attr("class","dispute-label")
+      .attr("x", (x1+x2)/2).attr("y", midY - 4).attr("text-anchor","middle")
+      .text(`◆ disputed: ${d.subject}`);
+  });
+}
+
+const tooltip = d3.select("#tooltip");
+const eventG = g.append("g").attr("class","events");
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  const sel = eventG.selectAll(".event").data(visible, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${laneY(d.lane_id)})`);
+  all.select("circle").attr("r", 6)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+  all.select(".event-label").attr("x",0).attr("y",(d,i)=>i%2===0?22:-14).attr("text-anchor","middle").text(d=>d.label);
+  all.select(".event-date").attr("x",0).attr("y",(d,i)=>i%2===0?34:-26).attr("text-anchor","middle")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? ` (${d.date_certainty})` : ""));
+  all.on("mouseenter", function(event, d) {
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function() { tooltip.style("opacity",0); });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+</script>
+</body>
+</html>

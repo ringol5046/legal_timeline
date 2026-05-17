@@ -1,0 +1,69 @@
+{
+  "eval_id": 3,
+  "condition": "without_skill",
+  "passed": 5,
+  "total": 9,
+  "pass_rate": 0.5555555555555556,
+  "expectations": [
+    {
+      "id": "valid-json",
+      "text": "Output is valid JSON parseable by json.loads",
+      "passed": false,
+      "evidence": "json.loads failed"
+    },
+    {
+      "id": "has-six-arrays",
+      "text": "Top-level JSON contains case, parties, events, relationships, disputes, sources, lanes",
+      "passed": false,
+      "evidence": "not JSON"
+    },
+    {
+      "id": "two-meeting-versions",
+      "text": "Captures BOTH meeting dates",
+      "passed": true,
+      "evidence": "found both dates in raw text"
+    },
+    {
+      "id": "dispute-or-contradicts",
+      "text": "Encodes the conflict",
+      "passed": true,
+      "evidence": "found conflict language in raw text"
+    },
+    {
+      "id": "smith-no-emails-flagged",
+      "text": "Captures Smith's 'no emails' testimony",
+      "passed": true,
+      "evidence": "found no-emails testimony reference"
+    },
+    {
+      "id": "citation-format-deposition",
+      "text": "Source citations preserve deposition line-range format",
+      "passed": false,
+      "evidence": "missing"
+    },
+    {
+      "id": "citation-format-exhibits",
+      "text": "Source citations preserve 'Ex. 4' / 'Ex. 7' format verbatim",
+      "passed": true,
+      "evidence": "found Ex. 4 or Ex. 7"
+    },
+    {
+      "id": "removal-notice-event",
+      "text": "Captures the removal notice date conflict (May 6 vs May 13)",
+      "passed": true,
+      "evidence": "found both notice dates"
+    },
+    {
+      "id": "render-succeeds",
+      "text": "diagram.html exists and is non-empty",
+      "passed": false,
+      "evidence": "missing"
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.5555555555555556,
+    "passed": 5,
+    "failed": 4,
+    "total": 9
+  }
+}

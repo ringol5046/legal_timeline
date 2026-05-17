@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Legal Case Timeline — Swimlane + Disputed Fact</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #d8d4cc;
+    --plaintiff: #2b6cb0;
+    --defendant: #b04a2b;
+    --court: #4a5568;
+    --thirdparty: #6b46c1;
+    --dispute: #c53030;
+    --highlight: #f6e05e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 24px 32px;
+  }
+  header {
+    max-width: 1280px;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 16px 0;
+  }
+  .controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .controls label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .controls .divider {
+    width: 1px;
+    height: 18px;
+    background: var(--rule);
+  }
+  .controls .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  #chart-wrap {
+    max-width: 1280px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: auto;
+    margin-top: 12px;
+  }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label {
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .lane-sub {
+    font-size: 10px;
+    fill: var(--muted);
+  }
+  .event circle {
+    stroke-width: 2px;
+    transition: r 120ms ease, stroke-width 120ms ease;
+    cursor: pointer;
+  }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label {
+    font-size: 10.5px;
+    fill: var(--ink);
+    pointer-events: none;
+  }
+  .event-date {
+    font-size: 9px;
+    fill: var(--muted);
+    pointer-events: none;
+  }
+  .connector {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.2px;
+    stroke-dasharray: 3 3;
+    opacity: 0.55;
+  }
+  .connector.causal {
+    stroke-dasharray: none;
+    opacity: 0.75;
+  }
+  .dispute-bracket {
+    stroke: var(--dispute);
+    stroke-width: 1.5px;
+    fill: none;
+    stroke-dasharray: 2 2;
+  }
+  .dispute-label {
+    font-size: 9.5px;
+    fill: var(--dispute);
+    font-style: italic;
+  }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #1a1a1a;
+    color: white;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    line-height: 1.4;
+    max-width: 280px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 10;
+  }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  footer {
+    max-width: 1280px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Acme Corp. v. Beta LLC <span style="color:var(--muted);font-weight:400">— Software licensing dispute</span></h1>
+  <p class="subtitle">Swimlane timeline with disputed-fact branching. Hover an event for details; toggle filters to isolate.</p>
+</header>
+
+<div class="controls">
+  <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+  <label><input type="checkbox" id="show-connectors" checked /> Show response arrows</label>
+  <label><input type="checkbox" id="show-causal" checked /> Show causal links</label>
+  <div class="divider"></div>
+  <span><span class="legend-swatch" style="background:var(--plaintiff)"></span> Plaintiff (Acme)</span>
+  <span><span class="legend-swatch" style="background:var(--defendant)"></span> Defendant (Beta)</span>
+  <span><span class="legend-swatch" style="background:var(--court)"></span> Court</span>
+  <div class="divider"></div>
+  <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed event (hollow)</span>
+</div>
+
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>
+  Solid = undisputed. Hollow with red dashed bracket = parties dispute date or occurrence. Dashed gray arrow = response/filing. Solid gray arrow = causal link.
+</footer>
+
+<script>
+// ---------- Data ----------
+const lanes = [
+  { id: "plaintiff", label: "Plaintiff", sub: "Acme Corp.", color: "var(--plaintiff)" },
+  { id: "defendant", label: "Defendant", sub: "Beta LLC", color: "var(--defendant)" },
+  { id: "court",     label: "Court",     sub: "S.D.N.Y.", color: "var(--court)" }
+];
+
+// disputed pairs share `disputeId` — render hollow + red bracket linking the two versions
+const events = [
+  { id: "e1",  lane: "plaintiff", date: "2022-03-15", label: "License agreement signed",  kind: "fact",    detail: "5-year enterprise license; Acme grants Beta access to platform." },
+  { id: "e1b", lane: "defendant", date: "2022-03-15", label: "Signs agreement",            kind: "fact",    detail: "Counter-signed by Beta CEO; payment terms net-30 monthly." },
+  { id: "e2",  lane: "plaintiff", date: "2022-09-01", label: "v2.0 delivered",             kind: "fact",    detail: "Major release deployed to Beta production environment." },
+
+  // disputed event: when defects were first claimed
+  { id: "e3a", lane: "defendant", date: "2023-01-10", label: "Defect claim (Beta says)",   kind: "fact",    disputed: true, disputeId: "d1", detail: "Beta asserts it sent written notice of defects on Jan 10, 2023 via email." },
+  { id: "e3b", lane: "plaintiff", date: "2023-02-15", label: "Defect claim (Acme says)",   kind: "fact",    disputed: true, disputeId: "d1", detail: "Acme says no formal notice received until Feb 15, 2023 — material for cure period." },
+
+  { id: "e4",  lane: "defendant", date: "2023-04-20", label: "Payments stopped",            kind: "fact",    detail: "Beta withholds April invoice citing unresolved defects." },
+  { id: "e5",  lane: "plaintiff", date: "2023-05-01", label: "Demand letter",               kind: "fact",    detail: "Acme demands cure of nonpayment within 14 days." },
+  { id: "e6",  lane: "defendant", date: "2023-06-15", label: "Counter-demand",              kind: "fact",    detail: "Beta demands credit for service-level breaches." },
+
+  { id: "e7",  lane: "court",     date: "2023-08-01", label: "Complaint filed",             kind: "proc",    detail: "Acme files breach of contract; seeks $4.2M." },
+  { id: "e8",  lane: "court",     date: "2023-09-15", label: "Motion to dismiss",           kind: "proc",    detail: "Beta moves to dismiss for failure to state a claim." },
+  { id: "e9",  lane: "court",     date: "2023-11-20", label: "MTD denied",                  kind: "proc",    detail: "Court denies MTD; complaint stands." },
+  { id: "e10", lane: "court",     date: "2024-02-10", label: "Counterclaim filed",          kind: "proc",    detail: "Beta files counterclaim for breach of warranty." },
+  { id: "e11", lane: "court",     date: "2024-06-01", label: "Discovery closes",            kind: "proc",    detail: "Fact discovery cutoff per scheduling order." },
+  { id: "e12", lane: "court",     date: "2024-09-15", label: "Acme MSJ",                    kind: "proc",    detail: "Acme moves for summary judgment on liability." },
+  { id: "e13", lane: "court",     date: "2024-12-01", label: "MSJ ruling (partial)",        kind: "proc",    detail: "Court grants in part: liability for nonpayment; denies as to damages." },
+  { id: "e14", lane: "court",     date: "2025-03-10", label: "Trial begins",                kind: "proc",    detail: "Damages-only jury trial." },
+  { id: "e15", lane: "court",     date: "2025-04-20", label: "Verdict",                     kind: "proc",    detail: "Jury awards $3.1M; appeal pending." },
+];
+
+// Response arrows (dashed) and causal links (solid)
+const connectors = [
+  { from: "e4", to: "e5",  type: "response" },
+  { from: "e5", to: "e6",  type: "response" },
+  { from: "e6", to: "e7",  type: "causal"   },
+  { from: "e7", to: "e8",  type: "response" },
+  { from: "e8", to: "e9",  type: "response" },
+  { from: "e9", to: "e10", type: "response" },
+  { from: "e12", to: "e13", type: "response" },
+  { from: "e13", to: "e14", type: "causal"   },
+  { from: "e3a", to: "e4",  type: "causal"   },
+];
+
+// ---------- Chart setup ----------
+const margin = { top: 50, right: 40, bottom: 40, left: 150 };
+const width  = 1240;
+const laneHeight = 110;
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+const innerW = width - margin.left - margin.right;
+
+const svg = d3.select("#chart-wrap")
+  .append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width)
+  .attr("height", height);
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+events.forEach(e => e._d = parseDate(e.date));
+
+const xScale = d3.scaleTime()
+  .domain([parseDate("2022-01-01"), parseDate("2025-07-01")])
+  .range([0, innerW]);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Lane backgrounds + labels
+const laneG = g.selectAll(".lane")
+  .data(lanes)
+  .join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+
+laneG.append("rect")
+  .attr("class", (d, i) => "lane-bg" + (i % 2 === 1 ? " alt" : ""))
+  .attr("x", -margin.left + 10)
+  .attr("width", innerW + margin.left + margin.right - 20)
+  .attr("height", laneHeight - 4);
+
+laneG.append("text")
+  .attr("class", "lane-label")
+  .attr("x", -margin.left + 22)
+  .attr("y", laneHeight / 2 - 4)
+  .text(d => d.label);
+
+laneG.append("text")
+  .attr("class", "lane-sub")
+  .attr("x", -margin.left + 22)
+  .attr("y", laneHeight / 2 + 12)
+  .text(d => d.sub);
+
+// Colored lane stripe
+laneG.append("rect")
+  .attr("x", -margin.left + 14)
+  .attr("y", laneHeight / 2 - 14)
+  .attr("width", 3)
+  .attr("height", 28)
+  .attr("fill", d => d.color);
+
+// Vertical year grid
+const years = xScale.ticks(d3.timeMonth.every(3));
+g.selectAll(".grid")
+  .data(years)
+  .join("line")
+  .attr("class", "grid")
+  .attr("x1", d => xScale(d))
+  .attr("x2", d => xScale(d))
+  .attr("y1", 0)
+  .attr("y2", lanes.length * laneHeight)
+  .attr("stroke", "var(--rule)")
+  .attr("stroke-dasharray", "1 3")
+  .attr("opacity", 0.5);
+
+// X axis at top
+const xAxis = d3.axisTop(xScale)
+  .ticks(d3.timeMonth.every(3))
+  .tickFormat(d => {
+    const m = d.getMonth();
+    return m === 0 ? d3.timeFormat("%Y")(d) : d3.timeFormat("%b")(d);
+  });
+g.append("g")
+  .attr("class", "axis")
+  .call(xAxis);
+
+// ---------- Arrow marker ----------
+svg.append("defs").selectAll("marker")
+  .data(["response", "causal"])
+  .join("marker")
+  .attr("id", d => `arrow-${d}`)
+  .attr("viewBox", "0 -5 10 10")
+  .attr("refX", 8)
+  .attr("refY", 0)
+  .attr("markerWidth", 6)
+  .attr("markerHeight", 6)
+  .attr("orient", "auto")
+  .append("path")
+  .attr("d", "M0,-4L8,0L0,4")
+  .attr("fill", d => d === "causal" ? "#6b6b6b" : "#888");
+
+// ---------- Helpers ----------
+function laneY(laneId) {
+  const idx = lanes.findIndex(l => l.id === laneId);
+  return idx * laneHeight + laneHeight / 2;
+}
+function eventById(id) { return events.find(e => e.id === id); }
+function colorForLane(laneId) {
+  const l = lanes.find(l => l.id === laneId);
+  return getComputedStyle(document.documentElement).getPropertyValue(l.color.replace("var(", "").replace(")", "")).trim();
+}
+
+// ---------- Connectors (drawn first, below events) ----------
+const connectorG = g.append("g").attr("class", "connectors");
+
+function renderConnectors() {
+  const showR = document.getElementById("show-connectors").checked;
+  const showC = document.getElementById("show-causal").checked;
+
+  connectorG.selectAll("*").remove();
+  connectors.forEach(c => {
+    if (c.type === "response" && !showR) return;
+    if (c.type === "causal" && !showC) return;
+    const a = eventById(c.from);
+    const b = eventById(c.to);
+    if (!a || !b) return;
+    const x1 = xScale(a._d), y1 = laneY(a.lane);
+    const x2 = xScale(b._d), y2 = laneY(b.lane);
+    const mx = (x1 + x2) / 2;
+    const dy = Math.abs(y2 - y1);
+    const path = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+    connectorG.append("path")
+      .attr("d", path)
+      .attr("class", `connector ${c.type}`)
+      .attr("marker-end", `url(#arrow-${c.type})`);
+  });
+}
+
+// ---------- Dispute brackets (link disputed pairs) ----------
+const disputeG = g.append("g").attr("class", "disputes");
+
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+
+  const byDispute = d3.group(events.filter(e => e.disputed), d => d.disputeId);
+  byDispute.forEach((evs, did) => {
+    if (evs.length < 2) return;
+    evs.sort((a, b) => a._d - b._d);
+    const a = evs[0], b = evs[1];
+    const x1 = xScale(a._d), y1 = laneY(a.lane);
+    const x2 = xScale(b._d), y2 = laneY(b.lane);
+    const midX = (x1 + x2) / 2;
+    const midY = Math.min(y1, y2) - 22;
+    // bracket connecting the two disputed events
+    disputeG.append("path")
+      .attr("class", "dispute-bracket")
+      .attr("d", `M${x1},${y1 - 12} L${x1},${midY} L${x2},${midY} L${x2},${y2 - 12}`);
+    disputeG.append("text")
+      .attr("class", "dispute-label")
+      .attr("x", midX)
+      .attr("y", midY - 4)
+      .attr("text-anchor", "middle")
+      .text("◆ disputed: when defect notice given");
+  });
+}
+
+// ---------- Events ----------
+const tooltip = d3.select("#tooltip");
+const eventG = g.append("g").attr("class", "events");
+
+function renderEvents() {
+  const showDisputed = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showDisputed || !e.disputed);
+
+  const sel = eventG.selectAll(".event").data(visible, d => d.id);
+  sel.exit().remove();
+
+  const enter = sel.enter().append("g").attr("class", "event");
+
+  enter.append("circle");
+  enter.append("text").attr("class", "event-label");
+  enter.append("text").attr("class", "event-date");
+
+  const all = enter.merge(sel);
+
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${laneY(d.lane)})`);
+
+  all.select("circle")
+    .attr("r", 6)
+    .attr("fill", d => d.disputed ? "white" : colorForLane(d.lane))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : colorForLane(d.lane))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+
+  // alternate label above/below to avoid overlap with neighbors
+  all.select(".event-label")
+    .attr("x", 0)
+    .attr("y", (d, i) => (i % 2 === 0 ? 22 : -14))
+    .attr("text-anchor", "middle")
+    .text(d => d.label);
+
+  all.select(".event-date")
+    .attr("x", 0)
+    .attr("y", (d, i) => (i % 2 === 0 ? 34 : -26))
+    .attr("text-anchor", "middle")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d));
+
+  all.on("mouseenter", function (event, d) {
+      const lane = lanes.find(l => l.id === d.lane);
+      tooltip
+        .style("opacity", 1)
+        .html(`<strong>${d.label}</strong>
+               <div>${d.detail}</div>
+               <div class="meta">${lane.label} · ${lane.sub} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>`);
+    })
+    .on("mousemove", function (event) {
+      tooltip
+        .style("left", (event.pageX + 14) + "px")
+        .style("top",  (event.pageY + 14) + "px");
+    })
+    .on("mouseleave", function () {
+      tooltip.style("opacity", 0);
+    });
+}
+
+// ---------- Bind controls ----------
+["show-disputed", "show-connectors", "show-causal"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => {
+    renderEvents();
+    renderDisputes();
+    renderConnectors();
+  });
+});
+
+// Initial render
+renderEvents();
+renderDisputes();
+renderConnectors();
+</script>
+
+</body>
+</html>

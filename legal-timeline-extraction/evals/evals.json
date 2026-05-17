@@ -1,0 +1,22 @@
+{
+  "skill_name": "legal-timeline-extraction",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm prepping for an appeal and need to build a timeline of this case. Here's the slip opinion — can you map out the full procedural history plus the underlying facts the court relied on? I especially want to see where the parties disputed dates, because the cure-period question is going to be a big issue on appeal. Output should be ready to drop into a timeline visualizer.",
+      "expected_output": "Full JSON output covering case, parties, events (procedural + factual), at least one Dispute with two version Events, typed Relationships, and Sources citing the opinion. Schema fields populated correctly per references/schema.md.",
+      "files": ["sample-opinion.pdf"]
+    },
+    {
+      "id": 2,
+      "prompt": "Here's the complaint and the answer in our case. The defendant filed a counterclaim and we want to chart how all the claims and counter-claims interact over time. Build me a swimlane with separate tracks for plaintiff filings, defendant filings, and the court's rulings.",
+      "expected_output": "JSON with three lanes (plaintiff, defendant, court), events placed correctly on lanes, response relationships connecting filings to their answers, and the counterclaim properly modeled (defendant as both Party with multiple roles).",
+      "files": ["complaint.pdf", "answer-with-counterclaim.pdf"]
+    },
+    {
+      "id": 3,
+      "prompt": "I have a deposition transcript where the witness gives one version of when the meeting happened, but the contemporaneous emails (Ex. 4 and Ex. 7) tell a different story. Can you extract a timeline that captures both versions and flags the contradiction? I need to use this in a motion in limine.",
+      "expected_output": "JSON with two version Events linked by a Dispute (type 'occurrence' or 'date'), a 'contradicts' Relationship between the deposition citation and the exhibit, and Sources preserving the Ex. 4 / Ex. 7 / Dep. line citations verbatim."
+    }
+  ]
+}

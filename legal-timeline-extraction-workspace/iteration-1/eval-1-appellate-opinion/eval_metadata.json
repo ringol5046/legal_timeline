@@ -1,0 +1,19 @@
+{
+  "eval_id": 1,
+  "eval_name": "appellate-opinion",
+  "prompt": "I'm prepping for an appeal and need to build a timeline of this case. Here's the slip opinion — can you map out the full procedural history plus the underlying facts the court relied on? I especially want to see where the parties disputed dates, because the cure-period question is going to be a big issue on appeal. Output should be ready to drop into a timeline visualizer.",
+  "input_files": ["inputs/sample-opinion.md"],
+  "assertions": [
+    { "id": "valid-json",            "text": "Output is valid JSON parseable by json.loads" },
+    { "id": "has-six-arrays",        "text": "Top-level JSON contains case, parties, events, relationships, disputes, sources, lanes" },
+    { "id": "captures-disputed-date","text": "Captures the Sept 8 / Oct 3, 2022 disputed date as a Dispute with two version Events" },
+    { "id": "disputed-events-count", "text": "Has at least 2 Events with date_certainty='disputed' linked by the same dispute_id" },
+    { "id": "dispute-materiality",   "text": "Dispute record's materiality field mentions temporal proximity, cure period, or causation" },
+    { "id": "events-min-count",      "text": "Has at least 10 Events total covering factual + procedural" },
+    { "id": "procedural-events",     "text": "Includes Complaint (Apr 11, 2023), Answer (May 22, 2023), MSJ (Aug 8, 2024), and oral argument (Nov 14, 2024)" },
+    { "id": "factual-events",        "text": "Includes hire date (Mar 4, 2019), Sept 8, 2022 email, Oct 14, 2022 PIP, and Dec 19, 2022 termination" },
+    { "id": "sources-verbatim",      "text": "Sources preserve citation format verbatim (e.g., 'Wells Dep. 42:18-43:7', 'Ex. P-4', 'Dkt. 1', not normalized)" },
+    { "id": "every-event-has-source","text": "At least 80% of Events have non-empty source_ids" },
+    { "id": "render-succeeds",       "text": "diagram.html exists and is non-empty (render script ran successfully)" }
+  ]
+}

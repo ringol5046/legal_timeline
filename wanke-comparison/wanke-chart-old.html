@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wanke v. AV Builder — v1 vs v2 Timeline</title>
+<style>
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #fafaf7;
+    color: #1a1a1a;
+    line-height: 1.5;
+  }
+  .page { max-width: 1400px; margin: 0 auto; padding: 24px 20px 64px; }
+  header.case { border-bottom: 1px solid #e3e0d6; padding-bottom: 14px; margin-bottom: 22px; }
+  header.case h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+  header.case .sub { color: #6b6b6b; font-size: 12.5px; }
+  header.case .meta {
+    margin-top: 8px; font-size: 11.5px; color: #6b6b6b;
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  header.case .meta b { color: #1a1a1a; font-weight: 600; }
+
+  h2.section-title {
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #6b6b6b; margin: 24px 0 10px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .col h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .col h3 .tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #ece8de;
+    color: #6b6b6b;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+  .col.v1 h3 .tag { background: #f2dede; color: #8b3a3a; }
+  .col.v2 h3 .tag { background: #dde9dd; color: #2f6a3a; }
+  .col h3 .count {
+    font-size: 11px;
+    color: #6b6b6b;
+    font-weight: 400;
+  }
+  .mermaid {
+    background: #fff;
+    border: 1px solid #e3e0d6;
+    border-radius: 6px;
+    padding: 12px;
+    min-height: 480px;
+    overflow-x: auto;
+  }
+
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 12.5px;
+    background: #fff;
+    border: 1px solid #e3e0d6;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  table.compare th, table.compare td {
+    text-align: left;
+    padding: 8px 10px;
+    vertical-align: top;
+    border-bottom: 1px solid #efece2;
+  }
+  table.compare thead th {
+    background: #f5f3eb;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b6b6b;
+    font-weight: 600;
+  }
+  table.compare .date {
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    color: #4a4a4a;
+    width: 14%;
+  }
+  table.compare .col-v1, table.compare .col-v2 {
+    width: 36%;
+  }
+  table.compare .col-note {
+    width: 14%;
+    color: #6b6b6b;
+    font-size: 11.5px;
+  }
+  table.compare td .id {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 10.5px;
+    background: #ece8de;
+    color: #5a4a2a;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 6px;
+  }
+  table.compare td.empty {
+    color: #c0c0c0;
+    text-align: center;
+    font-style: italic;
+  }
+  table.compare tr.added .col-v2 { background: #f0f7f0; }
+  table.compare tr.removed .col-v1 { background: #faf0f0; }
+  table.compare tr.changed .col-v1, table.compare tr.changed .col-v2 { background: #fdfaef; }
+  table.compare tr.same td { }
+  .legend {
+    display: flex;
+    gap: 14px;
+    margin: 6px 0 0;
+    font-size: 11px;
+    color: #6b6b6b;
+  }
+  .legend .swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .sw-add { background: #d6e9d6; }
+  .sw-rem { background: #f0d6d6; }
+  .sw-chg { background: #f5ecc5; }
+  .sw-same { background: #ffffff; border: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="case">
+    <h1>Wanke v. AV Builder — Timeline (v1 vs v2)</h1>
+    <div class="sub">Side-by-side render of the existing P12 v1 output and the proposed P12 v2 output, with a per-event difference table below.</div>
+    <div class="meta">
+      <span><b>Decided</b> 2020-02-19 (Filed 2/19/20)</span>
+      <span><b>Posture</b> ordinary_appeal</span>
+      <span><b>v1 events</b> 7</span>
+      <span><b>v2 events</b> 13</span>
+    </div>
+  </header>
+
+  <h2 class="section-title">Timelines</h2>
+  <div class="grid">
+    <div class="col v1">
+      <h3>v1 in PR <span class="tag">current</span> <span class="count">7 events, 3 phases</span></h3>
+      <pre class="mermaid">
+timeline
+    title v1 timeline
+    section Underlying judgment and debt
+        2013 : T1. Original judgment entered. 1,190,929 dollars against Keck and WP Solutions
+        Mid 2014 : T2. Subcontract debt arose. AVB owed WP Solutions 109,327 dollars
+    section Enforcement and trial proceedings
+        June 2014 : T3. Levy served on AVB. Receivable identified via examination
+        July 2016 : T4. Creditor's suit filed. Wanke sues AVB
+        June 2018 : T5. Bench trial held. Setoff and collection issues
+        Date not stated : T6. Trial judgment entered. 83,418 dollars for Wanke
+    section Appellate resolution
+        Feb 19 2020 : T7. Judgment affirmed. Standing, timeliness, and warranty challenges rejected
+      </pre>
+    </div>
+    <div class="col v2">
+      <h3>v2 proposed <span class="tag">proposed</span> <span class="count">13 events, 5 phases</span></h3>
+      <pre class="mermaid">
+timeline
+    title v2 timeline
+    section Underlying contracts and judgment
+        2009 to 2013 : T8. Subcontracts executed. Five waterproofing subcontracts between AVB and WP Solutions
+        2013 : T1. Original judgment entered. 1,190,929 dollars against Keck and WP Solutions
+    section Status changes and enforcement
+        2014 : T10. WP corporate suspension. Capacity to sue extinguished under 23301
+        June 2014 : T3. Levy served on AVB. Two-year levy lien arose under 697.710
+        Around June 2014 : T2. Work completed and Keck bankruptcy. WP Solutions dissolved
+        July 2014 : T11. Contractor's license suspended. AVB anchors limitations theory to this date
+        After June 2014 : T9. Examination proceeding identified 109,327 dollars debt. One-year lien under 708.120
+    section Lien expirations
+        Around mid 2015 : T12. Examination lien expired. Eliminated 708.230 path
+        Around June 2016 : T13. Levy lien expired. Limitations turns on 708.230 contract accrual window
+    section Trial proceedings
+        July 2016 : T4. Creditor's suit filed. Wanke seeks 109,327 dollars
+        June 2018 : T5. Bench trial held. Setoff and capacity issues
+        Date not stated : T6. Trial judgment entered. 83,418 dollars for Wanke
+    section Appellate resolution
+        Feb 19 2020 : T7. Judgment affirmed. All three challenges rejected
+      </pre>
+    </div>
+  </div>
+
+  <h2 class="section-title">Per-event comparison</h2>
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>v1 (current PR)</th>
+        <th>v2 (proposed)</th>
+        <th>Δ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="added">
+        <td class="date">2009 – 2013</td>
+        <td class="col-v1 empty">—</td>
+        <td class="col-v2"><span class="id">T8</span>Subcontract agreements executed</td>
+        <td class="col-note">added (anchors SoL)</td>
+      </tr>
+      <tr class="same">
+        <td class="date">2013</td>
+        <td class="col-v1"><span class="id">T1</span>Original judgment entered ($1,190,929)</td>
+        <td class="col-v2"><span class="id">T1</span>Original judgment entered ($1,190,929)</td>
+        <td class="col-note">unchanged</td>
+      </tr>
+      <tr class="added">
+        <td class="date">2014</td>
+        <td class="col-v1 empty">—</td>
+        <td class="col-v2"><span class="id">T10</span>WP Solutions corporate suspension</td>
+        <td class="col-note">added (capacity issue)</td>
+      </tr>
+      <tr class="changed">
+        <td class="date">June 2014</td>
+        <td class="col-v1"><span class="id">T3</span>Levy served on AVB <i style="color:#a86b6b">(silently merges examination)</i></td>
+        <td class="col-v2"><span class="id">T3</span>Levy served on AVB <i style="color:#5a8a5a">(levy-only)</i></td>
+        <td class="col-note">de-conflated</td>
+      </tr>
+      <tr class="changed">
+        <td class="date">~ June 2014</td>
+        <td class="col-v1"><span class="id">T2</span>Subcontract debt arose ($109,327) <i style="color:#a86b6b">(mislabeled — debt accrued earlier)</i></td>
+        <td class="col-v2"><span class="id">T2</span>Work completed; Keck bankruptcy; WP Solutions dissolved</td>
+        <td class="col-note">reframed</td>
+      </tr>
+      <tr class="added">
+        <td class="date">July 2014</td>
+        <td class="col-v1 empty">—</td>
+        <td class="col-v2"><span class="id">T11</span>Contractor's license suspended</td>
+        <td class="col-note">added (SoL theory)</td>
+      </tr>
+      <tr class="added">
+        <td class="date">after June 2014</td>
+        <td class="col-v1 empty">— <i style="color:#a86b6b">(was merged into T3)</i></td>
+        <td class="col-v2"><span class="id">T9</span>Examination proceeding identified debt ($109,327)</td>
+        <td class="col-note">split from T3</td>
+      </tr>
+      <tr class="added">
+        <td class="date">~ mid 2015</td>
+        <td class="col-v1 empty">—</td>
+        <td class="col-v2"><span class="id">T12</span>Examination lien expired</td>
+        <td class="col-note">added (clock event)</td>
+      </tr>
+      <tr class="added">
+        <td class="date">~ June 2016</td>
+        <td class="col-v1 empty">—</td>
+        <td class="col-v2"><span class="id">T13</span>Levy lien expired</td>
+        <td class="col-note">added (clock event)</td>
+      </tr>
+      <tr class="same">
+        <td class="date">July 2016</td>
+        <td class="col-v1"><span class="id">T4</span>Creditor's suit filed ($109,327)</td>
+        <td class="col-v2"><span class="id">T4</span>Creditor's suit filed ($109,327)</td>
+        <td class="col-note">unchanged</td>
+      </tr>
+      <tr class="changed">
+        <td class="date">June 2018</td>
+        <td class="col-v1"><span class="id">T5</span>Bench trial held <i style="color:#a86b6b">(amount $179,230 attached)</i></td>
+        <td class="col-v2"><span class="id">T5</span>Bench trial held <i style="color:#5a8a5a">(no amount — not an event amount)</i></td>
+        <td class="col-note">amount removed</td>
+      </tr>
+      <tr class="same">
+        <td class="date">date not stated</td>
+        <td class="col-v1"><span class="id">T6</span>Trial judgment entered ($83,418.94)</td>
+        <td class="col-v2"><span class="id">T6</span>Trial judgment entered ($83,418.94)</td>
+        <td class="col-note">unchanged</td>
+      </tr>
+      <tr class="changed">
+        <td class="date">Feb 19, 2020</td>
+        <td class="col-v1"><span class="id">T7</span>Judgment affirmed <i style="color:#a86b6b">(amount $179,230 attached)</i></td>
+        <td class="col-v2"><span class="id">T7</span>Judgment affirmed <i style="color:#5a8a5a">(no amount — affirmance has none)</i></td>
+        <td class="col-note">amount removed</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="legend">
+    <span><span class="swatch sw-add"></span>added in v2</span>
+    <span><span class="swatch sw-rem"></span>only in v1</span>
+    <span><span class="swatch sw-chg"></span>changed</span>
+    <span><span class="swatch sw-same"></span>unchanged</span>
+  </div>
+</div>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "base",
+    themeVariables: {
+      primaryColor: "#fafaf7",
+      primaryTextColor: "#1a1a1a",
+      primaryBorderColor: "#4b6cb7",
+      lineColor: "#8b8b8b",
+      fontFamily: "-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif"
+    }
+  });
+</script>
+</body>
+</html>

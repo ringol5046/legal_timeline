@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Northstar Construction, Inc. v. Pelham Properties, LLC — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 10.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.5px; fill: none; stroke-dasharray: 2 2; }
+  .dispute-label { font-size: 9.5px; fill: var(--dispute); font-style: italic; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+  .style-pill { display: inline-block; padding: 2px 8px; font-size: 10.5px; font-weight: 500; background: #edf2f7; color: #2d3748; border-radius: 10px; vertical-align: middle; margin-left: 8px; letter-spacing: 0.02em; }
+  .warnings { max-width: 1280px; margin-top: 12px; padding: 10px 14px; background: #fffaf0; border: 1px solid #f6e05e; border-left: 3px solid #d69e2e; border-radius: 4px; font-size: 12px; color: #744210; }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Northstar Construction, Inc. v. Pelham Properties, LLC<span class="style-pill">Swimlane</span> <span style="color:var(--muted);font-weight:400">— Cal. Super. Ct., S.F. County · CGC-24-617205</span></h1>
+  <p class="subtitle">Northstar, the general contractor on a $4.25M renovation/seismic retrofit at 1488 Folsom St., sues Pelham for unpaid Draws #15 and #16 ($954,800), foreclosure of mechanic's lien, and account stated. Pelham answers and counterclaims for breach of contract, negligent construction, and breach of warranty, alleging deficient seismic anchoring and rooftop-deck waterproofing defects with $1.42M in remediation costs. Parties dispute the date of substantial completion (Oct 22, 2023 vs. Jan 30, 2024) and whether the work conformed to spec.</p>
+</header>
+
+
+
+<div class="controls" id="controls"></div>
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "northstar_v_pelham_2024",
+    "caption": "Northstar Construction, Inc. v. Pelham Properties, LLC",
+    "court": "Cal. Super. Ct., S.F. County",
+    "docket": "CGC-24-617205",
+    "jurisdiction": "California state",
+    "date_range": [
+      "2022-03-01",
+      "2024-06-30"
+    ],
+    "cause_of_action": [
+      "breach of contract",
+      "foreclosure of mechanic's lien",
+      "account stated",
+      "breach of contract (counterclaim)",
+      "negligent construction (counterclaim)",
+      "breach of warranty (counterclaim)"
+    ],
+    "status": "pending",
+    "summary": "Northstar, the general contractor on a $4.25M renovation/seismic retrofit at 1488 Folsom St., sues Pelham for unpaid Draws #15 and #16 ($954,800), foreclosure of mechanic's lien, and account stated. Pelham answers and counterclaims for breach of contract, negligent construction, and breach of warranty, alleging deficient seismic anchoring and rooftop-deck waterproofing defects with $1.42M in remediation costs. Parties dispute the date of substantial completion (Oct 22, 2023 vs. Jan 30, 2024) and whether the work conformed to spec."
+  },
+  "parties": [
+    {
+      "id": "northstar",
+      "name": "Northstar Construction, Inc.",
+      "short_name": "Northstar",
+      "role": [
+        "plaintiff",
+        "counter_defendant"
+      ],
+      "type": "corporation",
+      "representation": [
+        "Mendez & Whitaker LLP"
+      ]
+    },
+    {
+      "id": "pelham",
+      "name": "Pelham Properties, LLC",
+      "short_name": "Pelham",
+      "role": [
+        "defendant",
+        "counterclaimant"
+      ],
+      "type": "llc",
+      "representation": [
+        "Tansey Hoffman PC"
+      ]
+    },
+    {
+      "id": "court_sfsc",
+      "name": "Superior Court of California, County of San Francisco",
+      "short_name": "S.F. Super. Ct.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "wexford",
+      "name": "Wexford Structural Engineering",
+      "short_name": "Wexford",
+      "role": [
+        "expert",
+        "third_party"
+      ],
+      "type": "corporation"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Plaintiff",
+      "sub": "Northstar Construction",
+      "party_id": "northstar",
+      "color": "#2b6cb0",
+      "order": 1
+    },
+    {
+      "id": "defendant",
+      "label": "Defendant / Counterclaimant",
+      "sub": "Pelham Properties",
+      "party_id": "pelham",
+      "color": "#b04a2b",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "S.F. Super. Ct.",
+      "party_id": "court_sfsc",
+      "color": "#4a5568",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_contract_signed",
+      "label": "Construction Agreement signed",
+      "detail": "Northstar and Pelham executed a written Construction Agreement for the renovation and seismic retrofit of 1488 Folsom Street; total price $4,250,000 payable through monthly progress draws. Section 3.1 required workmanlike performance per approved plans; \u00a7 12.3 governed notices of defective work; \u00a7 14.2 provides for attorneys' fees.",
+      "date": "2022-06-15",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar",
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Establishes contractual obligations including \u00a7 12.3 30-day cure mechanism and \u00a7 14.2 fee-shifting",
+      "source_ids": [
+        "s_compl_ex_a",
+        "s_compl_para4",
+        "s_cc_para15"
+      ]
+    },
+    {
+      "id": "e_mobilization",
+      "label": "Northstar mobilizes / demolition begins",
+      "detail": "Northstar mobilized on site and commenced demolition work.",
+      "date": "2022-08-01",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_compl_para6"
+      ]
+    },
+    {
+      "id": "e_change_order_1",
+      "label": "Change Order No. 1 issued",
+      "detail": "Pelham issued Change Order No. 1 expanding the scope of work to include relocation of mechanical systems; agreed cost impact $312,400.",
+      "date": "2022-11-04",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham",
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "source_ids": [
+        "s_compl_ex_b",
+        "s_compl_para7"
+      ]
+    },
+    {
+      "id": "e_change_order_2",
+      "label": "Change Order No. 2 issued",
+      "detail": "Pelham issued Change Order No. 2 adding a rooftop deck and related structural reinforcement; agreed cost impact $487,800.",
+      "date": "2023-02-28",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham",
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "source_ids": [
+        "s_compl_ex_c",
+        "s_compl_para8"
+      ]
+    },
+    {
+      "id": "e_pelham_concerns_raised",
+      "label": "Pelham raises seismic-anchoring concerns",
+      "detail": "Beginning in March 2023 Pelham raised concerns about deviations from the approved seismic anchoring specifications via correspondence with Northstar. Pelham asserts the concerns were not adequately addressed.",
+      "date": "2023-03-01",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_cc_ex1",
+        "s_cc_para16"
+      ]
+    },
+    {
+      "id": "e_wexford_retained",
+      "label": "Pelham retains Wexford",
+      "detail": "Pelham retained Wexford Structural Engineering to perform an independent inspection of the seismic anchoring work.",
+      "date": "2023-06-12",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham",
+        "wexford"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_cc_para17"
+      ]
+    },
+    {
+      "id": "e_wexford_report",
+      "label": "Wexford report identifies 12 deviations",
+      "detail": "Wexford issued a written report identifying twelve specific deviations from the seismic anchoring spec.",
+      "date": "2023-08-04",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "wexford",
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_cc_ex2",
+        "s_cc_para17"
+      ]
+    },
+    {
+      "id": "e_wexford_forwarded",
+      "label": "Wexford report forwarded to Northstar",
+      "detail": "Pelham forwarded the Wexford report to Northstar.",
+      "date": "2023-08-11",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham",
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "source_ids": [
+        "s_cc_ex3",
+        "s_cc_para18"
+      ]
+    },
+    {
+      "id": "e_northstar_response",
+      "label": "Northstar disputes Wexford findings",
+      "detail": "Northstar issued a written response disputing the Wexford report's findings.",
+      "date": "2023-08-25",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_cc_ex4",
+        "s_cc_para18"
+      ]
+    },
+    {
+      "id": "e_resolution_meeting",
+      "label": "Resolution meeting (no agreement)",
+      "detail": "The parties met to attempt resolution of the Wexford findings; no agreement was reached.",
+      "date": "2023-09-14",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "northstar",
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "meeting",
+      "source_ids": [
+        "s_cc_ex5",
+        "s_cc_para19"
+      ]
+    },
+    {
+      "id": "e_draw14_paid",
+      "label": "Draw #14 paid",
+      "detail": "Pelham timely paid progress Draw #14 \u2014 the last draw paid under the Contract.",
+      "date": "2023-09-05",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "payment",
+      "source_ids": [
+        "s_compl_para10"
+      ]
+    },
+    {
+      "id": "e_substantial_completion_northstar",
+      "label": "Substantial completion (Northstar version)",
+      "detail": "Northstar asserts it substantially completed the work on October 22, 2023, on which date a Notice of Substantial Completion was issued.",
+      "date": "2023-10-22",
+      "date_certainty": "disputed",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Triggers final-payment and warranty clocks; affects timing of mechanic's lien recording and accrual of breach claim",
+      "source_ids": [
+        "s_compl_ex_d",
+        "s_compl_para9"
+      ],
+      "disputed": true,
+      "dispute_id": "d_substantial_completion",
+      "asserting_party_id": "northstar",
+      "confidence": "high"
+    },
+    {
+      "id": "e_draw15_submitted",
+      "label": "Draw #15 submitted ($342,500)",
+      "detail": "Northstar submitted Draw #15 in the amount of $342,500 with documentation; Pelham refused to pay.",
+      "date": "2023-10-30",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "payment",
+      "jurisdictional_significance": "Alleged unpaid amount underlying breach claim",
+      "source_ids": [
+        "s_compl_para11"
+      ]
+    },
+    {
+      "id": "e_pelham_walkthrough",
+      "label": "Owner walkthrough finds defects",
+      "detail": "After Northstar's purported completion, Pelham conducted an owner walkthrough and identified continuing seismic anchoring deficiencies and new defects in the rooftop deck waterproofing. Additional owner walkthroughs occurred through December 2023.",
+      "date_range": [
+        "2023-11-06",
+        "2023-12-31"
+      ],
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "meeting",
+      "source_ids": [
+        "s_cc_ex6",
+        "s_cc_para20",
+        "s_answer_para4"
+      ]
+    },
+    {
+      "id": "e_draw16_submitted",
+      "label": "Draw #16 (Final) submitted ($612,300)",
+      "detail": "Northstar submitted Draw #16 (Final) in the amount of $612,300 following completion of punch list items; Pelham refused to pay.",
+      "date": "2023-12-01",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "payment",
+      "jurisdictional_significance": "Final invoice; combined with Draw #15 totals $954,800 sued for",
+      "source_ids": [
+        "s_compl_para12"
+      ]
+    },
+    {
+      "id": "e_notice_defective_work",
+      "label": "Notice of Defective Work issued (\u00a7 12.3)",
+      "detail": "Pelham issued a formal Notice of Defective Work to Northstar pursuant to Section 12.3 of the Contract; Northstar did not cure within the contractual 30-day period.",
+      "date": "2023-12-04",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Triggers 30-day contractual cure period under \u00a7 12.3; nonperformance underlies counterclaim",
+      "source_ids": [
+        "s_cc_ex7",
+        "s_cc_para21"
+      ]
+    },
+    {
+      "id": "e_mechanics_lien_recorded",
+      "label": "Mechanic's Lien recorded ($954,800)",
+      "detail": "Northstar recorded a Mechanic's Lien against the Property in the amount of $954,800.",
+      "date": "2023-12-18",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Pelham challenges validity for noncompliance with Cal. Civ. Code \u00a7 8416",
+      "source_ids": [
+        "s_compl_ex_e",
+        "s_compl_para13"
+      ]
+    },
+    {
+      "id": "e_14day_demand",
+      "label": "14-day notice of default & demand",
+      "detail": "Northstar sent Pelham a 14-day notice of default and demand for payment. Pelham did not respond.",
+      "date": "2024-01-09",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "northstar"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Pre-litigation demand; supports breach and account-stated claims",
+      "source_ids": [
+        "s_compl_ex_f",
+        "s_compl_para14"
+      ]
+    },
+    {
+      "id": "e_substantial_completion_pelham",
+      "label": "Substantial completion (Pelham version)",
+      "detail": "Pelham contends substantial completion was not achieved until at least January 30, 2024, due to deficient seismic anchoring discovered during owner walkthroughs in November and December 2023.",
+      "date": "2024-01-30",
+      "date_certainty": "disputed",
+      "lane_id": "defendant",
+      "party_ids": [
+        "pelham"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "If Jan 30 controls, Northstar's Oct 30 Draw #15 and Dec 1 Draw #16 were premature, and the Dec 18 mechanic's lien recording may be defective for timing",
+      "source_ids": [
+        "s_answer_para4"
+      ],
+      "disputed": true,
+      "dispute_id": "d_substantial_completion",
+      "asserting_party_id": "pelham",
+      "confidence": "high"
+    },
+    {
+      "id": "e_complaint_filed",
+      "label": "Complaint filed",
+      "detail": "Northstar filed Complaint for (1) breach of contract, (2) foreclosure of mechanic's lien, and (3) account stated, seeking not less than $954,800 plus fees and interest. Jury trial demanded.",
+      "date": "2024-02-06",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "northstar",
+        "court_sfsc"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_compl"
+      ]
+    },
+    {
+      "id": "e_answer_filed",
+      "label": "Answer filed",
+      "detail": "Pelham filed Answer admitting the contract, mobilization, change orders, and submission of Draws #15-16, but denying substantial completion on Oct 22, 2023 and asserting affirmative defenses of failure of consideration / material breach, offset, and lien invalidity under Cal. Civ. Code \u00a7 8416.",
+      "date": "2024-03-19",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "pelham",
+        "court_sfsc"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_answer"
+      ]
+    },
+    {
+      "id": "e_counterclaim_filed",
+      "label": "Counterclaim filed",
+      "detail": "Pelham filed Counterclaim for (1) breach of contract, (2) negligent construction, and (3) breach of warranty, seeking $1,420,000 in compensatory damages, disgorgement of amounts paid for non-conforming work, and discharge of the mechanic's lien.",
+      "date": "2024-03-19",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "pelham",
+        "court_sfsc"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_counterclaim"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_contract_to_co1",
+      "from_event_id": "e_contract_signed",
+      "to_event_id": "e_change_order_1",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "Change Order No. 1 modifies the underlying Contract"
+    },
+    {
+      "id": "r_contract_to_co2",
+      "from_event_id": "e_contract_signed",
+      "to_event_id": "e_change_order_2",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "Change Order No. 2 modifies the underlying Contract"
+    },
+    {
+      "id": "r_concerns_to_wexford",
+      "from_event_id": "e_pelham_concerns_raised",
+      "to_event_id": "e_wexford_retained",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Pelham retained Wexford in response to unaddressed seismic anchoring concerns"
+    },
+    {
+      "id": "r_wexford_retained_to_report",
+      "from_event_id": "e_wexford_retained",
+      "to_event_id": "e_wexford_report",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_report_to_forward",
+      "from_event_id": "e_wexford_report",
+      "to_event_id": "e_wexford_forwarded",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_forward_to_response",
+      "from_event_id": "e_wexford_forwarded",
+      "to_event_id": "e_northstar_response",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Northstar's Aug 25 letter responds to the forwarded Wexford report"
+    },
+    {
+      "id": "r_response_to_meeting",
+      "from_event_id": "e_northstar_response",
+      "to_event_id": "e_resolution_meeting",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_completion_to_draw15",
+      "from_event_id": "e_substantial_completion_northstar",
+      "to_event_id": "e_draw15_submitted",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Northstar submitted Draw #15 eight days after its asserted substantial completion"
+    },
+    {
+      "id": "r_completion_to_walkthrough",
+      "from_event_id": "e_substantial_completion_northstar",
+      "to_event_id": "e_pelham_walkthrough",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Pelham's walkthrough findings are offered to contradict Northstar's claim that the work was substantially complete on Oct 22"
+    },
+    {
+      "id": "r_walkthrough_to_notice",
+      "from_event_id": "e_pelham_walkthrough",
+      "to_event_id": "e_notice_defective_work",
+      "type": "causal",
+      "strength": "alleged"
+    },
+    {
+      "id": "r_notice_tolls_cure",
+      "from_event_id": "e_notice_defective_work",
+      "to_event_id": "e_counterclaim_filed",
+      "type": "tolls",
+      "strength": "alleged",
+      "detail": "Notice of Defective Work triggered \u00a7 12.3 30-day cure period; Pelham alleges Northstar did not cure",
+      "clock_id": "cure_period_section_12_3",
+      "clock_effect": "start"
+    },
+    {
+      "id": "r_draws_to_lien",
+      "from_event_id": "e_draw16_submitted",
+      "to_event_id": "e_mechanics_lien_recorded",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Northstar recorded lien after Pelham refused to pay Draws #15 and #16"
+    },
+    {
+      "id": "r_lien_to_demand",
+      "from_event_id": "e_mechanics_lien_recorded",
+      "to_event_id": "e_14day_demand",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_demand_to_complaint",
+      "from_event_id": "e_14day_demand",
+      "to_event_id": "e_complaint_filed",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Complaint filed after Pelham did not respond to 14-day demand"
+    },
+    {
+      "id": "r_complaint_to_answer",
+      "from_event_id": "e_complaint_filed",
+      "to_event_id": "e_answer_filed",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Pelham's Answer responds to Northstar's Complaint"
+    },
+    {
+      "id": "r_complaint_to_counterclaim",
+      "from_event_id": "e_complaint_filed",
+      "to_event_id": "e_counterclaim_filed",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Counterclaim filed with Answer in the same pleading"
+    }
+  ],
+  "disputes": [
+    {
+      "id": "d_substantial_completion",
+      "subject": "Date of substantial completion of the construction work",
+      "type": "date",
+      "versions": [
+        {
+          "event_id": "e_substantial_completion_northstar",
+          "asserting_party_id": "northstar",
+          "basis": "Notice of Substantial Completion dated Oct 22, 2023 (Compl. \u00b6 9, Ex. D)"
+        },
+        {
+          "event_id": "e_substantial_completion_pelham",
+          "asserting_party_id": "pelham",
+          "basis": "Answer \u00b6 4 \u2014 owner walkthroughs in Nov-Dec 2023 revealed deficient seismic anchoring; completion not achieved until at least Jan 30, 2024"
+        }
+      ],
+      "resolution": "unresolved",
+      "materiality": "Controls timing of final payment obligation, validity of mechanic's lien (Cal. Civ. Code \u00a7 8416 timing), accrual of warranty period, and whether Pelham's refusal to pay Draws #15 and #16 was wrongful"
+    }
+  ],
+  "sources": [
+    {
+      "id": "s_compl",
+      "type": "pleading",
+      "citation": "Compl. (Feb. 6, 2024)"
+    },
+    {
+      "id": "s_compl_para4",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 4"
+    },
+    {
+      "id": "s_compl_para6",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 6"
+    },
+    {
+      "id": "s_compl_para7",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 7"
+    },
+    {
+      "id": "s_compl_para8",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 8"
+    },
+    {
+      "id": "s_compl_para9",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 9"
+    },
+    {
+      "id": "s_compl_para10",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 10"
+    },
+    {
+      "id": "s_compl_para11",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 11"
+    },
+    {
+      "id": "s_compl_para12",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 12"
+    },
+    {
+      "id": "s_compl_para13",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 13"
+    },
+    {
+      "id": "s_compl_para14",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 14"
+    },
+    {
+      "id": "s_compl_ex_a",
+      "type": "contract",
+      "citation": "Ex. A (Construction Agreement)"
+    },
+    {
+      "id": "s_compl_ex_b",
+      "type": "exhibit",
+      "citation": "Ex. B (Change Order No. 1)"
+    },
+    {
+      "id": "s_compl_ex_c",
+      "type": "exhibit",
+      "citation": "Ex. C (Change Order No. 2)"
+    },
+    {
+      "id": "s_compl_ex_d",
+      "type": "exhibit",
+      "citation": "Ex. D (Notice of Substantial Completion)"
+    },
+    {
+      "id": "s_compl_ex_e",
+      "type": "exhibit",
+      "citation": "Ex. E (Mechanic's Lien)"
+    },
+    {
+      "id": "s_compl_ex_f",
+      "type": "exhibit",
+      "citation": "Ex. F (14-day notice and demand)"
+    },
+    {
+      "id": "s_answer",
+      "type": "pleading",
+      "citation": "Answer (Mar. 19, 2024)"
+    },
+    {
+      "id": "s_answer_para4",
+      "type": "pleading",
+      "citation": "Answer \u00b6 4"
+    },
+    {
+      "id": "s_counterclaim",
+      "type": "pleading",
+      "citation": "Countercl. (Mar. 19, 2024)"
+    },
+    {
+      "id": "s_cc_para15",
+      "type": "pleading",
+      "citation": "Countercl. \u00b6 15"
+    },
+    {
+      "id": "s_cc_para16",
+      "type": "pleading",
+      "citation": "Countercl. \u00b6 16"
+    },
+    {
+      "id": "s_cc_para17",
+      "type": "pleading",
+      "citation": "Countercl. \u00b6 17"
+    },
+    {
+      "id": "s_cc_para18",
+      "type": "pleading",
+      "citation": "Countercl. \u00b6 18"
+    },
+    {
+      "id": "s_cc_para19",
+      "type": "pleading",
+      "citation": "Countercl. \u00b6 19"
+    },
+    {
+      "id": "s_cc_para20",
+      "type": "pleading",
+      "citation": "Countercl. \u00b6 20"
+    },
+    {
+      "id": "s_cc_para21",
+      "type": "pleading",
+      "citation": "Countercl. \u00b6 21"
+    },
+    {
+      "id": "s_cc_ex1",
+      "type": "exhibit",
+      "citation": "Ex. P-CC-1 (Pelham/Northstar correspondence)"
+    },
+    {
+      "id": "s_cc_ex2",
+      "type": "exhibit",
+      "citation": "Ex. P-CC-2 (Wexford report)"
+    },
+    {
+      "id": "s_cc_ex3",
+      "type": "exhibit",
+      "citation": "Ex. P-CC-3 (transmittal of Wexford report)"
+    },
+    {
+      "id": "s_cc_ex4",
+      "type": "exhibit",
+      "citation": "Ex. P-CC-4 (Northstar response)"
+    },
+    {
+      "id": "s_cc_ex5",
+      "type": "exhibit",
+      "citation": "Ex. P-CC-5 (meeting minutes)"
+    },
+    {
+      "id": "s_cc_ex6",
+      "type": "exhibit",
+      "citation": "Ex. P-CC-6 (walkthrough notes)"
+    },
+    {
+      "id": "s_cc_ex7",
+      "type": "exhibit",
+      "citation": "Ex. P-CC-7 (Notice of Defective Work)"
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+const margin = { top: 50, right: 40, bottom: 40, left: 160 };
+const width  = 1240;
+const laneHeight = 110;
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+const innerW = width - margin.left - margin.right;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width).attr("height", height);
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+const [start, end] = DATA.case.date_range;
+const xScale = d3.scaleTime().domain([parseDate(start), parseDate(end)]).range([0, innerW]);
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+g.selectAll(".grid").data(xScale.ticks(d3.timeMonth.every(3)))
+  .join("line").attr("class","grid").attr("x1", d=>xScale(d)).attr("x2", d=>xScale(d))
+  .attr("y1",0).attr("y2", lanes.length*laneHeight).attr("stroke","var(--rule)").attr("stroke-dasharray","1 3").attr("opacity",0.5);
+
+g.append("g").attr("class","axis").call(d3.axisTop(xScale).ticks(d3.timeMonth.every(3))
+  .tickFormat(d => d.getMonth() === 0 ? d3.timeFormat("%Y")(d) : d3.timeFormat("%b")(d)));
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
+  });
+}
+
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  (DATA.disputes || []).forEach(d => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const midY = Math.min(y1, y2) - 22;
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1-12} L${x1},${midY} L${x2},${midY} L${x2},${y2-12}`);
+    disputeG.append("text").attr("class","dispute-label")
+      .attr("x", (x1+x2)/2).attr("y", midY - 4).attr("text-anchor","middle")
+      .text(`◆ disputed: ${d.subject}`);
+  });
+}
+
+const tooltip = d3.select("#tooltip");
+const eventG = g.append("g").attr("class","events");
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  const sel = eventG.selectAll(".event").data(visible, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${laneY(d.lane_id)})`);
+  all.select("circle").attr("r", 6)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+  all.select(".event-label").attr("x",0).attr("y",(d,i)=>i%2===0?22:-14).attr("text-anchor","middle").text(d=>d.label);
+  all.select(".event-date").attr("x",0).attr("y",(d,i)=>i%2===0?34:-26).attr("text-anchor","middle")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? ` (${d.date_certainty})` : ""));
+  all.on("mouseenter", function(event, d) {
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function() { tooltip.style("opacity",0); });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+</script>
+</body>
+</html>

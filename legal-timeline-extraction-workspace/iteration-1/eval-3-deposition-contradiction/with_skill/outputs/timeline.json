@@ -1,0 +1,313 @@
+{
+  "case": {
+    "id": "halverson_v_smith_capital_2024",
+    "caption": "Halverson v. Smith Capital Partners",
+    "court": "S.D. Cal.",
+    "docket": "24-CV-00891",
+    "jurisdiction": "federal",
+    "date_range": ["2024-04-01", "2024-12-01"],
+    "cause_of_action": ["partnership dispute / wrongful removal"],
+    "status": "pending",
+    "summary": "Partnership dispute arising from removal of managing partner Halverson. Deponent Gregory Smith testified the removal-discussion meeting occurred on Friday, May 3, 2024 with no scheduling emails, but contemporaneous emails (Ex. 4 and Ex. 7) show the meeting was scheduled May 7, confirmed May 8, and actually occurred Friday, May 10, 2024. Relevant to a motion in limine."
+  },
+
+  "parties": [
+    {
+      "id": "halverson",
+      "name": "J. Halverson",
+      "short_name": "Halverson",
+      "role": ["plaintiff"],
+      "type": "individual"
+    },
+    {
+      "id": "smith_capital_partners",
+      "name": "Smith Capital Partners",
+      "short_name": "Smith Capital",
+      "role": ["defendant"],
+      "type": "partnership"
+    },
+    {
+      "id": "gregory_smith",
+      "name": "Gregory T. Smith",
+      "short_name": "G. Smith",
+      "role": ["defendant", "witness"],
+      "type": "individual"
+    },
+    {
+      "id": "mark_wilkes",
+      "name": "Mark Wilkes",
+      "short_name": "Wilkes",
+      "role": ["witness", "third_party"],
+      "type": "individual"
+    },
+    {
+      "id": "priya_anand",
+      "name": "Priya Anand",
+      "short_name": "Anand",
+      "role": ["witness", "third_party"],
+      "type": "individual"
+    },
+    {
+      "id": "court_sd_cal",
+      "name": "United States District Court for the Southern District of California",
+      "short_name": "S.D. Cal.",
+      "role": ["court"],
+      "type": "court"
+    }
+  ],
+
+  "lanes": [
+    { "id": "plaintiff", "label": "Plaintiff", "sub": "Halverson", "party_id": "halverson", "color": "#2b6cb0", "order": 1 },
+    { "id": "deponent_smith", "label": "Deponent (Smith) — Sworn Testimony", "sub": "Smith Dep. 88-89", "party_id": "gregory_smith", "color": "#b04a2b", "order": 2 },
+    { "id": "contemporaneous_emails", "label": "Contemporaneous Record", "sub": "Ex. 4 & Ex. 7 emails", "party_id": "smith_capital_partners", "color": "#2f855a", "order": 3 },
+    { "id": "court", "label": "Court", "sub": "S.D. Cal.", "party_id": "court_sd_cal", "color": "#4a5568", "order": 4 }
+  ],
+
+  "events": [
+    {
+      "id": "e_meeting_smith_version",
+      "label": "Removal-discussion meeting (Smith's version)",
+      "detail": "Smith testified the three managing partners (Smith, Wilkes, Anand) met Friday, May 3, 2024, starting around 10 a.m. and finishing a little after noon (~2 hours). He stated he was 'certain' it was May 3rd because it was 'the day before my daughter's birthday party that weekend.' Halverson was not invited. Smith further testified no notes were taken and the meeting was arranged verbally in person — 'to the best of my recollection' no scheduling emails exist.",
+      "date": "2024-05-03",
+      "date_certainty": "disputed",
+      "lane_id": "deponent_smith",
+      "party_ids": ["gregory_smith", "mark_wilkes", "priya_anand"],
+      "kind": "fact",
+      "category": "meeting",
+      "jurisdictional_significance": "Central to motion in limine: timing and circumstances of the partner meeting at which Halverson's removal was decided",
+      "source_ids": ["s_smith_dep_88", "s_smith_dep_89"],
+      "disputed": true,
+      "dispute_id": "d_removal_meeting_date",
+      "asserting_party_id": "gregory_smith",
+      "confidence": "high"
+    },
+    {
+      "id": "e_smith_schedule_email",
+      "label": "Smith email proposing Friday May 10 meeting",
+      "detail": "Gregory Smith emailed Wilkes and Anand on Tuesday, May 7, 2024 at 4:33 PM PT: 'Both — let's lock in Friday the 10th for the partner discussion re: J.H. 10am? Small conf room. No notes, just talk it through. I'll pull together the framework over the next two days.' Directly contradicts Smith's deposition testimony that scheduling was done verbally and no emails exist.",
+      "date": "2024-05-07",
+      "date_certainty": "exact",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": ["gregory_smith", "mark_wilkes", "priya_anand"],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Documentary evidence contradicting Smith's testimony that no scheduling emails existed and that the meeting was on May 3",
+      "source_ids": ["s_ex4"],
+      "confidence": "high"
+    },
+    {
+      "id": "e_anand_confirmation_email",
+      "label": "Anand confirms Friday May 10 meeting",
+      "detail": "Priya Anand emailed Smith and Wilkes on Wednesday, May 8, 2024 at 9:14 AM PT: 'Confirming for Friday May 10 at 10:00 a.m. in the small conference room. I've blocked the next 2 hours just in case. Per Greg's note yesterday, we are not looping in anyone else — strictly the three of us. Also confirming we will NOT be issuing the removal notice until after we have all aligned in the room. No drafts circulating until then.'",
+      "date": "2024-05-08",
+      "date_certainty": "exact",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": ["priya_anand", "gregory_smith", "mark_wilkes"],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Documentary confirmation of May 10 meeting date and that no removal notice would issue beforehand — directly contradicts Smith's May 3 testimony",
+      "source_ids": ["s_ex4"],
+      "confidence": "high"
+    },
+    {
+      "id": "e_meeting_emails_version",
+      "label": "Removal-discussion meeting (contemporaneous-record version)",
+      "detail": "Contemporaneous emails show the meeting actually occurred Friday, May 10, 2024. Smith emailed at 10:02 AM ('Starting now. See you both in the SCR.'); Anand emailed at 12:22 PM ('Wrapped up. Three of us aligned. Greg to draft notice over weekend, send Monday May 13.'); Wilkes emailed at 12:47 PM ('That worked out about how I expected. Two hours, decision unanimous, no one outside the room.'). Duration ~2 hours, three partners present, unanimous decision — matching Smith's description except for the date.",
+      "date": "2024-05-10",
+      "date_certainty": "disputed",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": ["gregory_smith", "mark_wilkes", "priya_anand"],
+      "kind": "fact",
+      "category": "meeting",
+      "jurisdictional_significance": "Documentary version of the removal meeting; if credited, Smith's sworn testimony placing the meeting on May 3 is false",
+      "source_ids": ["s_ex7"],
+      "disputed": true,
+      "dispute_id": "d_removal_meeting_date",
+      "asserting_party_id": "halverson",
+      "confidence": "high"
+    },
+    {
+      "id": "e_notice_sent_smith_version",
+      "label": "Removal notice sent (Smith's version: May 6)",
+      "detail": "Smith testified the removal notice was sent 'The following Monday. May 6th. I drafted it over the weekend and sent it Monday morning.'",
+      "date": "2024-05-06",
+      "date_certainty": "disputed",
+      "lane_id": "deponent_smith",
+      "party_ids": ["gregory_smith", "smith_capital_partners"],
+      "kind": "fact",
+      "category": "notice",
+      "source_ids": ["s_smith_dep_89"],
+      "disputed": true,
+      "dispute_id": "d_removal_notice_date",
+      "asserting_party_id": "gregory_smith",
+      "confidence": "high"
+    },
+    {
+      "id": "e_notice_planned_emails_version",
+      "label": "Removal notice planned for Monday May 13 (emails)",
+      "detail": "Anand's May 10, 12:22 PM email states: 'Greg to draft notice over weekend, send Monday May 13.' Wilkes's 12:47 PM reply asks Smith to 'have the notice ready for Monday's morning send.' The contemporaneous record places the planned notice send on May 13, 2024 — one week after the May 6 date Smith gave under oath.",
+      "date": "2024-05-13",
+      "date_certainty": "disputed",
+      "lane_id": "contemporaneous_emails",
+      "party_ids": ["gregory_smith", "priya_anand", "mark_wilkes"],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Documentary version of when removal notice was to issue; contradicts Smith's May 6 testimony",
+      "source_ids": ["s_ex7"],
+      "disputed": true,
+      "dispute_id": "d_removal_notice_date",
+      "asserting_party_id": "halverson",
+      "confidence": "high"
+    },
+    {
+      "id": "e_smith_deposition",
+      "label": "Smith deposition taken",
+      "detail": "Deposition of Gregory T. Smith taken October 22, 2024, reported by Linda Chen, CSR No. 14882. Testimony at pages 88-89 concerns the timing and circumstances of the partner meeting at which Halverson's removal was discussed.",
+      "date": "2024-10-22",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["gregory_smith"],
+      "kind": "discovery",
+      "category": "deposition",
+      "source_ids": ["s_smith_dep_88", "s_smith_dep_89"],
+      "confidence": "high"
+    }
+  ],
+
+  "relationships": [
+    {
+      "id": "r_schedule_to_confirm",
+      "from_event_id": "e_smith_schedule_email",
+      "to_event_id": "e_anand_confirmation_email",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Anand's May 8 email replies to and confirms Smith's May 7 proposal of Friday May 10"
+    },
+    {
+      "id": "r_confirm_to_meeting",
+      "from_event_id": "e_anand_confirmation_email",
+      "to_event_id": "e_meeting_emails_version",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "The May 8 confirmation set the May 10 meeting that the Ex. 7 thread shows actually occurred"
+    },
+    {
+      "id": "r_meeting_to_notice_plan",
+      "from_event_id": "e_meeting_emails_version",
+      "to_event_id": "e_notice_planned_emails_version",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Per Ex. 7 thread, decision at May 10 meeting was to send removal notice Monday May 13"
+    },
+    {
+      "id": "r_dep_references_meeting",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_smith_deposition",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "Smith's Oct 22, 2024 deposition is the testimonial source for the May 3 version"
+    },
+    {
+      "id": "r_contradicts_meeting_date",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_meeting_emails_version",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 88:5-6 places meeting on May 3, 2024; Ex. 4 + Ex. 7 emails place it on May 10, 2024 — they cannot both be true"
+    },
+    {
+      "id": "r_contradicts_no_emails",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_smith_schedule_email",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 89:10-17 testified scheduling was verbal and 'no emails' relating to the meeting exist; Ex. 4 is Smith's own May 7 scheduling email — direct contradiction"
+    },
+    {
+      "id": "r_contradicts_no_emails_2",
+      "from_event_id": "e_meeting_smith_version",
+      "to_event_id": "e_anand_confirmation_email",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 89:14-17 testified 'no emails' relate to the meeting; Anand's May 8 confirmation email (Ex. 4) directly refutes this"
+    },
+    {
+      "id": "r_contradicts_notice_date",
+      "from_event_id": "e_notice_sent_smith_version",
+      "to_event_id": "e_notice_planned_emails_version",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Smith Dep. 89:1-2 testified notice was sent Monday May 6; Ex. 7 (Anand 12:22 PM and Wilkes 12:47 PM, May 10) plans the notice send for Monday May 13"
+    }
+  ],
+
+  "disputes": [
+    {
+      "id": "d_removal_meeting_date",
+      "subject": "Date on which the partner meeting to discuss Halverson's removal occurred",
+      "type": "date",
+      "versions": [
+        {
+          "event_id": "e_meeting_smith_version",
+          "asserting_party_id": "gregory_smith",
+          "basis": "Smith Dep. 88:5-10 — Smith testified 'Yes. It was the first week of May 2024. Specifically, May 3rd. That was a Friday.' and stated he was 'certain' because it was 'the day before my daughter's birthday party that weekend.'"
+        },
+        {
+          "event_id": "e_meeting_emails_version",
+          "asserting_party_id": "halverson",
+          "basis": "Ex. 4 (May 7 Smith email scheduling 'Friday the 10th'; May 8 Anand email confirming 'Friday May 10 at 10:00 a.m.') and Ex. 7 (May 10 emails at 10:02 AM, 12:22 PM, and 12:47 PM PT bracketing the actual two-hour meeting)"
+        }
+      ],
+      "resolution": "unresolved",
+      "materiality": "Smith's sworn date is one week earlier than the date documented in the contemporaneous email record. The contradiction is the basis for plaintiff's anticipated motion in limine and goes directly to Smith's credibility as a fact witness about the removal decision."
+    },
+    {
+      "id": "d_removal_notice_date",
+      "subject": "Date on which the formal removal notice to Halverson was (or was to be) sent",
+      "type": "date",
+      "versions": [
+        {
+          "event_id": "e_notice_sent_smith_version",
+          "asserting_party_id": "gregory_smith",
+          "basis": "Smith Dep. 89:1-2 — 'The following Monday. May 6th. I drafted it over the weekend and sent it Monday morning.'"
+        },
+        {
+          "event_id": "e_notice_planned_emails_version",
+          "asserting_party_id": "halverson",
+          "basis": "Ex. 7 — Anand (May 10, 12:22 PM): 'Greg to draft notice over weekend, send Monday May 13.' Wilkes (May 10, 12:47 PM): 'Greg — can you have the notice ready for Monday's morning send?'"
+        }
+      ],
+      "resolution": "unresolved",
+      "materiality": "Corroborates the meeting-date dispute: if notice was actually sent May 13 (not May 6), the entire timeline shifts by one week and confirms the meeting could not have occurred May 3."
+    }
+  ],
+
+  "sources": [
+    {
+      "id": "s_smith_dep_88",
+      "type": "deposition",
+      "citation": "Smith Dep. 88:1-24",
+      "line_range": "88:1-24",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_smith_dep_89",
+      "type": "deposition",
+      "citation": "Smith Dep. 89:1-17",
+      "line_range": "89:1-17",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_ex4",
+      "type": "email",
+      "citation": "Ex. 4 (May 7-8, 2024 email thread: Smith to Wilkes/Anand re: scheduling Friday May 10 meeting; Anand May 8 confirmation)",
+      "authenticity": "not_yet_offered"
+    },
+    {
+      "id": "s_ex7",
+      "type": "email",
+      "citation": "Ex. 7 (May 10, 2024 email thread: Smith 10:02 AM; Anand 12:22 PM; Wilkes 12:47 PM PT)",
+      "authenticity": "not_yet_offered"
+    }
+  ]
+}

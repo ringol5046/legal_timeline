@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Wells v. Drayton Holdings, Inc. — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 10.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.5px; fill: none; stroke-dasharray: 2 2; }
+  .dispute-label { font-size: 9.5px; fill: var(--dispute); font-style: italic; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Wells v. Drayton Holdings, Inc. <span style="color:var(--muted);font-weight:400">— E.D. Pa. · 2:23-cv-01882-MAB</span></h1>
+  <p class="subtitle">FLSA retaliation and wrongful termination action. Wells, a Senior Operations Analyst, alleges Drayton fired her for complaining about unpaid overtime. On Drayton's Rule 56 motion, the court denied summary judgment on the FLSA retaliation and wrongful termination claims (finding a triable temporal-proximity issue tied to a disputed date when HR received Wells's complaint) and granted it on the implied contract claim. Trial pending.</p>
+</header>
+
+<div class="controls" id="controls"></div>
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "wells_v_drayton_2023",
+    "caption": "Wells v. Drayton Holdings, Inc.",
+    "court": "E.D. Pa.",
+    "docket": "2:23-cv-01882-MAB",
+    "jurisdiction": "federal",
+    "date_range": [
+      "2018-12-01",
+      "2025-04-01"
+    ],
+    "cause_of_action": [
+      "FLSA retaliation (29 U.S.C. \u00a7 215(a)(3))",
+      "wrongful termination in violation of public policy",
+      "breach of implied contract"
+    ],
+    "status": "pending",
+    "summary": "FLSA retaliation and wrongful termination action. Wells, a Senior Operations Analyst, alleges Drayton fired her for complaining about unpaid overtime. On Drayton's Rule 56 motion, the court denied summary judgment on the FLSA retaliation and wrongful termination claims (finding a triable temporal-proximity issue tied to a disputed date when HR received Wells's complaint) and granted it on the implied contract claim. Trial pending."
+  },
+  "parties": [
+    {
+      "id": "wells_janet",
+      "name": "Janet Wells",
+      "short_name": "Wells",
+      "role": [
+        "plaintiff"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "drayton_holdings",
+      "name": "Drayton Holdings, Inc.",
+      "short_name": "Drayton",
+      "role": [
+        "defendant"
+      ],
+      "type": "corporation"
+    },
+    {
+      "id": "court_edpa",
+      "name": "United States District Court for the Eastern District of Pennsylvania",
+      "short_name": "E.D. Pa.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "judge_beresford",
+      "name": "Hon. Maria A. Beresford",
+      "short_name": "Judge Beresford",
+      "role": [
+        "judge"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "chu_michael",
+      "name": "Michael Chu",
+      "short_name": "Chu",
+      "role": [
+        "witness",
+        "non_party"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "morris_elaine",
+      "name": "Elaine Morris",
+      "short_name": "Morris (HR Dir.)",
+      "role": [
+        "witness",
+        "non_party"
+      ],
+      "type": "individual"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Plaintiff",
+      "sub": "Janet Wells",
+      "party_id": "wells_janet",
+      "color": "#2b6cb0",
+      "order": 1
+    },
+    {
+      "id": "defendant",
+      "label": "Defendant",
+      "sub": "Drayton Holdings",
+      "party_id": "drayton_holdings",
+      "color": "#b04a2b",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "E.D. Pa.",
+      "party_id": "court_edpa",
+      "color": "#4a5568",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_wells_hired",
+      "label": "Wells hired as Senior Operations Analyst",
+      "detail": "Drayton hires Wells as a Senior Operations Analyst, reporting to Operations Director Michael Chu.",
+      "date": "2019-03-04",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wells_janet",
+        "drayton_holdings"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "jurisdictional_significance": "Start of employment relationship at issue",
+      "source_ids": [
+        "s_compl_para12",
+        "s_wells_dep_18",
+        "s_wells_decl_para3"
+      ]
+    },
+    {
+      "id": "e_overtime_period_wells",
+      "label": "Wells's claimed overtime period (~53 hrs/wk)",
+      "detail": "Wells estimates she worked an average of 53 hours per week from February through October 2022 to absorb the workload of two departed analysts. The number of hours is contested (see Dispute d_hours_worked).",
+      "date_range": [
+        "2022-02-01",
+        "2022-10-31"
+      ],
+      "date_certainty": "disputed",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wells_janet"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "jurisdictional_significance": "Underlying conduct that gave rise to the FLSA overtime complaint",
+      "source_ids": [
+        "s_wells_decl_para8_11"
+      ],
+      "disputed": true,
+      "dispute_id": "d_hours_worked",
+      "asserting_party_id": "wells_janet",
+      "confidence": "high"
+    },
+    {
+      "id": "e_overtime_period_drayton",
+      "label": "Drayton's recorded hours (40-44 hrs/wk)",
+      "detail": "Drayton's timekeeping records show Wells clocking 40-44 hours per week during the same Feb-Oct 2022 period.",
+      "date_range": [
+        "2022-02-01",
+        "2022-10-31"
+      ],
+      "date_certainty": "disputed",
+      "lane_id": "defendant",
+      "party_ids": [
+        "drayton_holdings"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_chu_decl_para14"
+      ],
+      "disputed": true,
+      "dispute_id": "d_hours_worked",
+      "asserting_party_id": "drayton_holdings",
+      "confidence": "high"
+    },
+    {
+      "id": "e_client_complaints",
+      "label": "Two client complaints received",
+      "detail": "Drayton asserts two client complaints were received in July and August 2022, which it cites as the basis for the later PIP.",
+      "date_range": [
+        "2022-07-01",
+        "2022-08-31"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "drayton_holdings"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Drayton's asserted non-retaliatory basis for the PIP; relevant to pretext",
+      "source_ids": [
+        "s_chu_decl_para22_25",
+        "s_ex_d9",
+        "s_ex_d10"
+      ]
+    },
+    {
+      "id": "e_wells_email_to_chu",
+      "label": "Wells emails Chu re uncompensated overtime",
+      "detail": "Wells sends Chu an email raising concerns about uncompensated overtime, attaching a spreadsheet of her hours worked. This is the alleged protected activity under the FLSA.",
+      "date": "2022-09-08",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wells_janet",
+        "chu_michael"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Alleged protected activity under 29 U.S.C. \u00a7 215(a)(3); start point for temporal-proximity analysis",
+      "source_ids": [
+        "s_ex_p4"
+      ]
+    },
+    {
+      "id": "e_hr_notice_wells_version",
+      "label": "HR receives complaint (Wells's version)",
+      "detail": "Wells contends Chu forwarded her Sept 8 email to HR Director Elaine Morris that same day. If credited, the gap to the Oct 14 PIP is approximately five weeks.",
+      "date": "2022-09-08",
+      "date_certainty": "disputed",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wells_janet",
+        "morris_elaine"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Wells's start point for retaliation temporal-proximity analysis; ~5-week gap to PIP under Williams v. Phila. Hous. Auth., 380 F.3d 751 (3d Cir. 2004)",
+      "source_ids": [
+        "s_wells_dep_42_43"
+      ],
+      "disputed": true,
+      "dispute_id": "d_hr_receipt_date",
+      "asserting_party_id": "wells_janet",
+      "confidence": "high"
+    },
+    {
+      "id": "e_hr_notice_drayton_version",
+      "label": "HR receives complaint (Drayton's version)",
+      "detail": "Morris testified she did not receive any forwarded complaint until Oct 3, 2022, when Chu first raised it in a meeting. If credited, the gap to the Oct 14 PIP shrinks to eleven days.",
+      "date": "2022-10-03",
+      "date_certainty": "disputed",
+      "lane_id": "defendant",
+      "party_ids": [
+        "drayton_holdings",
+        "morris_elaine"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Drayton's start point for retaliation temporal-proximity analysis; 11-day gap to PIP",
+      "source_ids": [
+        "s_morris_dep_31",
+        "s_ex_d7"
+      ],
+      "disputed": true,
+      "dispute_id": "d_hr_receipt_date",
+      "asserting_party_id": "drayton_holdings",
+      "confidence": "high"
+    },
+    {
+      "id": "e_pip_issued",
+      "label": "PIP issued",
+      "detail": "Wells receives a performance improvement plan citing alleged deficiencies in client communication. Wells contends the PIP is pretextual, pointing to her 'exceeds expectations' 2021 annual review.",
+      "date": "2022-10-14",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "drayton_holdings",
+        "wells_janet"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Alleged adverse employment action; endpoint for temporal-proximity analysis",
+      "source_ids": [
+        "s_ex_p9",
+        "s_wells_dep_67",
+        "s_ex_p2"
+      ]
+    },
+    {
+      "id": "e_termination",
+      "label": "Wells terminated",
+      "detail": "Drayton terminates Wells's employment. The termination letter cites 'failure to satisfy PIP milestones.'",
+      "date": "2022-12-19",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": [
+        "drayton_holdings",
+        "wells_janet"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "jurisdictional_significance": "Adverse employment action giving rise to retaliation and wrongful termination claims",
+      "source_ids": [
+        "s_ex_p12"
+      ]
+    },
+    {
+      "id": "e_complaint_filed",
+      "label": "Complaint filed",
+      "detail": "Wells files her Complaint asserting (1) FLSA retaliation under 29 U.S.C. \u00a7 215(a)(3); (2) wrongful termination in violation of public policy; and (3) breach of implied contract based on Drayton's progressive discipline policy.",
+      "date": "2023-04-11",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "wells_janet",
+        "court_edpa"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_dkt1"
+      ]
+    },
+    {
+      "id": "e_answer_filed",
+      "label": "Answer filed",
+      "detail": "Drayton files its Answer to the Complaint.",
+      "date": "2023-05-22",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "drayton_holdings",
+        "court_edpa"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_dkt14"
+      ]
+    },
+    {
+      "id": "e_scheduling_order",
+      "label": "Scheduling order entered",
+      "detail": "Court enters scheduling order, setting fact discovery to close on April 1, 2024.",
+      "date": "2023-06-30",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_edpa"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "jurisdictional_significance": "Sets discovery cutoff and case management deadlines",
+      "source_ids": [
+        "s_dkt19"
+      ]
+    },
+    {
+      "id": "e_discovery_extension",
+      "label": "Discovery deadline extended",
+      "detail": "Parties stipulate to extend the discovery deadline to May 31, 2024.",
+      "date": "2024-03-27",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "wells_janet",
+        "drayton_holdings",
+        "court_edpa"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_dkt47"
+      ]
+    },
+    {
+      "id": "e_discovery_close",
+      "label": "Fact discovery closes",
+      "detail": "Extended fact discovery deadline; parties had taken 12 depositions and produced approximately 8,400 pages.",
+      "date": "2024-05-31",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_edpa"
+      ],
+      "kind": "discovery",
+      "category": "subpoena",
+      "source_ids": [
+        "s_dkt47"
+      ]
+    },
+    {
+      "id": "e_msj_filed",
+      "label": "Drayton MSJ filed",
+      "detail": "Drayton files Motion for Summary Judgment under Rule 56 as to all three claims.",
+      "date": "2024-08-08",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "drayton_holdings"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_dkt62"
+      ]
+    },
+    {
+      "id": "e_msj_opposition",
+      "label": "Wells's opposition filed",
+      "detail": "Wells files her opposition to summary judgment.",
+      "date": "2024-09-12",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "wells_janet"
+      ],
+      "kind": "filing",
+      "category": "response",
+      "source_ids": [
+        "s_dkt71"
+      ]
+    },
+    {
+      "id": "e_msj_reply",
+      "label": "Drayton's reply filed",
+      "detail": "Drayton files its reply in support of summary judgment.",
+      "date": "2024-09-26",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "drayton_holdings"
+      ],
+      "kind": "filing",
+      "category": "reply",
+      "source_ids": [
+        "s_dkt75"
+      ]
+    },
+    {
+      "id": "e_oral_argument",
+      "label": "Oral argument on MSJ",
+      "detail": "Court hears oral argument on Drayton's Motion for Summary Judgment.",
+      "date": "2024-11-14",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_edpa",
+        "wells_janet",
+        "drayton_holdings"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_msj_ruling",
+      "label": "MSJ ruling (denied in part, granted in part)",
+      "detail": "Memorandum Opinion of Judge Beresford: DENIES summary judgment on FLSA retaliation (a reasonable jury could find temporal proximity under either party's version of when HR received the complaint) and on wrongful termination; GRANTS summary judgment on breach of implied contract.",
+      "date": "2025-01-17",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_edpa",
+        "judge_beresford"
+      ],
+      "kind": "ruling",
+      "category": "summary_judgment",
+      "jurisdictional_significance": "Disposes of implied contract claim; retaliation and wrongful termination claims proceed to trial",
+      "source_ids": [
+        "s_opinion"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_email_to_hr_notice_wells",
+      "from_event_id": "e_wells_email_to_chu",
+      "to_event_id": "e_hr_notice_wells_version",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Wells's theory: Chu forwarded the Sept 8 email to HR the same day"
+    },
+    {
+      "id": "r_email_to_hr_notice_drayton",
+      "from_event_id": "e_wells_email_to_chu",
+      "to_event_id": "e_hr_notice_drayton_version",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Drayton's theory: HR did not learn of the complaint until Chu raised it at an Oct 3 meeting"
+    },
+    {
+      "id": "r_hr_notice_wells_tolls",
+      "from_event_id": "e_hr_notice_wells_version",
+      "to_event_id": "e_pip_issued",
+      "type": "tolls",
+      "strength": "alleged",
+      "detail": "Wells's theory: ~5-week gap supports inference of causation under Williams v. Phila. Hous. Auth.",
+      "clock_id": "temporal_proximity_retaliation",
+      "clock_effect": "start"
+    },
+    {
+      "id": "r_hr_notice_drayton_tolls",
+      "from_event_id": "e_hr_notice_drayton_version",
+      "to_event_id": "e_pip_issued",
+      "type": "tolls",
+      "strength": "alleged",
+      "detail": "Drayton's version yields an 11-day gap, which the court found 'even more probative' of causation",
+      "clock_id": "temporal_proximity_retaliation",
+      "clock_effect": "start"
+    },
+    {
+      "id": "r_client_complaints_to_pip",
+      "from_event_id": "e_client_complaints",
+      "to_event_id": "e_pip_issued",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Drayton's asserted non-retaliatory basis for the PIP"
+    },
+    {
+      "id": "r_pip_to_termination",
+      "from_event_id": "e_pip_issued",
+      "to_event_id": "e_termination",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Termination letter cites 'failure to satisfy PIP milestones'"
+    },
+    {
+      "id": "r_termination_to_complaint",
+      "from_event_id": "e_termination",
+      "to_event_id": "e_complaint_filed",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_complaint_to_answer",
+      "from_event_id": "e_complaint_filed",
+      "to_event_id": "e_answer_filed",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_answer_to_scheduling",
+      "from_event_id": "e_answer_filed",
+      "to_event_id": "e_scheduling_order",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_scheduling_to_extension",
+      "from_event_id": "e_scheduling_order",
+      "to_event_id": "e_discovery_extension",
+      "type": "supersedes",
+      "strength": "undisputed",
+      "detail": "Stipulated extension supersedes the April 1, 2024 discovery cutoff"
+    },
+    {
+      "id": "r_extension_to_close",
+      "from_event_id": "e_discovery_extension",
+      "to_event_id": "e_discovery_close",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_close_to_msj",
+      "from_event_id": "e_discovery_close",
+      "to_event_id": "e_msj_filed",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_msj_to_opposition",
+      "from_event_id": "e_msj_filed",
+      "to_event_id": "e_msj_opposition",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_opposition_to_reply",
+      "from_event_id": "e_msj_opposition",
+      "to_event_id": "e_msj_reply",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_reply_to_argument",
+      "from_event_id": "e_msj_reply",
+      "to_event_id": "e_oral_argument",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_argument_to_ruling",
+      "from_event_id": "e_oral_argument",
+      "to_event_id": "e_msj_ruling",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_msj_to_ruling",
+      "from_event_id": "e_msj_filed",
+      "to_event_id": "e_msj_ruling",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_hours_contradicts",
+      "from_event_id": "e_overtime_period_wells",
+      "to_event_id": "e_overtime_period_drayton",
+      "type": "contradicts",
+      "strength": "alleged",
+      "detail": "Wells's declared ~53 hrs/wk vs. Drayton's timekeeping showing 40-44 hrs/wk for the same period"
+    }
+  ],
+  "disputes": [
+    {
+      "id": "d_hr_receipt_date",
+      "subject": "Date Drayton's HR department received Wells's overtime complaint",
+      "type": "date",
+      "versions": [
+        {
+          "event_id": "e_hr_notice_wells_version",
+          "asserting_party_id": "wells_janet",
+          "basis": "Wells Dep. 42:18-43:7 \u2014 Chu forwarded the Sept 8 email to HR Director Morris the same day"
+        },
+        {
+          "event_id": "e_hr_notice_drayton_version",
+          "asserting_party_id": "drayton_holdings",
+          "basis": "Morris Dep. 31:4-19 and Ex. D-7 (Morris's calendar) \u2014 Morris first learned of the complaint when Chu raised it at an Oct 3, 2022 meeting"
+        }
+      ],
+      "resolution": "unresolved",
+      "materiality": "Material to the temporal-proximity element of Wells's FLSA retaliation claim. Wells's version yields a ~5-week gap between protected activity and the PIP (sufficient under Williams v. Phila. Hous. Auth., 380 F.3d 751 (3d Cir. 2004)); Drayton's version yields an 11-day gap (even more probative). Court found that under either version a reasonable jury could find temporal proximity, so the dispute did not prevent denial of summary judgment but remains for the jury."
+    },
+    {
+      "id": "d_hours_worked",
+      "subject": "Number of hours Wells worked per week, Feb-Oct 2022",
+      "type": "occurrence",
+      "versions": [
+        {
+          "event_id": "e_overtime_period_wells",
+          "asserting_party_id": "wells_janet",
+          "basis": "Wells Decl. \u00b6\u00b6 8-11 \u2014 average of 53 hours per week"
+        },
+        {
+          "event_id": "e_overtime_period_drayton",
+          "asserting_party_id": "drayton_holdings",
+          "basis": "Chu Decl. \u00b6 14 (Ex. D-3) \u2014 timekeeping records show 40-44 hours per week"
+        }
+      ],
+      "resolution": "unresolved",
+      "materiality": "Court expressly did not resolve this discrepancy on summary judgment; underlies the FLSA overtime grievance that forms the predicate protected activity"
+    }
+  ],
+  "sources": [
+    {
+      "id": "s_opinion",
+      "type": "opinion",
+      "citation": "Memorandum Opinion (Beresford, J.), Jan. 17, 2025",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_compl_para12",
+      "type": "pleading",
+      "citation": "Compl. \u00b6 12",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt1",
+      "type": "pleading",
+      "citation": "Dkt. 1 (Complaint)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt14",
+      "type": "pleading",
+      "citation": "Dkt. 14 (Answer)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt19",
+      "type": "order",
+      "citation": "Dkt. 19 (Scheduling Order)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt47",
+      "type": "order",
+      "citation": "Dkt. 47 (Stipulation extending discovery)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt62",
+      "type": "motion",
+      "citation": "Dkt. 62 (Drayton MSJ)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt71",
+      "type": "brief",
+      "citation": "Dkt. 71 (Wells Opp. to MSJ)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_dkt75",
+      "type": "brief",
+      "citation": "Dkt. 75 (Drayton MSJ Reply)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_wells_dep_18",
+      "type": "deposition",
+      "citation": "Wells Dep. 18:5-22",
+      "line_range": "18:5-22",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_wells_dep_42_43",
+      "type": "deposition",
+      "citation": "Wells Dep. 42:18-43:7",
+      "line_range": "42:18-43:7",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_wells_dep_67",
+      "type": "deposition",
+      "citation": "Wells Dep. 67:8-21",
+      "line_range": "67:8-21",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_morris_dep_31",
+      "type": "deposition",
+      "citation": "Morris Dep. 31:4-19",
+      "line_range": "31:4-19",
+      "produced_by": "drayton_holdings"
+    },
+    {
+      "id": "s_wells_decl_para3",
+      "type": "declaration",
+      "citation": "Wells Decl. \u00b6 3 (Ex. P-1)",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_wells_decl_para8_11",
+      "type": "declaration",
+      "citation": "Wells Decl. \u00b6\u00b6 8-11",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_chu_decl_para14",
+      "type": "declaration",
+      "citation": "Chu Decl. \u00b6 14 (Ex. D-3)",
+      "produced_by": "drayton_holdings"
+    },
+    {
+      "id": "s_chu_decl_para22_25",
+      "type": "declaration",
+      "citation": "Chu Decl. \u00b6\u00b6 22-25",
+      "produced_by": "drayton_holdings"
+    },
+    {
+      "id": "s_ex_p2",
+      "type": "exhibit",
+      "citation": "Ex. P-2 (2021 annual review)",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_ex_p4",
+      "type": "exhibit",
+      "citation": "Ex. P-4 (Wells/Chu email chain, Sept 8, 2022)",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_ex_p9",
+      "type": "exhibit",
+      "citation": "Ex. P-9 (PIP)",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_ex_p12",
+      "type": "exhibit",
+      "citation": "Ex. P-12 (termination letter)",
+      "produced_by": "wells_janet"
+    },
+    {
+      "id": "s_ex_d7",
+      "type": "exhibit",
+      "citation": "Ex. D-7 (Morris's calendar)",
+      "produced_by": "drayton_holdings"
+    },
+    {
+      "id": "s_ex_d9",
+      "type": "exhibit",
+      "citation": "Ex. D-9 (July 2022 client complaint)",
+      "produced_by": "drayton_holdings"
+    },
+    {
+      "id": "s_ex_d10",
+      "type": "exhibit",
+      "citation": "Ex. D-10 (August 2022 client complaint)",
+      "produced_by": "drayton_holdings"
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+const margin = { top: 50, right: 40, bottom: 40, left: 160 };
+const width  = 1240;
+const laneHeight = 110;
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+const innerW = width - margin.left - margin.right;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width).attr("height", height);
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+const [start, end] = DATA.case.date_range;
+const xScale = d3.scaleTime().domain([parseDate(start), parseDate(end)]).range([0, innerW]);
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+g.selectAll(".grid").data(xScale.ticks(d3.timeMonth.every(3)))
+  .join("line").attr("class","grid").attr("x1", d=>xScale(d)).attr("x2", d=>xScale(d))
+  .attr("y1",0).attr("y2", lanes.length*laneHeight).attr("stroke","var(--rule)").attr("stroke-dasharray","1 3").attr("opacity",0.5);
+
+g.append("g").attr("class","axis").call(d3.axisTop(xScale).ticks(d3.timeMonth.every(3))
+  .tickFormat(d => d.getMonth() === 0 ? d3.timeFormat("%Y")(d) : d3.timeFormat("%b")(d)));
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
+  });
+}
+
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  (DATA.disputes || []).forEach(d => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const midY = Math.min(y1, y2) - 22;
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1-12} L${x1},${midY} L${x2},${midY} L${x2},${y2-12}`);
+    disputeG.append("text").attr("class","dispute-label")
+      .attr("x", (x1+x2)/2).attr("y", midY - 4).attr("text-anchor","middle")
+      .text(`◆ disputed: ${d.subject}`);
+  });
+}
+
+const tooltip = d3.select("#tooltip");
+const eventG = g.append("g").attr("class","events");
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  const sel = eventG.selectAll(".event").data(visible, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${laneY(d.lane_id)})`);
+  all.select("circle").attr("r", 6)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+  all.select(".event-label").attr("x",0).attr("y",(d,i)=>i%2===0?22:-14).attr("text-anchor","middle").text(d=>d.label);
+  all.select(".event-date").attr("x",0).attr("y",(d,i)=>i%2===0?34:-26).attr("text-anchor","middle")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? ` (${d.date_certainty})` : ""));
+  all.on("mouseenter", function(event, d) {
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function() { tooltip.style("opacity",0); });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+</script>
+</body>
+</html>

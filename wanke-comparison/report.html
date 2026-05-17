@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wanke v. AV Builder — Three-Chart Comparison Report</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --soft: #4a4a4a;
+    --rule: #d8d4cc;
+    --rule-soft: #efece2;
+    --accent-v1: #b04a2b;
+    --accent-v2: #d69e2e;
+    --accent-new: #2b6cb0;
+    --add: #2f6a3a;
+    --rem: #8b3a3a;
+    --chg: #8b6a1a;
+    --present: #2f6a3a;
+    --absent: #b8b3a8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .page {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 32px 28px 80px;
+  }
+
+  /* --- Header --- */
+  header.report {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+  header.report h1 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  header.report .case {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin: 0;
+  }
+  header.report .meta {
+    margin-top: 12px;
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  header.report .meta b { color: var(--ink); font-weight: 600; }
+
+  /* --- Section structure --- */
+  section { margin-top: 36px; }
+  h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+    margin: 0 0 14px 0;
+    font-weight: 600;
+  }
+  h2 .num {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: white;
+    text-align: center;
+    line-height: 22px;
+    font-size: 11px;
+    margin-right: 8px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  p.lede {
+    margin: 0 0 14px 0;
+    font-size: 13.5px;
+    color: var(--soft);
+    max-width: 90ch;
+  }
+
+  /* --- Charts row --- */
+  .charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .chart-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+    min-height: 460px;
+  }
+  .chart-card.full-width {
+    grid-column: 1 / -1;
+    padding: 0;
+    overflow: hidden;
+  }
+  .chart-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px 0;
+  }
+  .chart-card.full-width h3 {
+    padding: 12px 16px 0 16px;
+  }
+  .chart-card .tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .chart-card.v1   .tag { background: #f6e0d6; color: var(--accent-v1); }
+  .chart-card.v2   .tag { background: #faedd0; color: var(--accent-v2); }
+  .chart-card.new  .tag { background: #d8e7f3; color: var(--accent-new); }
+  .chart-card .meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0 0 10px 0;
+  }
+  .chart-card.full-width .meta {
+    padding: 0 16px;
+  }
+  .mermaid {
+    background: var(--paper);
+    font-size: 12px;
+    overflow-x: auto;
+  }
+  iframe.chart-frame { width: 100%; height: 1100px; border: 0; display: block; background: white; }
+
+  /* --- Capability table --- */
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12.5px;
+  }
+  table.compare th, table.compare td {
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  table.compare thead th {
+    background: #f5f3eb;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--rule);
+  }
+  table.compare tbody tr:last-child td { border-bottom: 0; }
+  table.compare td.dim-label {
+    font-weight: 600;
+    color: var(--ink);
+    background: #fbf9f3;
+    width: 22%;
+  }
+  table.compare td.v1-cell  { background: rgba(176, 74, 43, 0.04); }
+  table.compare td.v2-cell  { background: rgba(214, 158, 46, 0.04); }
+  table.compare td.new-cell { background: rgba(43, 108, 176, 0.05); }
+
+  /* --- Event table --- */
+  table.events {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12px;
+  }
+  table.events th, table.events td {
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  table.events thead th {
+    background: #f5f3eb;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--rule);
+    position: sticky;
+    top: 0;
+  }
+  table.events tbody tr:last-child td { border-bottom: 0; }
+  table.events td.date {
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: var(--soft);
+    width: 110px;
+  }
+  table.events td.label {
+    font-weight: 500;
+    width: 30%;
+  }
+  table.events td.chart-cell {
+    width: 18%;
+    font-size: 11.5px;
+    color: var(--soft);
+  }
+  table.events td.v1-cell  { background: rgba(176, 74, 43, 0.04); }
+  table.events td.v2-cell  { background: rgba(214, 158, 46, 0.04); }
+  table.events td.new-cell { background: rgba(43, 108, 176, 0.05); }
+  .pres { color: var(--present); font-weight: 600; }
+  .abs  { color: var(--absent); }
+  .qual { color: var(--muted); font-style: italic; font-size: 11px; display: block; margin-top: 2px; }
+  table.events tbody tr.tot td {
+    font-weight: 600;
+    background: #f5f3eb;
+    color: var(--ink);
+    border-top: 2px solid var(--rule);
+  }
+
+  /* --- Bottom-line callouts --- */
+  .callouts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .callout {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+    border-top: 3px solid var(--rule);
+  }
+  .callout.v1  { border-top-color: var(--accent-v1); }
+  .callout.v2  { border-top-color: var(--accent-v2); }
+  .callout.new { border-top-color: var(--accent-new); }
+  .callout h4 {
+    margin: 0 0 6px 0;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .callout p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--soft);
+  }
+  .callout .badge {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  .callout.v1 .badge  { background: #f6e0d6; color: var(--accent-v1); }
+  .callout.v2 .badge  { background: #faedd0; color: var(--accent-v2); }
+  .callout.new .badge { background: #d8e7f3; color: var(--accent-new); }
+
+  /* --- Two-column feature lists --- */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .feature-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .feature-card h4 {
+    margin: 0 0 8px 0;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .feature-card ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+    color: var(--soft);
+    line-height: 1.55;
+  }
+  .feature-card li { margin: 4px 0; }
+
+  /* --- Footer --- */
+  footer.report {
+    margin-top: 48px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .charts, .callouts, .feature-grid { grid-template-columns: 1fr; }
+    iframe.chart-frame { height: 600px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="report">
+  <h1>Three-Chart Comparison: <em>Wanke v. AV Builder Corp.</em></h1>
+  <p class="case">Cal. Ct. App. 4th Dist., Div. 1 · D074392 · Filed Feb. 19, 2020 · Affirmed</p>
+  <div class="meta">
+    <span><b>Subject</b> Comparison of two prior extractor outputs (v1, v2) with the new <code>legal-timeline-extraction</code> + <code>legal-timeline-chart</code> skills.</span>
+  </div>
+  <div class="meta" style="margin-top:6px;">
+    <span><b>Old v1</b> <span style="color:var(--accent-v1);font-weight:600">7 events · 3 phases · Mermaid</span></span>
+    <span><b>Old v2</b> <span style="color:var(--accent-v2);font-weight:600">13 events · 5 phases · Mermaid</span></span>
+    <span><b>New</b> <span style="color:var(--accent-new);font-weight:600">21 events · 4 lanes · 1 dispute · 12 typed relationships · D3 interactive</span></span>
+  </div>
+</header>
+
+<!-- ============================================== -->
+<!-- SECTION 1: THE THREE CHARTS                   -->
+<!-- ============================================== -->
+<section>
+  <h2><span class="num">1</span>The three charts, rendered</h2>
+  <p class="lede">The two prior charts (v1 and v2) use Mermaid's <code>timeline</code> block — a flat, sectioned linear list. The new chart uses D3 with swimlanes for parties and a separate fact-vs-procedure track when the case warrants it. The new chart is interactive: hover any event for source citation and jurisdictional significance.</p>
+
+  <!-- v1 and v2 side by side -->
+  <div class="charts">
+    <div class="chart-card v1">
+      <h3>Old v1 (current PR) <span class="tag">v1</span></h3>
+      <p class="meta">Mermaid <code>timeline</code> · 7 events · 3 sections</p>
+      <pre class="mermaid">
+timeline
+    title v1 timeline
+    section Underlying judgment and debt
+        2013 : T1. Original judgment entered. 1,190,929 dollars against Keck and WP Solutions
+        Mid 2014 : T2. Subcontract debt arose. AVB owed WP Solutions 109,327 dollars
+    section Enforcement and trial proceedings
+        June 2014 : T3. Levy served on AVB. Receivable identified via examination
+        July 2016 : T4. Creditor's suit filed. Wanke sues AVB
+        June 2018 : T5. Bench trial held. Setoff and collection issues
+        Date not stated : T6. Trial judgment entered. 83,418 dollars for Wanke
+    section Appellate resolution
+        Feb 19 2020 : T7. Judgment affirmed. Standing, timeliness, and warranty challenges rejected
+      </pre>
+    </div>
+
+    <div class="chart-card v2">
+      <h3>Old v2 (proposed) <span class="tag">v2</span></h3>
+      <p class="meta">Mermaid <code>timeline</code> · 13 events · 5 sections</p>
+      <pre class="mermaid">
+timeline
+    title v2 timeline
+    section Underlying contracts and judgment
+        2009 to 2013 : T8. Subcontracts executed. Five waterproofing subcontracts between AVB and WP Solutions
+        2013 : T1. Original judgment entered. 1,190,929 dollars against Keck and WP Solutions
+    section Status changes and enforcement
+        2014 : T10. WP corporate suspension. Capacity to sue extinguished under 23301
+        June 2014 : T3. Levy served on AVB. Two-year levy lien arose under 697.710
+        Around June 2014 : T2. Work completed and Keck bankruptcy. WP Solutions dissolved
+        July 2014 : T11. Contractor's license suspended. AVB anchors limitations theory to this date
+        After June 2014 : T9. Examination proceeding identified 109,327 dollars debt. One-year lien under 708.120
+    section Lien expirations
+        Around mid 2015 : T12. Examination lien expired. Eliminated 708.230 path
+        Around June 2016 : T13. Levy lien expired. Limitations turns on 708.230 contract accrual window
+    section Trial proceedings
+        July 2016 : T4. Creditor's suit filed. Wanke seeks 109,327 dollars
+        June 2018 : T5. Bench trial held. Setoff and capacity issues
+        Date not stated : T6. Trial judgment entered. 83,418 dollars for Wanke
+    section Appellate resolution
+        Feb 19 2020 : T7. Judgment affirmed. All three challenges rejected
+      </pre>
+    </div>
+
+    <!-- New chart full-width below -->
+    <div class="chart-card full-width new">
+      <h3>New (legal-timeline-extraction + legal-timeline-chart) <span class="tag">new</span></h3>
+      <p class="meta">D3 swimlane + dual-track · 21 events · 4 lanes · 1 dispute · 12 typed relationships · interactive (hover for citations + jurisdictional significance)</p>
+      <iframe class="chart-frame" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;UTF-8&quot; /&gt;
+&lt;title&gt;Wanke, Industrial, Commercial, Residential, Inc. v. AV Builder Corp. — Timeline&lt;/title&gt;
+&lt;script src=&quot;https://d3js.org/d3.v7.min.js&quot;&gt;&lt;/script&gt;
+&lt;style&gt;
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, &quot;SF Pro Text&quot;, system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 12px 18px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .leader { stroke: var(--rule); stroke-width: 0.6px; }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 9.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 8.5px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.2px; fill: none; stroke-dasharray: 3 2; opacity: 0.75; }
+  .dispute-marker { font-size: 14px; fill: var(--dispute); font-weight: 600; }
+  .dispute-label { font-size: 10px; fill: var(--dispute); font-style: italic; }
+  .cluster { cursor: pointer; }
+  .cluster:hover .cluster-bg { stroke-width: 3px; }
+  .cluster-bg { stroke: white; stroke-width: 2px; transition: stroke-width 120ms ease; }
+  .cluster-count { font-size: 11px; font-weight: 700; fill: white; pointer-events: none; }
+  .cluster-month { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+  .style-pill { display: inline-block; padding: 2px 8px; font-size: 10.5px; font-weight: 500; background: #edf2f7; color: #2d3748; border-radius: 10px; vertical-align: middle; margin-left: 8px; letter-spacing: 0.02em; }
+  .warnings { max-width: 1280px; margin-top: 12px; padding: 10px 14px; background: #fffaf0; border: 1px solid #f6e05e; border-left: 3px solid #d69e2e; border-radius: 4px; font-size: 12px; color: #744210; }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header&gt;
+  &lt;h1&gt;Wanke, Industrial, Commercial, Residential, Inc. v. AV Builder Corp.&lt;span class=&quot;style-pill&quot;&gt;Dual Track&lt;/span&gt; &lt;span style=&quot;color:var(--muted);font-weight:400&quot;&gt;— Cal. Ct. App. 4th Dist., Div. 1 · D074392 (Super. Ct. No. 37-2016-00023774-CU-EN-CTL)&lt;/span&gt;&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;Wanke obtained a 2013 judgment against Keck and WP Solutions for $1,190,929. To collect, Wanke filed a creditor&#x27;s suit against third party AVB seeking $109,327 AVB owed WP Solutions under five waterproofing subcontracts. After bench trial, the court entered judgment for Wanke for $83,418.94, largely rejecting AVB&#x27;s setoff claims. The Court of Appeal affirmed on Feb. 19, 2020, rejecting AVB&#x27;s standing/capacity, statute-of-limitations, and warranty-setoff challenges.&lt;/p&gt;
+&lt;/header&gt;
+
+
+
+&lt;div class=&quot;controls&quot; id=&quot;controls&quot;&gt;&lt;/div&gt;
+&lt;div id=&quot;chart-wrap&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;tooltip&quot; id=&quot;tooltip&quot;&gt;&lt;/div&gt;
+
+&lt;footer&gt;Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.&lt;/footer&gt;
+
+&lt;script&gt;
+const DATA = {
+  &quot;case&quot;: {
+    &quot;id&quot;: &quot;wanke_v_av_builder_2020&quot;,
+    &quot;caption&quot;: &quot;Wanke, Industrial, Commercial, Residential, Inc. v. AV Builder Corp.&quot;,
+    &quot;court&quot;: &quot;Cal. Ct. App. 4th Dist., Div. 1&quot;,
+    &quot;docket&quot;: &quot;D074392 (Super. Ct. No. 37-2016-00023774-CU-EN-CTL)&quot;,
+    &quot;jurisdiction&quot;: &quot;California state appellate&quot;,
+    &quot;date_range&quot;: [
+      &quot;2008-01-01&quot;,
+      &quot;2020-06-01&quot;
+    ],
+    &quot;cause_of_action&quot;: [
+      &quot;creditor&#x27;s suit (\u00a7 708.210)&quot;,
+      &quot;warranty setoff (\u00a7 431.70)&quot;
+    ],
+    &quot;status&quot;: &quot;judgment&quot;,
+    &quot;summary&quot;: &quot;Wanke obtained a 2013 judgment against Keck and WP Solutions for $1,190,929. To collect, Wanke filed a creditor&#x27;s suit against third party AVB seeking $109,327 AVB owed WP Solutions under five waterproofing subcontracts. After bench trial, the court entered judgment for Wanke for $83,418.94, largely rejecting AVB&#x27;s setoff claims. The Court of Appeal affirmed on Feb. 19, 2020, rejecting AVB&#x27;s standing/capacity, statute-of-limitations, and warranty-setoff challenges.&quot;
+  },
+  &quot;parties&quot;: [
+    {
+      &quot;id&quot;: &quot;wanke&quot;,
+      &quot;name&quot;: &quot;Wanke, Industrial, Commercial, Residential, Inc.&quot;,
+      &quot;short_name&quot;: &quot;Wanke&quot;,
+      &quot;role&quot;: [
+        &quot;plaintiff&quot;,
+        &quot;respondent&quot;,
+        &quot;judgment_creditor&quot;
+      ],
+      &quot;type&quot;: &quot;corporation&quot;,
+      &quot;representation&quot;: [
+        &quot;Lindborg &amp; Mazor \u2014 Peter F. Lindborg, Irina J. Mazor&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;avb&quot;,
+      &quot;name&quot;: &quot;AV Builder Corp.&quot;,
+      &quot;short_name&quot;: &quot;AVB&quot;,
+      &quot;role&quot;: [
+        &quot;defendant&quot;,
+        &quot;appellant&quot;,
+        &quot;third_party&quot;
+      ],
+      &quot;type&quot;: &quot;corporation&quot;,
+      &quot;representation&quot;: [
+        &quot;Greco Traficante Schulz &amp; Brick \u2014 Peter J. Schulz; Williams Iagmin \u2014 Jon R. Williams&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;wp_solutions&quot;,
+      &quot;name&quot;: &quot;WP Solutions, Inc.&quot;,
+      &quot;short_name&quot;: &quot;WP Solutions&quot;,
+      &quot;role&quot;: [
+        &quot;judgment_debtor&quot;,
+        &quot;non_party&quot;
+      ],
+      &quot;type&quot;: &quot;corporation&quot;
+    },
+    {
+      &quot;id&quot;: &quot;keck&quot;,
+      &quot;name&quot;: &quot;Scott Keck&quot;,
+      &quot;short_name&quot;: &quot;Keck&quot;,
+      &quot;role&quot;: [
+        &quot;judgment_debtor&quot;,
+        &quot;non_party&quot;,
+        &quot;witness&quot;
+      ],
+      &quot;type&quot;: &quot;individual&quot;
+    },
+    {
+      &quot;id&quot;: &quot;trial_court&quot;,
+      &quot;name&quot;: &quot;San Diego County Superior Court (Hon. Timothy B. Taylor)&quot;,
+      &quot;short_name&quot;: &quot;Trial Court&quot;,
+      &quot;role&quot;: [
+        &quot;court&quot;
+      ],
+      &quot;type&quot;: &quot;court&quot;
+    },
+    {
+      &quot;id&quot;: &quot;court_of_appeal&quot;,
+      &quot;name&quot;: &quot;California Court of Appeal, 4th District, Division 1&quot;,
+      &quot;short_name&quot;: &quot;Court of Appeal&quot;,
+      &quot;role&quot;: [
+        &quot;court&quot;
+      ],
+      &quot;type&quot;: &quot;court&quot;
+    }
+  ],
+  &quot;lanes&quot;: [
+    {
+      &quot;id&quot;: &quot;facts&quot;,
+      &quot;label&quot;: &quot;Facts&quot;,
+      &quot;sub&quot;: &quot;What happened&quot;,
+      &quot;color&quot;: &quot;#2b6cb0&quot;,
+      &quot;order&quot;: 0
+    },
+    {
+      &quot;id&quot;: &quot;procedure&quot;,
+      &quot;label&quot;: &quot;Procedure&quot;,
+      &quot;sub&quot;: &quot;What the court did&quot;,
+      &quot;color&quot;: &quot;#4a5568&quot;,
+      &quot;order&quot;: 1
+    }
+  ],
+  &quot;events&quot;: [
+    {
+      &quot;id&quot;: &quot;e_2008_trade_secret_suit&quot;,
+      &quot;label&quot;: &quot;Wanke sues Keck (trade secrets)&quot;,
+      &quot;detail&quot;: &quot;Wanke sued Keck and another former employee in 2008 for trade secret misappropriation after they left to form competing business WP Solutions. Collateral context for the later judgment.&quot;,
+      &quot;date&quot;: &quot;2008-01-01&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;keck&quot;
+      ],
+      &quot;kind&quot;: &quot;external&quot;,
+      &quot;category&quot;: &quot;related_proceeding&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Origin of the dispute that produced the predicate $1.19M judgment.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p2&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_subcontract_saratoga&quot;,
+      &quot;label&quot;: &quot;Saratoga West subcontract&quot;,
+      &quot;detail&quot;: &quot;WP Solutions \u2194 AVB waterproofing subcontract for Saratoga West project. Earliest of five subcontracts between the two companies.&quot;,
+      &quot;date&quot;: &quot;2009-11-16&quot;,
+      &quot;date_certainty&quot;: &quot;exact&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wp_solutions&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;fact&quot;,
+      &quot;category&quot;: &quot;contract&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3_fn3&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_subcontract_pointloma&quot;,
+      &quot;label&quot;: &quot;Point Loma Tennis Club subcontract&quot;,
+      &quot;detail&quot;: &quot;WP Solutions \u2194 AVB waterproofing subcontract. Pool deck on this project later caused $57,055.95 in repair damage (incompatible materials).&quot;,
+      &quot;date&quot;: &quot;2012-06-11&quot;,
+      &quot;date_certainty&quot;: &quot;exact&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wp_solutions&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;fact&quot;,
+      &quot;category&quot;: &quot;contract&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Source of the only setoff the trial court partially allowed ($25,908 for pool deck repair).&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3_fn3&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_subcontract_promenade&quot;,
+      &quot;label&quot;: &quot;133 Promenade subcontract&quot;,
+      &quot;detail&quot;: &quot;WP Solutions \u2194 AVB waterproofing subcontract.&quot;,
+      &quot;date&quot;: &quot;2013-04-25&quot;,
+      &quot;date_certainty&quot;: &quot;exact&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wp_solutions&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;fact&quot;,
+      &quot;category&quot;: &quot;contract&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3_fn3&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_subcontract_taitz&quot;,
+      &quot;label&quot;: &quot;Taitz Residence subcontract&quot;,
+      &quot;detail&quot;: &quot;WP Solutions \u2194 AVB waterproofing subcontract. One of two subcontracts (with Oxford Court) carrying open balances per Keck&#x27;s testimony.&quot;,
+      &quot;date&quot;: &quot;2013-09-09&quot;,
+      &quot;date_certainty&quot;: &quot;exact&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wp_solutions&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;fact&quot;,
+      &quot;category&quot;: &quot;contract&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Within four years of Wanke&#x27;s 2016 creditor&#x27;s suit; anchors \u00a7 708.230(a)(1) timeliness analysis (Wanke&#x27;s framework).&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3_fn3&quot;,
+        &quot;s_op_p15&quot;,
+        &quot;s_op_p16&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_subcontract_oxford&quot;,
+      &quot;label&quot;: &quot;Oxford Court subcontract&quot;,
+      &quot;detail&quot;: &quot;WP Solutions \u2194 AVB waterproofing subcontract. One of two subcontracts (with Taitz Residence) carrying open balances per Keck&#x27;s testimony at trial (Ex. 13).&quot;,
+      &quot;date&quot;: &quot;2013-12-23&quot;,
+      &quot;date_certainty&quot;: &quot;exact&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wp_solutions&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;fact&quot;,
+      &quot;category&quot;: &quot;contract&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Within four years of Wanke&#x27;s 2016 creditor&#x27;s suit; anchors \u00a7 708.230(a)(1) timeliness analysis (Wanke&#x27;s framework).&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3_fn3&quot;,
+        &quot;s_op_p15&quot;,
+        &quot;s_op_p16&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_wanke_keck_appellate&quot;,
+      &quot;label&quot;: &quot;Wanke v. Keck (2012) (collateral)&quot;,
+      &quot;detail&quot;: &quot;Earlier appellate decision (Wanke I) at 209 Cal.App.4th 1151, 1156-1162. Background for the breach-of-settlement litigation that produced the 2013 judgment.&quot;,
+      &quot;date&quot;: &quot;2012-01-01&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;keck&quot;,
+        &quot;court_of_appeal&quot;
+      ],
+      &quot;kind&quot;: &quot;external&quot;,
+      &quot;category&quot;: &quot;related_proceeding&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p2&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_predicate_judgment&quot;,
+      &quot;label&quot;: &quot;Predicate judgment entered ($1,190,929)&quot;,
+      &quot;detail&quot;: &quot;Trial court enters judgment in favor of Wanke, holding Keck and WP Solutions jointly and severally liable for $1,190,929 \u2014 the predicate obligation Wanke later sought to collect through the creditor&#x27;s suit.&quot;,
+      &quot;date&quot;: &quot;2013-01-01&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;keck&quot;,
+        &quot;wp_solutions&quot;,
+        &quot;trial_court&quot;
+      ],
+      &quot;kind&quot;: &quot;ruling&quot;,
+      &quot;category&quot;: &quot;judgment&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Predicate judgment supporting Wanke&#x27;s \u00a7 708.210 standing to bring creditor&#x27;s suit against AVB.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p2&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_wp_corp_suspension&quot;,
+      &quot;label&quot;: &quot;WP Solutions corporate suspension&quot;,
+      &quot;detail&quot;: &quot;WP Solutions was suspended as a corporation during 2014 (Rev. &amp; Tax. Code \u00a7 23301). Remained suspended at all times relevant. Source of the capacity-to-sue argument AVB pressed on appeal.&quot;,
+      &quot;date&quot;: &quot;2014-01-01&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wp_solutions&quot;
+      ],
+      &quot;kind&quot;: &quot;external&quot;,
+      &quot;category&quot;: &quot;regulation&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Extinguished WP Solutions&#x27; capacity to sue; foundation of AVB&#x27;s standing/capacity argument under Casiopea and Cal-Western.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p4&quot;,
+        &quot;s_op_p8&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_work_complete_bankruptcy&quot;,
+      &quot;label&quot;: &quot;Work complete; Keck bankruptcy; WP dissolved&quot;,
+      &quot;detail&quot;: &quot;Around June 2014, Keck completed the subcontract work, declared bankruptcy facing the 2013 judgment, and dissolved WP Solutions. WP Solutions could no longer perform ongoing warranty obligations built into each subcontract \u2014 basis for AVB&#x27;s warranty setoff theory.&quot;,
+      &quot;date&quot;: &quot;2014-06-15&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;keck&quot;,
+        &quot;wp_solutions&quot;
+      ],
+      &quot;kind&quot;: &quot;fact&quot;,
+      &quot;category&quot;: &quot;breach&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Triggered AVB&#x27;s argument that warranty work bargained-for could no longer be performed.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_levy_served&quot;,
+      &quot;label&quot;: &quot;Writ of execution &amp; notice of levy on AVB&quot;,
+      &quot;detail&quot;: &quot;Wanke serves writ of execution and notice of levy on AVB in June 2014, targeting any property of WP Solutions in AVB&#x27;s hands. Two-year levy lien arises under \u00a7 697.710.&quot;,
+      &quot;date&quot;: &quot;2014-06-15&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;filing&quot;,
+      &quot;category&quot;: &quot;notice&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Creates a two-year levy lien under \u00a7 697.710 (later expired before creditor&#x27;s suit).&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3&quot;,
+        &quot;s_op_p7&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_examination_proceedings&quot;,
+      &quot;label&quot;: &quot;Examination proceedings; $109,327 debt identified&quot;,
+      &quot;detail&quot;: &quot;Wanke conducts examination proceedings of AVB&#x27;s president Antonio Madureira under \u00a7 708.120. Learns AVB owed WP Solutions $109,327 under the subcontracts. One-year examination lien arises under \u00a7 708.120(c).&quot;,
+      &quot;date&quot;: &quot;2014-07-15&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;discovery&quot;,
+      &quot;category&quot;: &quot;deposition&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Identified the specific receivable underlying the creditor&#x27;s suit; created one-year examination lien.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3&quot;,
+        &quot;s_op_p7&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_license_suspended&quot;,
+      &quot;label&quot;: &quot;WP Solutions contractor&#x27;s license suspended&quot;,
+      &quot;detail&quot;: &quot;WP Solutions&#x27; contractor&#x27;s license suspended in July 2014. After this, WP Solutions was statutorily precluded from pursuing a collection action against AVB under Bus. &amp; Prof. Code \u00a7 7031(a). AVB anchors its statute-of-limitations theory to this date.&quot;,
+      &quot;date&quot;: &quot;2014-07-01&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wp_solutions&quot;
+      ],
+      &quot;kind&quot;: &quot;external&quot;,
+      &quot;category&quot;: &quot;regulation&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;AVB&#x27;s anchor date for SoL theory: WP Solutions could not &#x27;bring an action&#x27; after this date, so \u00a7 708.230(a)(1) two-year window ran out July 2016.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p13&quot;
+      ],
+      &quot;disputed&quot;: true,
+      &quot;dispute_id&quot;: &quot;d_sol_anchor&quot;
+    },
+    {
+      &quot;id&quot;: &quot;e_subcontract_breach_accrual&quot;,
+      &quot;label&quot;: &quot;Subcontract accrual (Wanke&#x27;s theory)&quot;,
+      &quot;detail&quot;: &quot;Wanke&#x27;s theory: \u00a7 708.230(a)(1) borrows the underlying contract limitations period (\u00a7 337(a)&#x27;s four-year written-contract clock), measured from when AVB failed to meet payment obligations. The 2013 subcontracts (Taitz, Oxford) are within four years of the July 2016 creditor&#x27;s suit regardless.&quot;,
+      &quot;date&quot;: &quot;2013-12-23&quot;,
+      &quot;date_certainty&quot;: &quot;disputed&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;
+      ],
+      &quot;kind&quot;: &quot;fact&quot;,
+      &quot;category&quot;: &quot;breach&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Wanke&#x27;s anchor for SoL: contract accrual under \u00a7 337(a), 4-year clock from breach.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p15&quot;,
+        &quot;s_op_p16&quot;
+      ],
+      &quot;disputed&quot;: true,
+      &quot;dispute_id&quot;: &quot;d_sol_anchor&quot;
+    },
+    {
+      &quot;id&quot;: &quot;e_exam_lien_expired&quot;,
+      &quot;label&quot;: &quot;Examination lien expired (1-year)&quot;,
+      &quot;detail&quot;: &quot;One-year examination lien under \u00a7 708.120(c) expired in mid-2015 \u2014 before Wanke filed the July 2016 creditor&#x27;s suit. Eliminated this path for \u00a7 708.230(a)(2) timeliness.&quot;,
+      &quot;date&quot;: &quot;2015-07-15&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;
+      ],
+      &quot;kind&quot;: &quot;external&quot;,
+      &quot;category&quot;: &quot;regulation&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Forced timeliness analysis onto \u00a7 708.230(a)(1) (judgment-debtor accrual window).&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p7&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_levy_lien_expired&quot;,
+      &quot;label&quot;: &quot;Levy lien expired (2-year)&quot;,
+      &quot;detail&quot;: &quot;Two-year levy lien under \u00a7 697.710 expired ~June 2016 \u2014 before Wanke filed the July 2016 creditor&#x27;s suit. Eliminated this path for \u00a7 708.230(a)(2) timeliness.&quot;,
+      &quot;date&quot;: &quot;2016-06-15&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;facts&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;external&quot;,
+      &quot;category&quot;: &quot;regulation&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Forced timeliness analysis onto \u00a7 708.230(a)(1) (judgment-debtor accrual window).&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p7&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_creditors_suit&quot;,
+      &quot;label&quot;: &quot;Creditor&#x27;s suit filed ($109,327)&quot;,
+      &quot;detail&quot;: &quot;Wanke files creditor&#x27;s suit against AVB under \u00a7 708.210 seeking to recover $109,327 toward outstanding judgment. Filed in San Diego Superior Court (Hon. Timothy B. Taylor).&quot;,
+      &quot;date&quot;: &quot;2016-07-15&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;avb&quot;,
+        &quot;trial_court&quot;
+      ],
+      &quot;kind&quot;: &quot;filing&quot;,
+      &quot;category&quot;: &quot;pleading&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Commenced the \u00a7 708.210 creditor&#x27;s suit; date against which \u00a7 708.230(a)(1) timeliness is measured.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3&quot;,
+        &quot;s_op_p7&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_avb_trial_brief_standing&quot;,
+      &quot;label&quot;: &quot;AVB trial brief: standing/capacity&quot;,
+      &quot;detail&quot;: &quot;AVB first presented its standing/capacity argument in its trial brief, invoking assignment principles from Cal-Western and Casiopea to argue Wanke stood in WP Solutions&#x27; shoes.&quot;,
+      &quot;date&quot;: &quot;2018-05-01&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;avb&quot;
+      ],
+      &quot;kind&quot;: &quot;filing&quot;,
+      &quot;category&quot;: &quot;brief&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p9&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_bench_trial&quot;,
+      &quot;label&quot;: &quot;Two-day bench trial&quot;,
+      &quot;detail&quot;: &quot;Two-day bench trial in June 2018. Parties stipulated to judgment, bankruptcy, levy, and debt facts. Sole trial issues: AVB&#x27;s setoff claims (\u00a7 431.70) and Wanke&#x27;s ability to collect given WP Solutions&#x27; incapacity. AVB called four witnesses (Canup, Keck, Madureira, Bagnall); Wanke called rebuttal expert Kushner.&quot;,
+      &quot;date&quot;: &quot;2018-06-15&quot;,
+      &quot;date_certainty&quot;: &quot;approximate&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;avb&quot;,
+        &quot;keck&quot;,
+        &quot;trial_court&quot;
+      ],
+      &quot;kind&quot;: &quot;ruling&quot;,
+      &quot;category&quot;: &quot;order&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p3&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_trial_judgment&quot;,
+      &quot;label&quot;: &quot;Trial judgment for Wanke ($83,418.94)&quot;,
+      &quot;detail&quot;: &quot;Trial court enters judgment in favor of Wanke for $83,418.94, after allowing a $25,908 Point Loma pool deck repair offset and rejecting AVB&#x27;s remaining setoff claims. Court found AVB failed to carry its burden to establish the value of warranty setoffs.&quot;,
+      &quot;date&quot;: &quot;2018-08-01&quot;,
+      &quot;date_certainty&quot;: &quot;unknown&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;avb&quot;,
+        &quot;trial_court&quot;
+      ],
+      &quot;kind&quot;: &quot;ruling&quot;,
+      &quot;category&quot;: &quot;judgment&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Operative trial-court judgment under review on appeal.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p4&quot;,
+        &quot;s_op_p5&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;e_appeal_affirmed&quot;,
+      &quot;label&quot;: &quot;Court of Appeal affirms&quot;,
+      &quot;detail&quot;: &quot;Court of Appeal (Dato, J., with Benke, Acting P.J., and O&#x27;Rourke, J. concurring) files opinion affirming the judgment. Rejects all three contentions: (1) standing/capacity \u2014 \u00a7 708.210 creditor&#x27;s suit is not derivative of WP Solutions&#x27; rights; (2) statute of limitations \u2014 AVB failed to meet burden of proof; (3) warranty setoffs \u2014 AVB failed to establish nonspeculative value. Costs to Wanke.&quot;,
+      &quot;date&quot;: &quot;2020-02-19&quot;,
+      &quot;date_certainty&quot;: &quot;exact&quot;,
+      &quot;lane_id&quot;: &quot;procedure&quot;,
+      &quot;party_ids&quot;: [
+        &quot;wanke&quot;,
+        &quot;avb&quot;,
+        &quot;court_of_appeal&quot;
+      ],
+      &quot;kind&quot;: &quot;ruling&quot;,
+      &quot;category&quot;: &quot;opinion&quot;,
+      &quot;jurisdictional_significance&quot;: &quot;Disposes of all three appellate issues; affirmance.&quot;,
+      &quot;source_ids&quot;: [
+        &quot;s_op_p1&quot;,
+        &quot;s_op_p22&quot;
+      ]
+    }
+  ],
+  &quot;relationships&quot;: [
+    {
+      &quot;id&quot;: &quot;r_2008_to_judgment&quot;,
+      &quot;from_event_id&quot;: &quot;e_2008_trade_secret_suit&quot;,
+      &quot;to_event_id&quot;: &quot;e_predicate_judgment&quot;,
+      &quot;type&quot;: &quot;causal&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_judgment_to_levy&quot;,
+      &quot;from_event_id&quot;: &quot;e_predicate_judgment&quot;,
+      &quot;to_event_id&quot;: &quot;e_levy_served&quot;,
+      &quot;type&quot;: &quot;causal&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;,
+      &quot;detail&quot;: &quot;Unsatisfied judgment is the foundation for the levy on AVB.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_levy_to_examination&quot;,
+      &quot;from_event_id&quot;: &quot;e_levy_served&quot;,
+      &quot;to_event_id&quot;: &quot;e_examination_proceedings&quot;,
+      &quot;type&quot;: &quot;causal&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_levy_lien_expiry&quot;,
+      &quot;from_event_id&quot;: &quot;e_levy_served&quot;,
+      &quot;to_event_id&quot;: &quot;e_levy_lien_expired&quot;,
+      &quot;type&quot;: &quot;tolls&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;,
+      &quot;clock_id&quot;: &quot;levy_lien_697_710&quot;,
+      &quot;clock_effect&quot;: &quot;expire&quot;,
+      &quot;detail&quot;: &quot;2-year levy lien under \u00a7 697.710 expires June 2016.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_exam_lien_expiry&quot;,
+      &quot;from_event_id&quot;: &quot;e_examination_proceedings&quot;,
+      &quot;to_event_id&quot;: &quot;e_exam_lien_expired&quot;,
+      &quot;type&quot;: &quot;tolls&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;,
+      &quot;clock_id&quot;: &quot;exam_lien_708_120c&quot;,
+      &quot;clock_effect&quot;: &quot;expire&quot;,
+      &quot;detail&quot;: &quot;1-year examination lien under \u00a7 708.120(c) expires mid-2015.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_examination_to_suit&quot;,
+      &quot;from_event_id&quot;: &quot;e_examination_proceedings&quot;,
+      &quot;to_event_id&quot;: &quot;e_creditors_suit&quot;,
+      &quot;type&quot;: &quot;causal&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;,
+      &quot;detail&quot;: &quot;Examination identified the $109,327 receivable that became the subject of the creditor&#x27;s suit.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_suit_to_trialbrief&quot;,
+      &quot;from_event_id&quot;: &quot;e_creditors_suit&quot;,
+      &quot;to_event_id&quot;: &quot;e_avb_trial_brief_standing&quot;,
+      &quot;type&quot;: &quot;response&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_trialbrief_to_trial&quot;,
+      &quot;from_event_id&quot;: &quot;e_avb_trial_brief_standing&quot;,
+      &quot;to_event_id&quot;: &quot;e_bench_trial&quot;,
+      &quot;type&quot;: &quot;response&quot;,
+      &quot;strength&quot;: &quot;undisputed&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_trial_to_judgment&quot;,
+      &quot;from_event_id&quot;: &quot;e_bench_trial&quot;,
+      &quot;to_event_id&quot;: &quot;e_trial_judgment&quot;,
+      &quot;type&quot;: &quot;response&quot;,
+      &quot;strength&quot;: &quot;adjudicated&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_judgment_to_appeal&quot;,
+      &quot;from_event_id&quot;: &quot;e_trial_judgment&quot;,
+      &quot;to_event_id&quot;: &quot;e_appeal_affirmed&quot;,
+      &quot;type&quot;: &quot;response&quot;,
+      &quot;strength&quot;: &quot;adjudicated&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_license_tolls&quot;,
+      &quot;from_event_id&quot;: &quot;e_license_suspended&quot;,
+      &quot;to_event_id&quot;: &quot;e_creditors_suit&quot;,
+      &quot;type&quot;: &quot;tolls&quot;,
+      &quot;strength&quot;: &quot;alleged&quot;,
+      &quot;clock_id&quot;: &quot;sol_708_230_a1_avb_theory&quot;,
+      &quot;clock_effect&quot;: &quot;start&quot;,
+      &quot;detail&quot;: &quot;AVB&#x27;s theory: license suspension started the two-year SoL window under \u00a7 708.230(a)(1); rejected on the merits.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;r_subcontract_accrual_tolls&quot;,
+      &quot;from_event_id&quot;: &quot;e_subcontract_breach_accrual&quot;,
+      &quot;to_event_id&quot;: &quot;e_creditors_suit&quot;,
+      &quot;type&quot;: &quot;tolls&quot;,
+      &quot;strength&quot;: &quot;adjudicated&quot;,
+      &quot;clock_id&quot;: &quot;sol_708_230_a1_wanke_theory&quot;,
+      &quot;clock_effect&quot;: &quot;start&quot;,
+      &quot;detail&quot;: &quot;Wanke&#x27;s theory (adopted): contract accrual under \u00a7 337(a) 4-year clock; suit timely as to 2013 subcontracts.&quot;
+    }
+  ],
+  &quot;disputes&quot;: [
+    {
+      &quot;id&quot;: &quot;d_sol_anchor&quot;,
+      &quot;subject&quot;: &quot;What event starts the \u00a7 708.230(a)(1) limitations clock for Wanke&#x27;s creditor&#x27;s suit?&quot;,
+      &quot;type&quot;: &quot;meaning&quot;,
+      &quot;versions&quot;: [
+        {
+          &quot;event_id&quot;: &quot;e_license_suspended&quot;,
+          &quot;asserting_party_id&quot;: &quot;avb&quot;,
+          &quot;basis&quot;: &quot;AVB: WP Solutions&#x27; July 2014 contractor&#x27;s-license suspension under Bus. &amp; Prof. Code \u00a7 7031 ended the period in which WP Solutions &#x27;may bring an action.&#x27; Two-year clock under \u00a7 708.230(a)(1) ran out July 2016.&quot;
+        },
+        {
+          &quot;event_id&quot;: &quot;e_subcontract_breach_accrual&quot;,
+          &quot;asserting_party_id&quot;: &quot;wanke&quot;,
+          &quot;basis&quot;: &quot;Wanke: \u00a7 708.230(a)(1) effectively borrows \u00a7 337(a)&#x27;s four-year contract clock from when AVB failed to meet payment obligations under the subcontracts. 2013 subcontracts (Taitz, Oxford) are within four years of July 2016 suit.&quot;
+        }
+      ],
+      &quot;resolution&quot;: &quot;adjudicated_for_wanke&quot;,
+      &quot;materiality&quot;: &quot;Determines whether Wanke&#x27;s July 2016 creditor&#x27;s suit is time-barred. Court of Appeal held the statute deals with accrual of the underlying claim, without regard to factors like incapacity or licensure; also held AVB failed to meet its burden of proof either way.&quot;
+    }
+  ],
+  &quot;sources&quot;: [
+    {
+      &quot;id&quot;: &quot;s_op_p1&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 1 (caption)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p2&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 2&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p3&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 3&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p3_fn3&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 3 fn. 3 (subcontract dates)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p4&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 4&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p5&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 5&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p7&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 7&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p8&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 8 (capacity / Casiopea)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p9&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 9 (AVB trial brief)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p13&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 13 (AVB SoL theory; Bus. &amp; Prof. Code \u00a7 7031)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p15&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 15 (\u00a7 337(a) 4-year contract clock)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p16&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 16 (2013 subcontracts within 4 years of 2016 suit)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;s_op_p22&quot;,
+      &quot;type&quot;: &quot;opinion&quot;,
+      &quot;citation&quot;: &quot;Slip op. p. 22 (Disposition: judgment affirmed)&quot;,
+      &quot;authenticity&quot;: &quot;admitted&quot;
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById(&quot;controls&quot;);
+function legendHTML() {
+  const swatches = DATA.lanes.map(l =&gt; `&lt;span&gt;&lt;span class=&quot;legend-swatch&quot; style=&quot;background:${l.color || &#x27;#999&#x27;}&quot;&gt;&lt;/span&gt; ${l.label}${l.sub ? &#x27; (&#x27; + l.sub + &#x27;)&#x27; : &#x27;&#x27;}&lt;/span&gt;`).join(&quot;&quot;);
+  return `
+    &lt;label&gt;&lt;input type=&quot;checkbox&quot; id=&quot;show-disputed&quot; checked /&gt; Show disputed events&lt;/label&gt;
+    &lt;label&gt;&lt;input type=&quot;checkbox&quot; id=&quot;show-response&quot; checked /&gt; Response arrows&lt;/label&gt;
+    &lt;label&gt;&lt;input type=&quot;checkbox&quot; id=&quot;show-causal&quot; checked /&gt; Causal arrows&lt;/label&gt;
+    &lt;label&gt;&lt;input type=&quot;checkbox&quot; id=&quot;show-tolls&quot; checked /&gt; Tolling arrows&lt;/label&gt;
+    &lt;div class=&quot;divider&quot;&gt;&lt;/div&gt;
+    ${swatches}
+    &lt;div class=&quot;divider&quot;&gt;&lt;/div&gt;
+    &lt;span&gt;&lt;span class=&quot;legend-swatch&quot; style=&quot;background:white;border:2px solid var(--dispute)&quot;&gt;&lt;/span&gt; Disputed&lt;/span&gt;
+  `;
+}
+controls.innerHTML = legendHTML();
+
+// ---- Fixed-width month-column grid (one column per calendar month) ----
+const COL_WIDTH = 28;       // pixels per month column
+const margin = { top: 95, right: 40, bottom: 40, left: 170 };
+const laneHeight = 340;     // tall enough for ±140 slot offset plus expanded clusters and labels
+const lanes = DATA.lanes.slice().sort((a,b) =&gt; (a.order||0) - (b.order||0));
+
+const parseDate = d3.timeParse(&quot;%Y-%m-%d&quot;);
+const events = DATA.events.map(e =&gt; ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range &amp;&amp; e.date_range[0]))
+})).filter(e =&gt; e._d);
+
+// Derive the inclusive month range from case.date_range
+const [start, end] = DATA.case.date_range;
+const startMonth = d3.timeMonth.floor(parseDate(start));
+const endMonth   = d3.timeMonth.offset(d3.timeMonth.floor(parseDate(end)), 1);
+const months     = d3.timeMonth.range(startMonth, endMonth);  // array of Date, one per month
+const monthIndex = new Map(months.map((m, i) =&gt; [+m, i]));
+
+// xScale: maps any date to the center of its month column
+function xScale(date) {
+  const t = +d3.timeMonth.floor(date);
+  let idx = monthIndex.get(t);
+  if (idx === undefined) {
+    idx = t &lt; +months[0] ? 0 : months.length - 1;
+  }
+  return idx * COL_WIDTH + COL_WIDTH / 2;
+}
+
+const innerW = months.length * COL_WIDTH;
+const width  = innerW + margin.left + margin.right;
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+
+const svg = d3.select(&quot;#chart-wrap&quot;).append(&quot;svg&quot;)
+  .attr(&quot;viewBox&quot;, `0 0 ${width} ${height}`)
+  .attr(&quot;width&quot;, width)
+  .attr(&quot;height&quot;, height);
+
+const g = svg.append(&quot;g&quot;).attr(&quot;transform&quot;, `translate(${margin.left},${margin.top})`);
+
+// Lanes
+const laneG = g.selectAll(&quot;.lane&quot;).data(lanes).join(&quot;g&quot;)
+  .attr(&quot;class&quot;, &quot;lane&quot;)
+  .attr(&quot;transform&quot;, (d, i) =&gt; `translate(0, ${i * laneHeight})`);
+laneG.append(&quot;rect&quot;).attr(&quot;class&quot;, (d,i) =&gt; &quot;lane-bg&quot; + (i%2===1 ? &quot; alt&quot; : &quot;&quot;))
+  .attr(&quot;x&quot;, -margin.left + 10).attr(&quot;width&quot;, innerW + margin.left + margin.right - 20).attr(&quot;height&quot;, laneHeight - 4);
+laneG.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;lane-label&quot;).attr(&quot;x&quot;, -margin.left + 22).attr(&quot;y&quot;, laneHeight/2 - 4).text(d =&gt; d.label);
+laneG.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;lane-sub&quot;).attr(&quot;x&quot;, -margin.left + 22).attr(&quot;y&quot;, laneHeight/2 + 12).text(d =&gt; d.sub || &quot;&quot;);
+laneG.append(&quot;rect&quot;).attr(&quot;x&quot;, -margin.left + 14).attr(&quot;y&quot;, laneHeight/2 - 14).attr(&quot;width&quot;, 3).attr(&quot;height&quot;, 28).attr(&quot;fill&quot;, d =&gt; d.color || &quot;#999&quot;);
+
+// ---- Column gridlines: light per-month, darker per-year ----
+g.selectAll(&quot;.grid-month&quot;).data(months)
+  .join(&quot;line&quot;).attr(&quot;class&quot;,&quot;grid-month&quot;)
+  .attr(&quot;x1&quot;, d =&gt; xScale(d) + COL_WIDTH/2).attr(&quot;x2&quot;, d =&gt; xScale(d) + COL_WIDTH/2)
+  .attr(&quot;y1&quot;, 0).attr(&quot;y2&quot;, lanes.length * laneHeight)
+  .attr(&quot;stroke&quot;, &quot;var(--rule)&quot;).attr(&quot;opacity&quot;, 0.18);
+
+const yearStarts = months.filter(m =&gt; m.getMonth() === 0);
+g.selectAll(&quot;.grid-year&quot;).data(yearStarts)
+  .join(&quot;line&quot;).attr(&quot;class&quot;,&quot;grid-year&quot;)
+  .attr(&quot;x1&quot;, d =&gt; xScale(d) - COL_WIDTH/2).attr(&quot;x2&quot;, d =&gt; xScale(d) - COL_WIDTH/2)
+  .attr(&quot;y1&quot;, 0).attr(&quot;y2&quot;, lanes.length * laneHeight)
+  .attr(&quot;stroke&quot;, &quot;var(--rule)&quot;).attr(&quot;opacity&quot;, 0.6);
+
+// ---- Axis: prominent year labels, quieter quarterly month labels ----
+const axisG = g.append(&quot;g&quot;).attr(&quot;class&quot;,&quot;axis&quot;);
+axisG.append(&quot;line&quot;).attr(&quot;x1&quot;, 0).attr(&quot;x2&quot;, innerW).attr(&quot;y1&quot;, 0).attr(&quot;y2&quot;, 0)
+  .attr(&quot;stroke&quot;, &quot;var(--rule)&quot;);
+
+yearStarts.forEach(d =&gt; {
+  axisG.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;year-label&quot;)
+    .attr(&quot;x&quot;, xScale(d)).attr(&quot;y&quot;, -10).attr(&quot;text-anchor&quot;,&quot;middle&quot;)
+    .style(&quot;font-size&quot;,&quot;12px&quot;).style(&quot;font-weight&quot;,&quot;600&quot;).style(&quot;fill&quot;,&quot;var(--ink)&quot;)
+    .text(d.getFullYear());
+});
+
+months.filter(m =&gt; m.getMonth() % 3 === 0 &amp;&amp; m.getMonth() !== 0).forEach(d =&gt; {
+  axisG.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;quarter-label&quot;)
+    .attr(&quot;x&quot;, xScale(d)).attr(&quot;y&quot;, -10).attr(&quot;text-anchor&quot;,&quot;middle&quot;)
+    .style(&quot;font-size&quot;,&quot;9.5px&quot;).style(&quot;fill&quot;,&quot;var(--muted)&quot;)
+    .text(d3.timeFormat(&quot;%b&quot;)(d));
+});
+
+svg.append(&quot;defs&quot;).selectAll(&quot;marker&quot;)
+  .data([&quot;response&quot;,&quot;causal&quot;,&quot;tolls&quot;,&quot;supersedes&quot;]).join(&quot;marker&quot;)
+  .attr(&quot;id&quot;, d =&gt; `arrow-${d}`).attr(&quot;viewBox&quot;,&quot;0 -5 10 10&quot;).attr(&quot;refX&quot;, 8).attr(&quot;refY&quot;, 0)
+  .attr(&quot;markerWidth&quot;, 6).attr(&quot;markerHeight&quot;, 6).attr(&quot;orient&quot;,&quot;auto&quot;)
+  .append(&quot;path&quot;).attr(&quot;d&quot;,&quot;M0,-4L8,0L0,4&quot;)
+  .attr(&quot;fill&quot;, d =&gt; d === &quot;tolls&quot; ? &quot;#d69e2e&quot; : (d === &quot;causal&quot; ? &quot;#6b6b6b&quot; : &quot;#888&quot;));
+
+function laneY(id) { const i = lanes.findIndex(l =&gt; l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e =&gt; e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s =&gt; s.id === id); }
+
+const connectorG = g.append(&quot;g&quot;).attr(&quot;class&quot;,&quot;connectors&quot;);
+function renderConnectors() {
+  const flags = { response: document.getElementById(&quot;show-response&quot;).checked,
+                  causal: document.getElementById(&quot;show-causal&quot;).checked,
+                  tolls: document.getElementById(&quot;show-tolls&quot;).checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll(&quot;*&quot;).remove();
+  (DATA.relationships || []).forEach(c =&gt; {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    if (!isEventVisible(a) || !isEventVisible(b)) return;  // only draw between visible events
+    const x1=xScale(a._d);
+    const x2=xScale(b._d);
+    const y1=laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2=laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const mx=(x1+x2)/2;
+    connectorG.append(&quot;path&quot;).attr(&quot;d&quot;, `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr(&quot;class&quot;, `connector ${c.type}`).attr(&quot;marker-end&quot;, `url(#arrow-${c.type === &#x27;tolls&#x27; ? &#x27;tolls&#x27; : (c.type === &#x27;causal&#x27; ? &#x27;causal&#x27; : &#x27;response&#x27;)})`);
+  });
+}
+
+const disputeG = g.append(&quot;g&quot;).attr(&quot;class&quot;,&quot;disputes&quot;);
+function renderDisputes() {
+  const show = document.getElementById(&quot;show-disputed&quot;).checked;
+  disputeG.selectAll(&quot;*&quot;).remove();
+  if (!show) return;
+  // Arc top sits in the top margin, above the time axis (which is at y=0 within g)
+  const arcTopY = -32;
+  (DATA.disputes || []).forEach((d, i) =&gt; {
+    const evs = d.versions.map(v =&gt; eventById(v.event_id)).filter(Boolean);
+    if (evs.length &lt; 2) return;
+    if (!evs.every(isEventVisible)) return;  // only draw arc when both versions are visible
+    evs.sort((a,b) =&gt; a._d - b._d);
+    const [a, b] = evs;
+    const x1 = xScale(a._d);
+    const x2 = xScale(b._d);
+    const y1 = laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2 = laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const midX = (x1 + x2) / 2;
+    // Stack multiple disputes so their arc labels don&#x27;t collide
+    const tierTop = arcTopY - i * 22;
+    // Smooth arch: cubic Bezier from each dot up into the margin, peaking near tierTop
+    disputeG.append(&quot;path&quot;).attr(&quot;class&quot;,&quot;dispute-bracket&quot;)
+      .attr(&quot;d&quot;, `M${x1},${y1 - 10} C${x1},${tierTop} ${x2},${tierTop} ${x2},${y2 - 10}`);
+    // Diamond marker at the arc peak
+    disputeG.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;dispute-marker&quot;)
+      .attr(&quot;x&quot;, midX).attr(&quot;y&quot;, tierTop - 6).attr(&quot;text-anchor&quot;,&quot;middle&quot;)
+      .text(&quot;◆&quot;);
+    // Label sits above the marker, wraps to two lines if long
+    const subject = d.subject || &quot;disputed&quot;;
+    const labelText = `disputed: ${subject}`;
+    const maxLen = 70;
+    const label = disputeG.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;dispute-label&quot;)
+      .attr(&quot;x&quot;, midX).attr(&quot;y&quot;, tierTop - 18).attr(&quot;text-anchor&quot;,&quot;middle&quot;);
+    if (labelText.length &lt;= maxLen) {
+      label.text(labelText);
+    } else {
+      const cut = labelText.lastIndexOf(&quot; &quot;, maxLen);
+      const split = cut &gt; maxLen / 2 ? cut : maxLen;
+      label.append(&quot;tspan&quot;).attr(&quot;x&quot;, midX).attr(&quot;dy&quot;, 0).text(labelText.slice(0, split));
+      label.append(&quot;tspan&quot;).attr(&quot;x&quot;, midX).attr(&quot;dy&quot;, 12).text(labelText.slice(split).trim());
+      // Push the marker down a bit when there are two lines so it doesn&#x27;t crash into them
+      disputeG.selectAll(&quot;.dispute-marker&quot;).filter((_, idx, nodes) =&gt; nodes[idx].previousSibling === label.node().previousSibling)
+        .attr(&quot;y&quot;, tierTop - 4);
+    }
+  });
+}
+
+// ---- Dot-position staggering: each dot offset vertically so labels don&#x27;t overlap horizontally ----
+const DOT_SLOTS_Y = [0, 80, -80, 140, -140]; // y-offsets from lane centerline (leaves room for expanded clusters)
+// Labels are always rendered directly below each dot at a fixed offset
+const LABEL_SLOTS = [
+  { y_label: 22,  y_date: 32, dir: 1 },   // fixed: 22px below dot
+];
+const MIN_X_GAP = 150;
+const MAX_LABEL_CHARS = 22;
+const STACK_STEP = 52;       // px between stacked event rows in an expanded cluster (dot + label + date + buffer)
+let slotIdx  = new Map();    // event.id -&gt; slot index (or -1 to suppress label)
+let xOff     = new Map();    // (unused, kept for compat)
+let yJit     = new Map();    // event.id -&gt; y pixel offset for stacking
+let forceSlot = new Map();   // event.id -&gt; override slot index
+let clusters = [];           // array of {id, key, events, lane_id, x, size}
+let eventToCluster = new Map();  // event.id -&gt; {cluster, index}
+let expandedSet = new Set(); // ids of currently expanded multi-event clusters
+
+function monthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,&quot;0&quot;)}`;
+}
+
+function buildClusters(visible) {
+  clusters = [];
+  eventToCluster = new Map();
+  const groups = d3.group(visible, e =&gt; `${e.lane_id}|${monthKey(e._d)}`);
+  let cid = 0;
+  groups.forEach((evs, key) =&gt; {
+    const sortedEvs = evs.slice().sort((a,b) =&gt; a._d - b._d);
+    const meanX = d3.mean(sortedEvs, e =&gt; xScale(e._d));
+    const cluster = {
+      id: `cluster_${cid++}`,
+      key,
+      events: sortedEvs,
+      lane_id: sortedEvs[0].lane_id,
+      x: meanX,
+      size: sortedEvs.length,
+      month: monthKey(sortedEvs[0]._d),
+    };
+    clusters.push(cluster);
+    sortedEvs.forEach((e, i) =&gt; eventToCluster.set(e.id, { cluster, index: i }));
+  });
+}
+
+function isEventVisible(ev) {
+  const info = eventToCluster.get(ev.id);
+  if (!info) return true;
+  if (info.cluster.size === 1) return true;
+  return expandedSet.has(info.cluster.id);
+}
+
+function isClusterCollapsed(c) {
+  return c.size &gt; 1 &amp;&amp; !expandedSet.has(c.id);
+}
+
+function recomputeLayout(visible) {
+  slotIdx   = new Map();
+  xOff      = new Map();
+  yJit      = new Map();
+  forceSlot = new Map();
+
+  buildClusters(visible);
+
+  // ---- Per-lane chronological dot-slot assignment ----
+  // Each cluster gets a y-offset based on x-proximity to neighbors in the same lane.
+  // Adjacent columns are assigned different slots so labels (always below dot) don&#x27;t overlap.
+  const clustersByLane = d3.group(clusters, c =&gt; c.lane_id);
+  clustersByLane.forEach(laneClusters =&gt; {
+    const sorted = laneClusters.slice().sort((a,b) =&gt; a.x - b.x);
+    const lastX = DOT_SLOTS_Y.map(() =&gt; -Infinity);
+    sorted.forEach(cluster =&gt; {
+      const x = cluster.x;
+      let chosen = 0;
+      for (let i = 0; i &lt; DOT_SLOTS_Y.length; i++) {
+        if (x - lastX[i] &gt; MIN_X_GAP) { chosen = i; break; }
+      }
+      lastX[chosen] = x;
+      const baseY = DOT_SLOTS_Y[chosen];
+      cluster.dotSlotY = baseY;     // remember for cluster-marker positioning
+      if (cluster.size === 1) {
+        yJit.set(cluster.events[0].id, baseY);
+      } else {
+        // Multi-event clusters: stack vertically around their slot&#x27;s base y
+        const center = (cluster.size - 1) / 2;
+        cluster.events.forEach((ev, i) =&gt; yJit.set(ev.id, baseY + (i - center) * STACK_STEP));
+      }
+    });
+  });
+
+  // Labels always render at LABEL_SLOTS[0] (fixed offset below each dot). Force every event to slot 0,
+  // except for expanded multi-event clusters where middle events have no inline label.
+  const visibleEvts = visible.filter(isEventVisible);
+  visibleEvts.forEach(ev =&gt; {
+    const info = eventToCluster.get(ev.id);
+    if (info &amp;&amp; info.cluster.size &gt; 1) {
+      const i = info.index, n = info.cluster.size;
+      if (i === 0)            slotIdx.set(ev.id, 0);   // top of stack: label below
+      else if (i === n - 1)   slotIdx.set(ev.id, 0);   // bottom of stack: label below
+      else                    slotIdx.set(ev.id, -1);  // middle of stack: hover for info
+    } else {
+      slotIdx.set(ev.id, 0);
+    }
+  });
+}
+
+// ---- Cluster expansion logic ----
+function neighborsOf(clusterId) {
+  // Return set of cluster IDs connected to this cluster via relationships or disputes (1 hop)
+  const result = new Set([clusterId]);
+  const cluster = clusters.find(c =&gt; c.id === clusterId);
+  if (!cluster) return result;
+  const evIds = new Set(cluster.events.map(e =&gt; e.id));
+  (DATA.relationships || []).forEach(r =&gt; {
+    let otherEvId = null;
+    if (evIds.has(r.from_event_id)) otherEvId = r.to_event_id;
+    else if (evIds.has(r.to_event_id)) otherEvId = r.from_event_id;
+    if (otherEvId) {
+      const info = eventToCluster.get(otherEvId);
+      if (info &amp;&amp; info.cluster.size &gt; 1) result.add(info.cluster.id);
+    }
+  });
+  (DATA.disputes || []).forEach(d =&gt; {
+    const versionIds = d.versions.map(v =&gt; v.event_id);
+    if (versionIds.some(id =&gt; evIds.has(id))) {
+      versionIds.forEach(id =&gt; {
+        const info = eventToCluster.get(id);
+        if (info &amp;&amp; info.cluster.size &gt; 1) result.add(info.cluster.id);
+      });
+    }
+  });
+  return result;
+}
+
+let collapseTimer = null;
+function scheduleCollapse() {
+  if (collapseTimer) clearTimeout(collapseTimer);
+  collapseTimer = setTimeout(() =&gt; {
+    expandedSet = new Set();
+    rerenderAll();
+    collapseTimer = null;
+  }, 280);
+}
+function cancelCollapse() {
+  if (collapseTimer) { clearTimeout(collapseTimer); collapseTimer = null; }
+}
+function expandCluster(clusterId) {
+  cancelCollapse();
+  expandedSet = neighborsOf(clusterId);
+  rerenderAll();
+}
+function rerenderAll() {
+  renderEvents();
+  renderDisputes();
+  renderConnectors();
+}
+
+function truncateLabel(s) {
+  if (!s) return &quot;&quot;;
+  return s.length &gt; MAX_LABEL_CHARS ? s.slice(0, MAX_LABEL_CHARS - 1) + &quot;…&quot; : s;
+}
+
+const tooltip = d3.select(&quot;#tooltip&quot;);
+const leaderG = g.append(&quot;g&quot;).attr(&quot;class&quot;,&quot;leaders&quot;);
+const eventG = g.append(&quot;g&quot;).attr(&quot;class&quot;,&quot;events&quot;);
+const clusterG = g.append(&quot;g&quot;).attr(&quot;class&quot;,&quot;clusters&quot;);
+
+function renderEvents() {
+  const showD = document.getElementById(&quot;show-disputed&quot;).checked;
+  const visible = events.filter(e =&gt; showD || !e.disputed);
+  recomputeLayout(visible);
+
+  // ---- Render cluster markers for collapsed multi-event clusters ----
+  const collapsedClusters = clusters.filter(isClusterCollapsed);
+  const clSel = clusterG.selectAll(&quot;.cluster&quot;).data(collapsedClusters, c =&gt; c.id);
+  clSel.exit().remove();
+  const clEnter = clSel.enter().append(&quot;g&quot;).attr(&quot;class&quot;,&quot;cluster&quot;);
+  clEnter.append(&quot;circle&quot;).attr(&quot;class&quot;,&quot;cluster-bg&quot;);
+  clEnter.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;cluster-count&quot;);
+  clEnter.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;cluster-month&quot;);
+  const clAll = clEnter.merge(clSel)
+    .attr(&quot;transform&quot;, c =&gt; `translate(${c.x}, ${laneY(c.lane_id) + (c.dotSlotY || 0)})`)
+    .on(&quot;mouseenter&quot;, function(_, c) { expandCluster(c.id); })
+    .on(&quot;mouseleave&quot;, function() { scheduleCollapse(); })
+    .on(&quot;click&quot;, function(_, c) { expandCluster(c.id); });
+  clAll.select(&quot;.cluster-bg&quot;)
+    .attr(&quot;r&quot;, 12)
+    .attr(&quot;fill&quot;, c =&gt; lanes.find(l =&gt; l.id === c.lane_id)?.color || &quot;#999&quot;);
+  clAll.select(&quot;.cluster-count&quot;)
+    .attr(&quot;y&quot;, 4).attr(&quot;text-anchor&quot;,&quot;middle&quot;)
+    .text(c =&gt; c.size);
+  clAll.select(&quot;.cluster-month&quot;)
+    .attr(&quot;y&quot;, 28).attr(&quot;text-anchor&quot;,&quot;middle&quot;)
+    .text(c =&gt; {
+      const d = c.events[0]._d;
+      return d3.timeFormat(&quot;%b %Y&quot;)(d);
+    });
+
+  // ---- Render individual events: single-event clusters + members of expanded multi-event clusters ----
+  const visibleIndividuals = visible.filter(isEventVisible);
+
+  // Helper: an event is &quot;labeled&quot; only when it got a real slot (&gt;=0)
+  const hasLabel = d =&gt; slotIdx.get(d.id) &gt;= 0;
+  const slotOf = d =&gt; LABEL_SLOTS[slotIdx.get(d.id)];
+
+  // Leader lines (drawn first so they sit below dots). Only for far-positioned labels.
+  const dotY = d =&gt; laneY(d.lane_id) + (yJit.get(d.id) || 0);
+  const leaders = leaderG.selectAll(&quot;.leader&quot;).data(visibleIndividuals.filter(hasLabel), d =&gt; d.id);
+  leaders.exit().remove();
+  leaders.enter().append(&quot;line&quot;).attr(&quot;class&quot;,&quot;leader&quot;).merge(leaders)
+    .attr(&quot;x1&quot;, d =&gt; xScale(d._d))
+    .attr(&quot;x2&quot;, d =&gt; xScale(d._d))
+    .attr(&quot;y1&quot;, d =&gt; dotY(d) + (slotOf(d).dir &gt; 0 ? 6 : -6))
+    .attr(&quot;y2&quot;, d =&gt; dotY(d) + slotOf(d).y_label - (slotOf(d).dir &gt; 0 ? 6 : -6))
+    .attr(&quot;opacity&quot;, d =&gt; Math.abs(slotOf(d).y_label) &gt; 30 ? 0.65 : 0);
+
+  const sel = eventG.selectAll(&quot;.event&quot;).data(visibleIndividuals, d =&gt; d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append(&quot;g&quot;).attr(&quot;class&quot;,&quot;event&quot;);
+  enter.append(&quot;circle&quot;); enter.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;event-label&quot;); enter.append(&quot;text&quot;).attr(&quot;class&quot;,&quot;event-date&quot;);
+  const all = enter.merge(sel);
+  all.attr(&quot;transform&quot;, d =&gt; `translate(${xScale(d._d)}, ${dotY(d)})`);
+  all.select(&quot;circle&quot;).attr(&quot;r&quot;, 5)
+    .attr(&quot;fill&quot;, d =&gt; d.disputed ? &quot;white&quot; : (lanes.find(l=&gt;l.id===d.lane_id)?.color || &quot;#999&quot;))
+    .attr(&quot;stroke&quot;, d =&gt; d.disputed ? &quot;var(--dispute)&quot; : (lanes.find(l=&gt;l.id===d.lane_id)?.color || &quot;#999&quot;))
+    .attr(&quot;stroke-dasharray&quot;, d =&gt; d.disputed ? &quot;2 2&quot; : null);
+
+  all.select(&quot;.event-label&quot;).attr(&quot;x&quot;,0)
+    .attr(&quot;y&quot;, d =&gt; hasLabel(d) ? slotOf(d).y_label : 0)
+    .attr(&quot;text-anchor&quot;,&quot;middle&quot;)
+    .style(&quot;display&quot;, d =&gt; hasLabel(d) ? null : &quot;none&quot;)
+    .text(d =&gt; truncateLabel(d.label));
+
+  all.select(&quot;.event-date&quot;).attr(&quot;x&quot;,0)
+    .attr(&quot;y&quot;, d =&gt; hasLabel(d) ? slotOf(d).y_date : 0)
+    .attr(&quot;text-anchor&quot;,&quot;middle&quot;)
+    .style(&quot;display&quot;, d =&gt; hasLabel(d) ? null : &quot;none&quot;)
+    .text(d =&gt; d3.timeFormat(&quot;%b %d, %Y&quot;)(d._d) + (d.date_certainty &amp;&amp; d.date_certainty !== &quot;exact&quot; ? &quot; (~)&quot; : &quot;&quot;));
+  all.on(&quot;mouseenter&quot;, function(event, d) {
+    // Keep expansion alive while hovering an event inside an expanded cluster
+    const info = eventToCluster.get(d.id);
+    if (info &amp;&amp; info.cluster.size &gt; 1) cancelCollapse();
+    const lane = lanes.find(l =&gt; l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid =&gt; sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `&lt;div class=&quot;src&quot;&gt;${srcs.map(s =&gt; s.citation).join(&quot; · &quot;)}&lt;/div&gt;` : &quot;&quot;;
+    const sig = d.jurisdictional_significance ? `&lt;div class=&quot;meta&quot; style=&quot;color:#ffb59a&quot;&gt;⚖ ${d.jurisdictional_significance}&lt;/div&gt;` : &quot;&quot;;
+    tooltip.style(&quot;opacity&quot;,1).html(`&lt;strong&gt;${d.label}&lt;/strong&gt;
+      &lt;div&gt;${d.detail || &quot;&quot;}&lt;/div&gt;
+      &lt;div class=&quot;meta&quot;&gt;${lane?.label || d.lane_id} · ${d3.timeFormat(&quot;%B %d, %Y&quot;)(d._d)}${d.disputed ? &quot; · &lt;span style=&#x27;color:#ff8a8a&#x27;&gt;DISPUTED&lt;/span&gt;&quot; : &quot;&quot;}&lt;/div&gt;
+      ${sig}${srcHTML}`);
+  }).on(&quot;mousemove&quot;, function(event) {
+    tooltip.style(&quot;left&quot;,(event.pageX+14)+&quot;px&quot;).style(&quot;top&quot;,(event.pageY+14)+&quot;px&quot;);
+  }).on(&quot;mouseleave&quot;, function(_, d) {
+    tooltip.style(&quot;opacity&quot;,0);
+    const info = eventToCluster.get(d.id);
+    if (info &amp;&amp; info.cluster.size &gt; 1) scheduleCollapse();
+  });
+}
+
+[&quot;show-disputed&quot;,&quot;show-response&quot;,&quot;show-causal&quot;,&quot;show-tolls&quot;].forEach(id =&gt; {
+  document.getElementById(id).addEventListener(&quot;change&quot;, () =&gt; { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" title="New chart (auto: dual-track)" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION 2: CAPABILITY COMPARISON              -->
+<!-- ============================================== -->
+<section>
+  <h2><span class="num">2</span>Capability comparison</h2>
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>Old v1</th>
+        <th>Old v2</th>
+        <th>New</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="dim-label">Rendering engine</td><td class="v1-cell">Mermaid <code>timeline</code></td><td class="v2-cell">Mermaid <code>timeline</code></td><td class="new-cell">D3.js (SVG, interactive)</td></tr>
+      <tr><td class="dim-label">Layout</td><td class="v1-cell">Flat linear, section-grouped</td><td class="v2-cell">Flat linear, section-grouped</td><td class="new-cell">Swimlane (4 lanes) or dual-track (Facts/Procedure)</td></tr>
+      <tr><td class="dim-label">Event count</td><td class="v1-cell">7 events / 3 sections</td><td class="v2-cell">13 events / 5 sections</td><td class="new-cell"><b>21 events</b> (incl. all 5 subcontracts individually + collateral)</td></tr>
+      <tr><td class="dim-label">Party attribution</td><td class="v1-cell">None — events are flat</td><td class="v2-cell">None — events are flat</td><td class="new-cell">4 lanes: Plaintiff, Defendant, Judgment Debtors, Court</td></tr>
+      <tr><td class="dim-label">Disputed facts</td><td class="v1-cell">Not represented</td><td class="v2-cell">Not represented</td><td class="new-cell">First-class — hollow events + red bracket linking versions</td></tr>
+      <tr><td class="dim-label">Typed relationships</td><td class="v1-cell">None</td><td class="v2-cell">None</td><td class="new-cell">12 edges: causal, response, tolls (with <code>clock_id</code> + <code>clock_effect</code>)</td></tr>
+      <tr><td class="dim-label">Tolling clocks</td><td class="v1-cell">Not rendered</td><td class="v2-cell">Not rendered</td><td class="new-cell">Gold-dashed tolling arrows for AVB's and Wanke's competing SoL theories</td></tr>
+      <tr><td class="dim-label">Source citations</td><td class="v1-cell">None per event</td><td class="v2-cell">None per event</td><td class="new-cell">Per-event citation in tooltip (Slip op. p. 7, fn. 3, p. 13 etc.)</td></tr>
+      <tr><td class="dim-label">Jurisdictional significance</td><td class="v1-cell">Free-text in summary docs</td><td class="v2-cell">Free-text in summary docs</td><td class="new-cell">Per-event field surfaced inline in tooltip</td></tr>
+      <tr><td class="dim-label">Interactivity</td><td class="v1-cell">Static</td><td class="v2-cell">Static</td><td class="new-cell">Hover tooltips · filters (disputed / response / causal / tolls)</td></tr>
+      <tr><td class="dim-label">Validation / warnings</td><td class="v1-cell">None</td><td class="v2-cell">None</td><td class="new-cell">Inline warnings banner · field defaults · lane inference</td></tr>
+      <tr><td class="dim-label">Output</td><td class="v1-cell">Mermaid markdown text</td><td class="v2-cell">Mermaid markdown text</td><td class="new-cell">Single self-contained interactive HTML</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION 3: EVENT-BY-EVENT TABLE               -->
+<!-- ============================================== -->
+<section>
+  <h2><span class="num">3</span>Event-by-event content table</h2>
+  <p class="lede">One row per event, sorted chronologically. Each chart column shows whether that event is captured and how it's labeled in that chart. The same legend applies: <span class="pres">●</span> present · <span class="abs">—</span> absent · italic notes describe how the event is represented or qualified in that chart.</p>
+
+  <table class="events">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Event</th>
+        <th>Old v1</th>
+        <th>Old v2</th>
+        <th>New</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="date">2008</td>
+        <td class="label">Wanke sues Keck (trade secret misappropriation)</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="abs">—</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">External / collateral proceeding</span></td>
+      </tr>
+      <tr>
+        <td class="date">2009-11-16</td>
+        <td class="label">Saratoga West subcontract</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">Grouped in T8 range (2009–2013)</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Individual event on Judgment Debtors lane</span></td>
+      </tr>
+      <tr>
+        <td class="date">2012</td>
+        <td class="label">Wanke v. Keck (2012) 209 Cal.App.4th 1151 (collateral)</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="abs">—</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">External / collateral proceeding</span></td>
+      </tr>
+      <tr>
+        <td class="date">2012-06-11</td>
+        <td class="label">Point Loma Tennis Club subcontract</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">Grouped in T8 range</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Flagged as source of $25,908 allowed setoff</span></td>
+      </tr>
+      <tr>
+        <td class="date">2013</td>
+        <td class="label">Predicate judgment entered ($1,190,929)</td>
+        <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T1 — section: Underlying judgment</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T1</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Court lane · category: judgment</span></td>
+      </tr>
+      <tr>
+        <td class="date">2013-04-25</td>
+        <td class="label">133 Promenade subcontract</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">Grouped in T8 range</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Individual event</span></td>
+      </tr>
+      <tr>
+        <td class="date">2013-09-09</td>
+        <td class="label">Taitz Residence subcontract</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">Grouped in T8 range</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">SoL anchor — Wanke's theory</span></td>
+      </tr>
+      <tr>
+        <td class="date">2013-12-23</td>
+        <td class="label">Oxford Court subcontract</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">Grouped in T8 range</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">SoL anchor — Wanke's theory</span></td>
+      </tr>
+      <tr>
+        <td class="date">2014</td>
+        <td class="label">WP Solutions corporate suspension (Rev. & Tax. Code § 23301)</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T10 — capacity issue</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Jurisdictional sig: capacity-to-sue argument</span></td>
+      </tr>
+      <tr>
+        <td class="date">~2014-06</td>
+        <td class="label">Writ of execution & notice of levy served on AVB</td>
+        <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T3 — silently merged with examination proceeding</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T3 — de-conflated; levy only</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Plaintiff lane; starts 2-yr lien clock under § 697.710</span></td>
+      </tr>
+      <tr>
+        <td class="date">~2014-06</td>
+        <td class="label">Work complete; Keck bankruptcy; WP Solutions dissolved</td>
+        <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T2 — mislabeled "Subcontract debt arose"</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T2 — reframed correctly</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Jurisdictional sig: warranty setoff origin</span></td>
+      </tr>
+      <tr>
+        <td class="date">~2014-07</td>
+        <td class="label">Examination proceedings — $109,327 debt identified (§ 708.120)</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span><span class="qual">Merged into T3</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T9 — split from T3 in v2</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Plaintiff lane · category: deposition · starts 1-yr exam lien</span></td>
+      </tr>
+      <tr>
+        <td class="date">~2014-07</td>
+        <td class="label">WP Solutions contractor's license suspended (§ 7031)</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T11 — AVB's SoL anchor</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual"><b style="color:#c53030">DISPUTED</b> · linked via dispute_id to Wanke's anchor</span></td>
+      </tr>
+      <tr>
+        <td class="date">~2015</td>
+        <td class="label">Examination lien expired (1-year under § 708.120(c))</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T12 — clock event</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Gold-dashed tolling arrow with clock_id</span></td>
+      </tr>
+      <tr>
+        <td class="date">~2016-06</td>
+        <td class="label">Levy lien expired (2-year under § 697.710)</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T13 — clock event</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Gold-dashed tolling arrow with clock_id</span></td>
+      </tr>
+      <tr>
+        <td class="date">2016-07</td>
+        <td class="label">Creditor's suit filed against AVB ($109,327; § 708.210)</td>
+        <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T4</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T4</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">SoL anchor for both competing theories</span></td>
+      </tr>
+      <tr>
+        <td class="date">~2018-05</td>
+        <td class="label">AVB trial brief raising standing/capacity (Cal-Western, Casiopea)</td>
+        <td class="chart-cell v1-cell"><span class="abs">—</span></td>
+        <td class="chart-cell v2-cell"><span class="abs">—</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Captures where the standing/assignment argument was first pressed</span></td>
+      </tr>
+      <tr>
+        <td class="date">2018-06</td>
+        <td class="label">Two-day bench trial</td>
+        <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T5 — mislabeled with $179,230</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T5 — amount removed (correctly)</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Detail: 4 AVB witnesses + Kushner rebuttal expert</span></td>
+      </tr>
+      <tr>
+        <td class="date">2018 (?)</td>
+        <td class="label">Trial judgment for Wanke ($83,418.94)</td>
+        <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T6 — "Date not stated"</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T6 — "Date not stated"</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">date_certainty: "unknown" — surfaces the gap structurally</span></td>
+      </tr>
+      <tr>
+        <td class="date">2020-02-19</td>
+        <td class="label">Court of Appeal affirms (Dato, J.; Benke + O'Rourke concurring)</td>
+        <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T7 — mislabeled with $179,230</span></td>
+        <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T7 — amount removed (correctly)</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Detail: 3 issues rejected, costs to Wanke</span></td>
+      </tr>
+      <tr class="tot">
+        <td class="date">TOTAL</td>
+        <td class="label">21 events identified across all charts</td>
+        <td class="chart-cell v1-cell">7 of 21 (33%)</td>
+        <td class="chart-cell v2-cell">13 of 21 (62%)</td>
+        <td class="chart-cell new-cell">21 of 21 (100%)</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION 4: STRUCTURAL FEATURES ONLY IN NEW   -->
+<!-- ============================================== -->
+<section>
+  <h2><span class="num">4</span>Structural features only the new chart encodes</h2>
+  <ul style="font-size:13px;color:var(--soft);line-height:1.65;padding-left:18px;max-width:90ch;">
+    <li><b>SoL dispute as a first-class record.</b> AVB's anchor (July 2014 license suspension) and Wanke's anchor (2013 subcontract breaches) are encoded as two competing events with <code>date_certainty: "disputed"</code> and linked via a <code>Dispute</code> record (type: <code>meaning</code>, resolution: <code>adjudicated_for_wanke</code>). The old extractor embeds this only in prose <code>phase_summary</code>.</li>
+    <li><b>Competing SoL clocks rendered as <em>two</em> tolling relationships</b> — one with <code>strength: "alleged"</code> (AVB's rejected theory) and one with <code>strength: "adjudicated"</code> (Wanke's adopted theory). Lets the reader literally see both legal theories on one chart.</li>
+    <li><b>Lien expirations as typed tolling arrows</b> with <code>clock_id</code> (<code>levy_lien_697_710</code>, <code>exam_lien_708_120c</code>) and <code>clock_effect: "expire"</code> — queryable, not just visual.</li>
+    <li><b>Party attribution via lanes.</b> Each event lives on Plaintiff, Defendant, Judgment Debtors, or Court — making the who-did-what answerable at a glance. Both old charts are party-blind.</li>
+    <li><b>Per-event source citations</b> surfaced in tooltip (Slip op. p. 7, p. 13, fn. 3 etc.). The old extractor stores grounding_refs in JSON but does not surface them in the rendered chart.</li>
+    <li><b>Auto style selection.</b> The new chart skill picked dual-track automatically based on the 62/38 factual/procedural ratio. The old extractor renders one fixed style.</li>
+  </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION 5: WHERE THE OLD EXTRACTOR DOES BETTER -->
+<!-- ============================================== -->
+<section>
+  <h2><span class="num">5</span>Where the old extractor still does better</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Phase grouping</h4>
+      <ul>
+        <li>Five named phases ("Underlying contracts", "Status changes and enforcement", "Lien expirations", etc.) provide narrative chunking ideal for executive summaries.</li>
+        <li>The new schema has no explicit Phase concept yet.</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h4><code>grounding_refs[]</code> with verbatim quotes</h4>
+      <ul>
+        <li>Old JSON stores both <code>page</code> AND the quoted text supporting each fact.</li>
+        <li>New schema only stores the citation string — no quoted text. Worth adding in iteration 2.</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h4><code>review_flags</code> & <code>completeness_audit</code></h4>
+      <ul>
+        <li>Old output flags upstream extraction issues (e.g., "v1 silently merged levy with examination — de-conflated in v2") and reports completeness.</li>
+        <li>New skill has no equivalent metadata layer.</li>
+      </ul>
+    </div>
+    <div class="feature-card">
+      <h4><code>not_stated_notes[]</code> & <code>glossary_refs[]</code></h4>
+      <ul>
+        <li>Explicit field for facts the opinion is silent on; glossary terms anchored to events for layered teaching.</li>
+        <li>New schema covers "not stated" only implicitly via <code>date_certainty: "unknown"</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION 6: BOTTOM LINE                         -->
+<!-- ============================================== -->
+<section>
+  <h2><span class="num">6</span>Bottom line</h2>
+  <div class="callouts">
+    <div class="callout v1">
+      <h4>Old v1 <span class="badge">7 events</span></h4>
+      <p>Sparse outline; useful as a one-glance executive timeline. Loses the SoL story; conflates levy with examination; misattributes amounts to procedural events.</p>
+    </div>
+    <div class="callout v2">
+      <h4>Old v2 <span class="badge">13 events</span></h4>
+      <p>Comprehensive event list with proper clock-expiration tracking and corrected attributions. Still party-blind, dispute-blind, and relationship-blind — the visual format can't express them.</p>
+    </div>
+    <div class="callout new">
+      <h4>New <span class="badge">21 events</span></h4>
+      <p>Same factual coverage as v2 plus 8 additional events (named subcontracts, collateral proceedings, AVB trial brief, Wanke's accrual theory). <b>Critical win: the SoL dispute is visible.</b> AVB's July 2014 license-suspension anchor and Wanke's 2013 subcontract anchor sit side by side with a red dispute bracket — the central legal question of the case is literally visible on the chart.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="report">
+  Files: <code>wanke-extraction.json</code> · <code>wanke-chart-auto.html</code> (dual-track) · <code>wanke-chart-swimlane.html</code> · <code>wanke-chart-dualtrack.html</code> · <code>wanke-chart-old.html</code> (v1 vs v2) — all in <code>wanke-comparison/</code>.
+</footer>
+
+</div>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "base",
+    themeVariables: {
+      primaryColor: "#fafaf7",
+      primaryTextColor: "#1a1a1a",
+      primaryBorderColor: "#4b6cb7",
+      lineColor: "#8b8b8b",
+      fontFamily: "ui-sans-serif, -apple-system, system-ui, sans-serif"
+    }
+  });
+</script>
+</body>
+</html>

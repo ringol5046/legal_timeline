@@ -1,0 +1,81 @@
+{
+  "eval_id": 2,
+  "condition": "without_skill",
+  "passed": 6,
+  "total": 11,
+  "pass_rate": 0.5454545454545454,
+  "expectations": [
+    {
+      "id": "valid-json",
+      "text": "Output is valid JSON parseable by json.loads",
+      "passed": false,
+      "evidence": "json.loads failed"
+    },
+    {
+      "id": "has-six-arrays",
+      "text": "Top-level JSON contains case, parties, events, relationships, disputes, sources, lanes",
+      "passed": false,
+      "evidence": "not JSON"
+    },
+    {
+      "id": "pelham-multi-role",
+      "text": "Pelham appears as ONE Party with role array containing both 'defendant' and 'counterclaimant'",
+      "passed": false,
+      "evidence": "not JSON; cannot verify structurally"
+    },
+    {
+      "id": "three-lanes-min",
+      "text": "Has at least 3 lanes",
+      "passed": true,
+      "evidence": "checked raw text for lane names"
+    },
+    {
+      "id": "substantial-completion-disputed",
+      "text": "Captures the disputed substantial-completion date",
+      "passed": true,
+      "evidence": "found both dates in raw text"
+    },
+    {
+      "id": "change-orders-captured",
+      "text": "Includes both Change Order No. 1 and No. 2",
+      "passed": true,
+      "evidence": "found change order dates in raw text"
+    },
+    {
+      "id": "counterclaim-events",
+      "text": "Includes counterclaim-specific events",
+      "passed": true,
+      "evidence": "found counterclaim-specific event refs"
+    },
+    {
+      "id": "filing-relationships",
+      "text": "Has at least one 'response' Relationship",
+      "passed": false,
+      "evidence": "no structured relationships in non-JSON output"
+    },
+    {
+      "id": "mechanics-lien-event",
+      "text": "Includes the Mechanic's Lien recording",
+      "passed": true,
+      "evidence": "found Mechanic's Lien reference"
+    },
+    {
+      "id": "sources-verbatim",
+      "text": "Sources preserve citation format verbatim",
+      "passed": true,
+      "evidence": "verbatim pattern hits: 2/2"
+    },
+    {
+      "id": "render-succeeds",
+      "text": "diagram.html exists and is non-empty",
+      "passed": false,
+      "evidence": "missing"
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.5454545454545454,
+    "passed": 6,
+    "failed": 5,
+    "total": 11
+  }
+}

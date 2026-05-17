@@ -1,0 +1,306 @@
+{
+  "case": {
+    "caption": "Wells v. Drayton Holdings, Inc.",
+    "docket": "2:23-cv-01882-MAB",
+    "court": "U.S. District Court, Eastern District of Pennsylvania",
+    "judge": "Beresford, J.",
+    "opinion_date": "2025-01-17",
+    "claims": [
+      "FLSA retaliation, 29 U.S.C. § 215(a)(3)",
+      "Wrongful termination in violation of public policy",
+      "Breach of implied contract (progressive discipline policy)"
+    ],
+    "disposition": "Summary judgment DENIED as to FLSA retaliation and wrongful termination; GRANTED as to breach of implied contract."
+  },
+  "appeal_focus_note": "User flagged 'cure-period' as the key appellate issue. The opinion does not use the phrase 'cure period.' The closest analogs are (a) the PIP-to-termination window (Oct. 14, 2022 PIP citing 'failure to satisfy PIP milestones' -> Dec. 19, 2022 termination — roughly 66 days), and (b) the disputed protected-activity-to-adverse-action gap that drives the temporal-proximity analysis. Events relevant to both are tagged 'cure_period_relevant: true' below.",
+  "legend": {
+    "phase": ["factual", "procedural"],
+    "certainty": ["undisputed", "disputed", "approximate"],
+    "source_party": ["plaintiff", "defendant", "court", "joint"]
+  },
+  "events": [
+    {
+      "id": "F01",
+      "date": "2019-03-04",
+      "date_precision": "day",
+      "phase": "factual",
+      "title": "Wells hired by Drayton",
+      "description": "Janet Wells hired as Senior Operations Analyst; reported to Operations Director Michael Chu.",
+      "certainty": "undisputed",
+      "source": "Compl. ¶ 12; Wells Dep. 18:5-22; Wells Decl. ¶ 3 (Ex. P-1)",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "F02",
+      "date": "2022-02-01",
+      "date_precision": "month",
+      "date_range_end": "2022-10-31",
+      "phase": "factual",
+      "title": "Period of disputed overtime hours",
+      "description": "Wells says she averaged ~53 hrs/week Feb–Oct 2022 covering work of two departed analysts. Drayton timekeeping records show 40–44 hrs/week for the same period. Court did not resolve the discrepancy.",
+      "certainty": "disputed",
+      "dispute": {
+        "plaintiff_position": "~53 hours/week average (Wells Decl. ¶¶ 8-11)",
+        "defendant_position": "40–44 hours/week per timekeeping records (Chu Decl. ¶ 14, Ex. D-3)"
+      },
+      "source": "Wells Decl. ¶¶ 8-11; Chu Decl. ¶ 14 (Ex. D-3)",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "F03",
+      "date": "2022-07-01",
+      "date_precision": "month",
+      "date_range_end": "2022-08-31",
+      "phase": "factual",
+      "title": "Two client complaints received (per Drayton)",
+      "description": "Drayton points to two client complaints in July and August 2022 as the basis for the later PIP. Wells contends the PIP was pretextual.",
+      "certainty": "approximate",
+      "source": "Chu Decl. ¶¶ 22-25; Exs. D-9, D-10",
+      "cure_period_relevant": true,
+      "cure_period_note": "Defendant's asserted predicate for the PIP — relevant to whether the PIP/cure was bona fide or pretextual."
+    },
+    {
+      "id": "F04",
+      "date": "2022-09-08",
+      "date_precision": "day",
+      "phase": "factual",
+      "title": "Wells emails Chu about uncompensated overtime (protected activity)",
+      "description": "Wells sent an email to Chu raising concerns about uncompensated overtime, attaching a spreadsheet of her hours worked.",
+      "certainty": "undisputed",
+      "source": "Ex. P-4 (Wells/Chu email chain)",
+      "cure_period_relevant": true,
+      "cure_period_note": "Start of the temporal-proximity window on the plaintiff's theory."
+    },
+    {
+      "id": "F05",
+      "date": "2022-09-08",
+      "date_precision": "day",
+      "phase": "factual",
+      "title": "HR receipt of overtime complaint — DISPUTED DATE",
+      "description": "Wells contends Chu forwarded the email to HR Director Elaine Morris the same day, Sept. 8, 2022.",
+      "certainty": "disputed",
+      "dispute": {
+        "plaintiff_position": "HR received complaint on Sept. 8, 2022 (Wells Dep. 42:18-43:7).",
+        "defendant_position": "HR (Morris) did not receive any forwarded message until Oct. 3, 2022 — see event F06.",
+        "court_treatment": "Court found this dispute material to the temporal-proximity element; did not resolve it on summary judgment."
+      },
+      "source": "Wells Dep. 42:18-43:7",
+      "cure_period_relevant": true,
+      "cure_period_note": "Drives the protected-activity-to-adverse-action gap. Plaintiff's date yields ~5 weeks to PIP; defendant's date yields 11 days."
+    },
+    {
+      "id": "F06",
+      "date": "2022-10-03",
+      "date_precision": "day",
+      "phase": "factual",
+      "title": "HR receipt of overtime complaint — defendant's version",
+      "description": "Morris testified she did not learn of the complaint until Oct. 3, 2022, when Chu first raised it in a meeting.",
+      "certainty": "disputed",
+      "dispute": {
+        "plaintiff_position": "See event F05 — plaintiff says HR received it Sept. 8, 2022.",
+        "defendant_position": "Oct. 3, 2022 first notice to HR (Morris Dep. 31:4-19; Ex. D-7, Morris's calendar)."
+      },
+      "source": "Morris Dep. 31:4-19; Ex. D-7 (Morris's calendar)",
+      "cure_period_relevant": true,
+      "cure_period_note": "On defendant's timeline, only 11 days separate HR notice from the PIP — court called this 'even more probative' of causation."
+    },
+    {
+      "id": "F07",
+      "date": "2022-10-14",
+      "date_precision": "day",
+      "phase": "factual",
+      "title": "Wells placed on Performance Improvement Plan (PIP)",
+      "description": "PIP cited alleged deficiencies in client communication. Wells testified her 2021 review was 'exceeds expectations' and that the PIP was pretextual; Drayton tied PIP to the July/Aug. 2022 client complaints (F03).",
+      "certainty": "undisputed",
+      "source": "Ex. P-9; Wells Dep. 67:8-21; Ex. P-2 (2021 review); Chu Decl. ¶¶ 22-25",
+      "cure_period_relevant": true,
+      "cure_period_note": "Adverse employment action #1 and start of the de facto PIP 'cure' window before termination."
+    },
+    {
+      "id": "F08",
+      "date": "2022-12-19",
+      "date_precision": "day",
+      "phase": "factual",
+      "title": "Drayton terminates Wells's employment",
+      "description": "Termination letter cites 'failure to satisfy PIP milestones.' 66 days after the PIP was issued.",
+      "certainty": "undisputed",
+      "source": "Ex. P-12",
+      "cure_period_relevant": true,
+      "cure_period_note": "End of the PIP-to-termination 'cure' window. Stated reason for termination directly invokes PIP milestones."
+    },
+    {
+      "id": "P01",
+      "date": "2023-04-11",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Complaint filed",
+      "description": "Wells filed Complaint asserting (1) FLSA retaliation, 29 U.S.C. § 215(a)(3); (2) wrongful termination in violation of public policy; (3) breach of implied contract based on Drayton's progressive discipline policy.",
+      "certainty": "undisputed",
+      "source": "Dkt. 1",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P02",
+      "date": "2023-05-22",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Drayton files Answer",
+      "description": "Defendant's Answer.",
+      "certainty": "undisputed",
+      "source": "Dkt. 14",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P03",
+      "date": "2023-06-30",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Scheduling order entered",
+      "description": "Court entered scheduling order; fact discovery set to close April 1, 2024.",
+      "certainty": "undisputed",
+      "source": "Dkt. 19",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P04",
+      "date": "2024-03-27",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Stipulated extension of discovery deadline",
+      "description": "Parties stipulated to extend fact discovery deadline to May 31, 2024. Discovery ultimately included 12 depositions and ~8,400 pages of documents.",
+      "certainty": "undisputed",
+      "source": "Dkt. 47",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P05",
+      "date": "2024-04-01",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Original fact discovery deadline (superseded)",
+      "description": "Original close-of-fact-discovery date set in the June 30, 2023 scheduling order; superseded by stipulation P04.",
+      "certainty": "undisputed",
+      "source": "Dkt. 19",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P06",
+      "date": "2024-05-31",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Extended fact discovery deadline",
+      "description": "Per the parties' March 27, 2024 stipulation (Dkt. 47).",
+      "certainty": "undisputed",
+      "source": "Dkt. 47",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P07",
+      "date": "2024-08-08",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Drayton files Motion for Summary Judgment",
+      "description": "Defendant's Rule 56 motion.",
+      "certainty": "undisputed",
+      "source": "Dkt. 62",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P08",
+      "date": "2024-09-12",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Wells files opposition to summary judgment",
+      "description": "Plaintiff's opposition brief.",
+      "certainty": "undisputed",
+      "source": "Dkt. 71",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P09",
+      "date": "2024-09-26",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Drayton files reply brief",
+      "description": "Defendant's reply in support of summary judgment.",
+      "certainty": "undisputed",
+      "source": "Dkt. 75",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P10",
+      "date": "2024-11-14",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Oral argument on summary judgment",
+      "description": "Court heard oral argument.",
+      "certainty": "undisputed",
+      "source": "Opinion at 'Procedural History'",
+      "cure_period_relevant": false
+    },
+    {
+      "id": "P11",
+      "date": "2025-01-17",
+      "date_precision": "day",
+      "phase": "procedural",
+      "title": "Memorandum Opinion issued",
+      "description": "Court DENIES summary judgment as to FLSA retaliation (and wrongful-termination claim proceeds); GRANTS summary judgment as to breach of implied contract. Retaliation and wrongful-termination claims will proceed to trial.",
+      "certainty": "undisputed",
+      "source": "Memorandum Opinion (Beresford, J.)",
+      "cure_period_relevant": false
+    }
+  ],
+  "date_disputes_summary": [
+    {
+      "dispute": "When HR received Wells's overtime complaint",
+      "plaintiff_date": "2022-09-08",
+      "defendant_date": "2022-10-03",
+      "appellate_significance": "Sets the protected-activity-to-adverse-action gap. Plaintiff's date: ~5 weeks to the PIP; defendant's date: 11 days. Court held a reasonable jury could find temporal proximity under either version (citing Williams v. Phila. Hous. Auth., 380 F.3d 751, 760 (3d Cir. 2004)).",
+      "court_resolution": "Unresolved — treated as a material factual dispute precluding summary judgment."
+    },
+    {
+      "dispute": "Wells's average weekly hours, Feb–Oct 2022",
+      "plaintiff_date": "~53 hrs/week",
+      "defendant_date": "40–44 hrs/week",
+      "appellate_significance": "Goes to the underlying FLSA overtime grievance and the bona fides of Wells's protected activity, though not directly to the retaliation timing question.",
+      "court_resolution": "Not resolved; flagged as contested."
+    }
+  ],
+  "key_intervals": [
+    {
+      "label": "Protected activity (Wells->Chu email) to PIP",
+      "from_event": "F04",
+      "to_event": "F07",
+      "days": 36,
+      "note": "Plaintiff's framing of temporal proximity (~5 weeks)."
+    },
+    {
+      "label": "HR notice (defendant's date) to PIP",
+      "from_event": "F06",
+      "to_event": "F07",
+      "days": 11,
+      "note": "Defendant's date for HR knowledge; court called this 'even more probative.'"
+    },
+    {
+      "label": "PIP to termination ('cure' window)",
+      "from_event": "F07",
+      "to_event": "F08",
+      "days": 66,
+      "note": "Adverse-action window most directly analogous to a contractual cure period; termination letter cited 'failure to satisfy PIP milestones.'"
+    },
+    {
+      "label": "Termination to Complaint filing",
+      "from_event": "F08",
+      "to_event": "P01",
+      "days": 113,
+      "note": "Statute-of-limitations check for FLSA retaliation."
+    },
+    {
+      "label": "Complaint to Memorandum Opinion",
+      "from_event": "P01",
+      "to_event": "P11",
+      "days": 647,
+      "note": "Overall pretrial duration through summary judgment ruling."
+    }
+  ]
+}

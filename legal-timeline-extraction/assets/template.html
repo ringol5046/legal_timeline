@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>__CASE_CAPTION__ — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 10.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.5px; fill: none; stroke-dasharray: 2 2; }
+  .dispute-label { font-size: 9.5px; fill: var(--dispute); font-style: italic; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>__CASE_CAPTION__ <span style="color:var(--muted);font-weight:400">— __CASE_COURT__ · __CASE_DOCKET__</span></h1>
+  <p class="subtitle">__CASE_SUMMARY__</p>
+</header>
+
+<div class="controls" id="controls"></div>
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
+<script>
+const DATA = /* __TIMELINE_DATA__ */;
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+const margin = { top: 50, right: 40, bottom: 40, left: 160 };
+const width  = 1240;
+const laneHeight = 110;
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+const innerW = width - margin.left - margin.right;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width).attr("height", height);
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+const [start, end] = DATA.case.date_range;
+const xScale = d3.scaleTime().domain([parseDate(start), parseDate(end)]).range([0, innerW]);
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+g.selectAll(".grid").data(xScale.ticks(d3.timeMonth.every(3)))
+  .join("line").attr("class","grid").attr("x1", d=>xScale(d)).attr("x2", d=>xScale(d))
+  .attr("y1",0).attr("y2", lanes.length*laneHeight).attr("stroke","var(--rule)").attr("stroke-dasharray","1 3").attr("opacity",0.5);
+
+g.append("g").attr("class","axis").call(d3.axisTop(xScale).ticks(d3.timeMonth.every(3))
+  .tickFormat(d => d.getMonth() === 0 ? d3.timeFormat("%Y")(d) : d3.timeFormat("%b")(d)));
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
+  });
+}
+
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  (DATA.disputes || []).forEach(d => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1=xScale(a._d), y1=laneY(a.lane_id), x2=xScale(b._d), y2=laneY(b.lane_id);
+    const midY = Math.min(y1, y2) - 22;
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1-12} L${x1},${midY} L${x2},${midY} L${x2},${y2-12}`);
+    disputeG.append("text").attr("class","dispute-label")
+      .attr("x", (x1+x2)/2).attr("y", midY - 4).attr("text-anchor","middle")
+      .text(`◆ disputed: ${d.subject}`);
+  });
+}
+
+const tooltip = d3.select("#tooltip");
+const eventG = g.append("g").attr("class","events");
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  const sel = eventG.selectAll(".event").data(visible, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${laneY(d.lane_id)})`);
+  all.select("circle").attr("r", 6)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+  all.select(".event-label").attr("x",0).attr("y",(d,i)=>i%2===0?22:-14).attr("text-anchor","middle").text(d=>d.label);
+  all.select(".event-date").attr("x",0).attr("y",(d,i)=>i%2===0?34:-26).attr("text-anchor","middle")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? ` (${d.date_certainty})` : ""));
+  all.on("mouseenter", function(event, d) {
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function() { tooltip.style("opacity",0); });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+</script>
+</body>
+</html>

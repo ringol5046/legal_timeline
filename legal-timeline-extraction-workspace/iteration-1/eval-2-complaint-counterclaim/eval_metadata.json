@@ -1,0 +1,19 @@
+{
+  "eval_id": 2,
+  "eval_name": "complaint-counterclaim",
+  "prompt": "Here's the complaint and the answer in our case. The defendant filed a counterclaim and we want to chart how all the claims and counter-claims interact over time. Build me a swimlane with separate tracks for plaintiff filings, defendant filings, and the court's rulings.",
+  "input_files": ["inputs/complaint.md", "inputs/answer-with-counterclaim.md"],
+  "assertions": [
+    { "id": "valid-json",                 "text": "Output is valid JSON parseable by json.loads" },
+    { "id": "has-six-arrays",             "text": "Top-level JSON contains case, parties, events, relationships, disputes, sources, lanes" },
+    { "id": "pelham-multi-role",          "text": "Pelham appears as ONE Party with role array containing both 'defendant' and 'counterclaimant' (not two separate parties)" },
+    { "id": "three-lanes-min",            "text": "Has at least 3 lanes: plaintiff/Northstar, defendant/Pelham, court (additional lanes acceptable)" },
+    { "id": "substantial-completion-disputed", "text": "Captures the disputed substantial-completion date (Oct 22, 2023 per Northstar vs Jan 30, 2024 per Pelham) as a Dispute with two version Events" },
+    { "id": "change-orders-captured",     "text": "Includes both Change Order No. 1 (Nov 4, 2022) and Change Order No. 2 (Feb 28, 2023) as Events" },
+    { "id": "counterclaim-events",        "text": "Includes counterclaim-specific events: Wexford report (Aug 4, 2023), Notice of Defective Work (Dec 4, 2023)" },
+    { "id": "filing-relationships",       "text": "Has at least one 'response' Relationship linking Complaint -> Answer/Counterclaim" },
+    { "id": "mechanics-lien-event",       "text": "Includes the Mechanic's Lien recording (Dec 18, 2023) as an Event with category=notice or similar" },
+    { "id": "sources-verbatim",           "text": "Sources preserve citation format verbatim (e.g., 'Ex. A', 'Ex. P-CC-2', not 'Plaintiff's Counterclaim Exhibit 2')" },
+    { "id": "render-succeeds",            "text": "diagram.html exists and is non-empty" }
+  ]
+}

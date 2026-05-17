@@ -1,0 +1,81 @@
+{
+  "eval_id": 1,
+  "condition": "without_skill",
+  "passed": 4,
+  "total": 11,
+  "pass_rate": 0.36363636363636365,
+  "expectations": [
+    {
+      "id": "valid-json",
+      "text": "Output is valid JSON parseable by json.loads",
+      "passed": true,
+      "evidence": "json.loads succeeded"
+    },
+    {
+      "id": "has-six-arrays",
+      "text": "Top-level JSON contains case, parties, events, relationships, disputes, sources, lanes",
+      "passed": false,
+      "evidence": "missing: ['parties', 'relationships', 'disputes', 'sources', 'lanes']"
+    },
+    {
+      "id": "captures-disputed-date",
+      "text": "Captures the Sept 8 / Oct 3, 2022 disputed date as a Dispute with two version Events",
+      "passed": false,
+      "evidence": "disputed Events found: Sept 8=False, Oct 3=False, disputes count=0"
+    },
+    {
+      "id": "disputed-events-count",
+      "text": "Has at least 2 Events with date_certainty='disputed' linked by the same dispute_id",
+      "passed": false,
+      "evidence": "dispute groups: []"
+    },
+    {
+      "id": "dispute-materiality",
+      "text": "Dispute record's materiality field mentions temporal proximity, cure period, or causation",
+      "passed": false,
+      "evidence": "materiality fields: []"
+    },
+    {
+      "id": "events-min-count",
+      "text": "Has at least 10 Events total covering factual + procedural",
+      "passed": true,
+      "evidence": "event count: 19"
+    },
+    {
+      "id": "procedural-events",
+      "text": "Includes Complaint (Apr 11, 2023), Answer (May 22, 2023), MSJ (Aug 8, 2024), and oral argument (Nov 14, 2024)",
+      "passed": true,
+      "evidence": "procedural dates hit: 4/4"
+    },
+    {
+      "id": "factual-events",
+      "text": "Includes hire date (Mar 4, 2019), Sept 8, 2022 email, Oct 14, 2022 PIP, and Dec 19, 2022 termination",
+      "passed": true,
+      "evidence": "factual dates hit: 4/4"
+    },
+    {
+      "id": "sources-verbatim",
+      "text": "Sources preserve citation format verbatim (e.g., 'Wells Dep. 42:18-43:7', 'Ex. P-4', 'Dkt. 1', not normalized)",
+      "passed": false,
+      "evidence": "verbatim pattern hits: 0/4"
+    },
+    {
+      "id": "every-event-has-source",
+      "text": "At least 80% of Events have non-empty source_ids",
+      "passed": false,
+      "evidence": "0/19 events have sources (0%)"
+    },
+    {
+      "id": "render-succeeds",
+      "text": "diagram.html exists and is non-empty",
+      "passed": false,
+      "evidence": "diagram.html size: missing"
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.36363636363636365,
+    "passed": 4,
+    "failed": 7,
+    "total": 11
+  }
+}

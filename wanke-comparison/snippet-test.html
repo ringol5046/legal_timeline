@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Snippet test</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+<h1 style="font-family:sans-serif;padding:12px;background:#fee;">Snippet test page — if you see the chart below, the snippet works standalone.</h1>
+<!-- Snippet will be injected here -->
+<div id="placeholder">Loading snippet...</div>
+<script>
+fetch("chart-snippet.html").then(r => r.text()).then(t => {
+  document.getElementById("placeholder").outerHTML = t;
+  // Re-execute any scripts that were injected via innerHTML (scripts inserted this way don't auto-run)
+  document.querySelectorAll("#nc-root script").forEach(oldScript => {
+    const newScript = document.createElement("script");
+    newScript.text = oldScript.text;
+    oldScript.replaceWith(newScript);
+  });
+});
+</script>
+</body>
+</html>

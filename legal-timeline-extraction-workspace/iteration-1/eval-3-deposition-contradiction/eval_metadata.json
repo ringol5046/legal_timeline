@@ -1,0 +1,17 @@
+{
+  "eval_id": 3,
+  "eval_name": "deposition-contradiction",
+  "prompt": "I have a deposition transcript where the witness gives one version of when the meeting happened, but the contemporaneous emails (Ex. 4 and Ex. 7) tell a different story. Can you extract a timeline that captures both versions and flags the contradiction? I need to use this in a motion in limine.",
+  "input_files": ["inputs/smith-deposition.md", "inputs/ex-4-email.md", "inputs/ex-7-email.md"],
+  "assertions": [
+    { "id": "valid-json",                  "text": "Output is valid JSON parseable by json.loads" },
+    { "id": "has-six-arrays",              "text": "Top-level JSON contains case, parties, events, relationships, disputes, sources, lanes" },
+    { "id": "two-meeting-versions",        "text": "Captures BOTH meeting dates — Smith's May 3, 2024 version and the documentary May 10, 2024 version — as separate Events" },
+    { "id": "dispute-or-contradicts",      "text": "Encodes the conflict either as a Dispute linking the two versions OR as a 'contradicts' Relationship between Smith's testimony and the email evidence (or both)" },
+    { "id": "smith-no-emails-flagged",     "text": "Captures Smith's testimony that 'no emails relating to scheduling existed' and contradicts it with Ex. 4 (which is exactly such an email)" },
+    { "id": "citation-format-deposition",  "text": "Source citations preserve deposition line-range format (e.g., 'Smith Dep. 88:5-10', not 'page 88')" },
+    { "id": "citation-format-exhibits",    "text": "Source citations preserve 'Ex. 4' / 'Ex. 7' format verbatim (not 'Exhibit 4')" },
+    { "id": "removal-notice-event",        "text": "Captures the removal notice sent date — note: Smith testifies May 6 but Ex. 7 says May 13. This is itself a contradiction; output should capture it as either two events or note the conflict" },
+    { "id": "render-succeeds",             "text": "diagram.html exists and is non-empty" }
+  ]
+}
