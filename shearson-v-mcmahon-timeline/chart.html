@@ -816,36 +816,63 @@ function packEvents() {
 }
 const { rowsAbove, rowsBelow } = packEvents();
 
-// ---------- Vertical positioning (row spacing derived from actual labels) ----------
-// Compute the worst-case label height we'll need on each side, so rows don't
-// crash into the row above them even when labels are long. lineH and dateH
-// are CSS-driven (12px label, 11.5px date, plus padding).
+// ---------- Vertical positioning (PER-ROW dynamic spacing) ----------
+// Each row's stem length is computed from the actual tallest label IN THAT ROW
+// (date + N wrapped lines), with a small padding gap. This way:
+//   - a row of short single-line labels stays tight to the row above it
+//   - a row that happens to include a 3-line label gets just the extra space
+//     it needs, without wasting it on the rest of the side
+// Cumulative: row r's stem = ROW_BASE + Σ(row 0..r-1 heights) + padding * r.
 const LINE_H_PX = 14;
 const DATE_H_PX = 16;
-const ROW_PADDING_PX = 18;       // breathing room between row stacks
-function maxLabelLinesOnSide(side) {
-  return events
-    .filter(e => e._side === side)
-    .reduce((m, e) => Math.max(m, wrap(e.label || "", LABEL_WRAP_CHARS).length), 1);
+const ROW_PADDING_PX = 12;       // breathing room between adjacent rows
+const ROW_BASE_PX = 50;
+
+function buildStemTable(side) {
+  // For each row on this side, find the max wrapped-label-line count.
+  const rowMaxLines = new Map();
+  events.filter(e => e._side === side).forEach(e => {
+    const lines = wrap(e.label || "", LABEL_WRAP_CHARS).length;
+    rowMaxLines.set(e._row, Math.max(rowMaxLines.get(e._row) || 1, lines));
+  });
+  // Walk rows in order, accumulating stem length.
+  const stemAt = new Map();
+  if (rowMaxLines.size === 0) return stemAt;
+  const maxRow = Math.max(...rowMaxLines.keys());
+  let stem = ROW_BASE_PX;
+  for (let r = 0; r <= maxRow; r++) {
+    stemAt.set(r, stem);
+    const lines = rowMaxLines.get(r) || 1;
+    const blockH = lines * LINE_H_PX + DATE_H_PX;
+    stem += blockH + ROW_PADDING_PX;
+  }
+  return stemAt;
 }
-const aboveMaxLines = Math.max(1, maxLabelLinesOnSide("above"));
-const belowMaxLines = Math.max(1, maxLabelLinesOnSide("below"));
-const aboveRowStep  = aboveMaxLines * LINE_H_PX + DATE_H_PX + ROW_PADDING_PX;
-const belowRowStep  = belowMaxLines * LINE_H_PX + DATE_H_PX + ROW_PADDING_PX;
-const ROW_BASE_PX   = 50;
+
+const aboveStemTable = buildStemTable("above");
+const belowStemTable = buildStemTable("below");
 function stemLenForRow(rowIdx, side) {
-  const step = (side === "above") ? aboveRowStep : belowRowStep;
-  return ROW_BASE_PX + rowIdx * step;
+  const table = (side === "above") ? aboveStemTable : belowStemTable;
+  return table.get(rowIdx) || ROW_BASE_PX;
 }
-// label-block height for chart-height computation
-const LABEL_BLOCK_PX_ABOVE = aboveMaxLines * LINE_H_PX + DATE_H_PX;
-const LABEL_BLOCK_PX_BELOW = belowMaxLines * LINE_H_PX + DATE_H_PX;
+
+// Deepest stem on each side determines the chart's half-heights.
+function deepestStem(side) {
+  const table = (side === "above") ? aboveStemTable : belowStemTable;
+  if (table.size === 0) return 0;
+  const maxRow = Math.max(...table.keys());
+  // Add the label block for the last row so its text isn't clipped.
+  const lastLines = events
+    .filter(e => e._side === side && e._row === maxRow)
+    .reduce((m, e) => Math.max(m, wrap(e.label || "", LABEL_WRAP_CHARS).length), 1);
+  return table.get(maxRow) + lastLines * LINE_H_PX + DATE_H_PX;
+}
 
 // Compute the chart height so even the deepest-row event has room for its label.
-const padBeyondLastLabel = 40;
-const aboveExtent = (rowsAbove === 0 ? 0 : stemLenForRow(rowsAbove - 1, "above") + LABEL_BLOCK_PX_ABOVE) + padBeyondLastLabel;
-const belowExtent = (rowsBelow === 0 ? 0 : stemLenForRow(rowsBelow - 1, "below") + LABEL_BLOCK_PX_BELOW) + padBeyondLastLabel;
-const minHalfHeight = 240;
+const padBeyondLastLabel = 24;
+const aboveExtent = (rowsAbove === 0 ? 0 : deepestStem("above")) + padBeyondLastLabel;
+const belowExtent = (rowsBelow === 0 ? 0 : deepestStem("below")) + padBeyondLastLabel;
+const minHalfHeight = 180;
 const aboveH = Math.max(aboveExtent, minHalfHeight);
 const belowH = Math.max(belowExtent, minHalfHeight);
 const height = margin.top + aboveH + belowH + margin.bottom;
