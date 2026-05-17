@@ -386,18 +386,40 @@
     flex: 1;
     background: var(--paper);
     border-radius: 6px;
-    overflow: auto;
-    padding: 20px;
+    overflow: auto;          /* horizontal + vertical scroll when content exceeds viewport */
+    padding: 0;
     cursor: default;
   }
-  .zoom-modal .zoom-stage > iframe,
+  /* Mermaid SVGs: scale to fit viewport width, allow horizontal scroll if they exceed */
   .zoom-modal .zoom-stage > .mermaid {
-    width: 100%;
-    min-height: 100%;
+    min-width: 100%;
+    padding: 24px;
+    background: white;
+    display: block;
+  }
+  .zoom-modal .zoom-stage > .mermaid svg {
+    min-width: 100%;
+    height: auto;
+  }
+  /* Swimlane iframe: physically scaled up 1.5x via transform, wrapped in a sized container
+     so the stage gets BOTH horizontal AND vertical scrollbars on the enlarged content. */
+  .zoom-modal .scale-wrap {
+    position: relative;
+    /* 1400 * 1.5 = 2100, 1100 * 1.5 = 1650 — these are the visual dimensions after scaling */
+    width: 2100px;
+    height: 1650px;
+  }
+  .zoom-modal .scale-wrap > iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1400px;
+    height: 1100px;
     border: 0;
     background: white;
+    transform: scale(1.5);
+    transform-origin: top left;
   }
-  .zoom-modal .zoom-stage > iframe { height: calc(100vh - 110px); }
   body.zoom-open { overflow: hidden; }
 </style>
 </head>
@@ -2027,7 +2049,11 @@ renderEvents(); renderDisputes(); renderConnectors();
         if (iframe) {
           const clone = iframe.cloneNode(true);
           clone.removeAttribute('style');
-          stage.appendChild(clone);
+          clone.classList.remove('chart-frame');
+          const wrap = document.createElement('div');
+          wrap.className = 'scale-wrap';
+          wrap.appendChild(clone);
+          stage.appendChild(wrap);
         } else if (mermaidSvg) {
           const svgClone = mermaidSvg.cloneNode(true);
           svgClone.removeAttribute('width');
