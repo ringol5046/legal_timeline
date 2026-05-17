@@ -1415,20 +1415,123 @@ const events = (DATA.events || []).map(e =&gt; ({
   _d: parseDate(e.date || (e.date_range &amp;&amp; e.date_range[0]))
 })).filter(e =&gt; e._d).sort((a, b) =&gt; a._d - b._d);
 
-// Assign sides: alternate above/below by chronological index.
-events.forEach((e, i) =&gt; { e._side = (i % 2 === 0) ? &quot;above&quot; : &quot;below&quot;; });
+// (Side assignment is done by packEvents() below, after we know label widths.)
 
 // ---------- Layout constants ----------
 const margin = { top: 60, right: 120, bottom: 60, left: 120 };
 const width  = 1800;
-const height = 900;
-const axisY  = height / 2;
 
 // Date domain: pad 30 days on either side
 const dates = events.map(e =&gt; e._d);
 const minDate = d3.timeDay.offset(d3.min(dates), -30);
 const maxDate = d3.timeDay.offset(d3.max(dates), 30);
 const x = d3.scaleTime().domain([minDate, maxDate]).range([margin.left, width - margin.right]);
+
+// ---------- Lane lookup (for color/short-name) ----------
+const laneById = new Map((DATA.lanes || []).map(l =&gt; [l.id, l]));
+const partyById = new Map((DATA.parties || []).map(p =&gt; [p.id, p]));
+const sourceById = new Map((DATA.sources || []).map(s =&gt; [s.id, s]));
+
+function colorForEvent(e) {
+  const lane = laneById.get(e.lane_id);
+  return (lane &amp;&amp; lane.color) || &quot;#666&quot;;
+}
+
+function shortLabel(e) {
+  return e.label || &quot;(unlabeled)&quot;;
+}
+
+// ---------- Word wrap helper (defined early; row packing uses it) ----------
+function wrap(text, maxLen) {
+  const words = (text || &quot;&quot;).split(&quot; &quot;);
+  const lines = [];
+  let cur = &quot;&quot;;
+  for (const w of words) {
+    if ((cur + &quot; &quot; + w).trim().length &lt;= maxLen) cur = (cur + &quot; &quot; + w).trim();
+    else { if (cur) lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// ---------- Width-aware row packing ----------
+// 1. Estimate each event&#x27;s label box width from its wrapped text.
+// 2. Compute event x-position on the time axis.
+// 3. For each event, find the LOWEST-INDEX row on its side whose last label&#x27;s
+//    right edge is clear of this event&#x27;s left edge; otherwise open a new row.
+// This guarantees no two labels overlap horizontally on the same side. Row index
+// then determines stem length so the chart fans out vertically only as needed.
+const LABEL_WRAP_CHARS  = 26;
+const APPROX_CHAR_PX    = 6.7;
+const LABEL_PAD_PX      = 14;
+const MIN_LABEL_GAP_PX  = 10;
+
+function estimateLabelWidth(e) {
+  const wrapped = wrap(e.label || &quot;&quot;, LABEL_WRAP_CHARS);
+  const longest = wrapped.reduce((m, line) =&gt; Math.max(m, line.length), 9 /* date width */);
+  return Math.max(longest * APPROX_CHAR_PX + LABEL_PAD_PX * 2, 60);
+}
+
+// Pre-compute x and label width for every event
+events.forEach(e =&gt; {
+  e._x = x(e._d);
+  e._labelW = estimateLabelWidth(e);
+});
+
+// Smart side assignment: instead of strict alternation, on each placement choose
+// whichever side currently has fewer rows (ties broken by alternation). This
+// balances load and minimizes total chart height.
+function packEvents() {
+  const sideRowRightX = { above: [], below: [] };  // rowIdx → last right-edge x
+  let altIndex = 0;
+  events.forEach(e =&gt; {
+    const leftX = e._x - e._labelW / 2;
+    const rightX = e._x + e._labelW / 2;
+    // For each side, find the lowest row where this event fits, or one past the end.
+    function bestRowFor(side) {
+      const rows = sideRowRightX[side];
+      for (let r = 0; r &lt; rows.length; r++) {
+        if (leftX &gt;= rows[r] + MIN_LABEL_GAP_PX) return r;
+      }
+      return rows.length;
+    }
+    const aboveRow = bestRowFor(&quot;above&quot;);
+    const belowRow = bestRowFor(&quot;below&quot;);
+    // Pick side with the LOWER row index (= shorter stem). Ties: alternate.
+    let chosenSide;
+    if (aboveRow &lt; belowRow) chosenSide = &quot;above&quot;;
+    else if (belowRow &lt; aboveRow) chosenSide = &quot;below&quot;;
+    else { chosenSide = (altIndex % 2 === 0) ? &quot;above&quot; : &quot;below&quot;; altIndex++; }
+    const chosenRow = chosenSide === &quot;above&quot; ? aboveRow : belowRow;
+    e._side = chosenSide;
+    e._row = chosenRow;
+    sideRowRightX[chosenSide][chosenRow] = rightX;
+  });
+  return {
+    rowsAbove: sideRowRightX.above.length,
+    rowsBelow: sideRowRightX.below.length,
+  };
+}
+const { rowsAbove, rowsBelow } = packEvents();
+
+// ---------- Vertical positioning ----------
+// Row 0 sits close to the axis; each successive row steps farther by ROW_STEP_PX.
+const ROW_BASE_PX = 55;
+const ROW_STEP_PX = 95;
+const LABEL_BLOCK_PX = 56; // height reserved for date + ~2 lines of label per row
+function stemLenForRow(rowIdx) {
+  return ROW_BASE_PX + rowIdx * ROW_STEP_PX;
+}
+
+// Compute the chart height so even the deepest-row event has room for its label.
+const padBeyondLastLabel = 40;
+const aboveExtent = (rowsAbove === 0 ? 0 : stemLenForRow(rowsAbove - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
+const belowExtent = (rowsBelow === 0 ? 0 : stemLenForRow(rowsBelow - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
+const minHalfHeight = 380;
+const aboveH = Math.max(aboveExtent, minHalfHeight);
+const belowH = Math.max(belowExtent, minHalfHeight);
+const height = margin.top + aboveH + belowH + margin.bottom;
+const axisY  = margin.top + aboveH;
 
 // ---------- SVG ----------
 const svg = d3.select(&quot;#chart-wrap&quot;).append(&quot;svg&quot;)
@@ -1447,11 +1550,6 @@ svg.append(&quot;line&quot;)
   .attr(&quot;stroke-linecap&quot;, &quot;round&quot;);
 
 // ---------- Year + month labels ----------
-const yearsInRange = d3.timeYears(d3.timeYear.floor(minDate), d3.timeYear.offset(d3.timeYear.floor(maxDate), 1));
-const yearStart = d3.timeYear.floor(minDate);
-const yearEnd   = d3.timeYear.offset(d3.timeYear.floor(maxDate), 1);
-
-// Show first and last year as big amber labels at axis ends
 svg.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;year-label&quot;)
   .attr(&quot;x&quot;, axisX0 - 16).attr(&quot;y&quot;, axisY)
   .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(d3.timeFormat(&quot;%Y&quot;)(minDate));
@@ -1459,7 +1557,6 @@ svg.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;year-label&quot;)
   .attr(&quot;x&quot;, axisX1 + 16).attr(&quot;y&quot;, axisY)
   .attr(&quot;text-anchor&quot;, &quot;start&quot;).text(d3.timeFormat(&quot;%Y&quot;)(maxDate));
 
-// Month ticks across the axis
 const months = d3.timeMonths(d3.timeMonth.floor(minDate), d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1));
 months.forEach(m =&gt; {
   const cx = x(m);
@@ -1468,7 +1565,6 @@ months.forEach(m =&gt; {
     .attr(&quot;y1&quot;, axisY - 5).attr(&quot;y2&quot;, axisY + 5);
 });
 
-// Pick label cadence based on total span: more months → sparser labels
 const labelEvery = months.length &gt; 30 ? 6 : (months.length &gt; 15 ? 2 : 1);
 months.filter((_, i) =&gt; i % labelEvery === 0).forEach(m =&gt; {
   const cx = x(m);
@@ -1484,45 +1580,6 @@ months.filter((_, i) =&gt; i % labelEvery === 0).forEach(m =&gt; {
   }
 });
 
-// ---------- Lane lookup (for color/short-name) ----------
-const laneById = new Map((DATA.lanes || []).map(l =&gt; [l.id, l]));
-const partyById = new Map((DATA.parties || []).map(p =&gt; [p.id, p]));
-const sourceById = new Map((DATA.sources || []).map(s =&gt; [s.id, s]));
-
-function colorForEvent(e) {
-  const lane = laneById.get(e.lane_id);
-  return (lane &amp;&amp; lane.color) || &quot;#666&quot;;
-}
-
-function shortLabel(e) {
-  return e.label || &quot;(unlabeled)&quot;;
-}
-
-// ---------- Row assignment (zigzag) ----------
-// On each side, events alternate between row 0 (short stem) and row 1 (long stem);
-// if two adjacent events in the same row would collide horizontally, the later one
-// is bumped to a third fallback row.
-const rowStemDist = [55, 165, 270];
-const MIN_GAP = 150;
-
-function assignRowsOnSide(sideKey) {
-  const list = events.filter(e =&gt; e._side === sideKey);
-  const lastXByRow = [-Infinity, -Infinity, -Infinity];
-  list.forEach((e, i) =&gt; {
-    e._x = x(e._d);
-    let preferred = i % 2;
-    if (e._x - lastXByRow[preferred] &gt;= MIN_GAP) {
-      e._row = preferred;
-    } else {
-      const other = preferred === 0 ? 1 : 0;
-      e._row = (e._x - lastXByRow[other] &gt;= MIN_GAP) ? other : 2;
-    }
-    lastXByRow[e._row] = e._x;
-  });
-}
-assignRowsOnSide(&quot;above&quot;);
-assignRowsOnSide(&quot;below&quot;);
-
 // ---------- Dots on the axis ----------
 events.forEach(e =&gt; {
   svg.append(&quot;circle&quot;)
@@ -1530,19 +1587,6 @@ events.forEach(e =&gt; {
     .attr(&quot;cx&quot;, e._x).attr(&quot;cy&quot;, axisY).attr(&quot;r&quot;, 5)
     .attr(&quot;fill&quot;, colorForEvent(e));
 });
-
-// ---------- Word wrap helper ----------
-function wrap(text, maxLen) {
-  const words = (text || &quot;&quot;).split(&quot; &quot;);
-  const lines = [];
-  let cur = &quot;&quot;;
-  for (const w of words) {
-    if ((cur + &quot; &quot; + w).trim().length &lt;= maxLen) cur = (cur + &quot; &quot; + w).trim();
-    else { if (cur) lines.push(cur); cur = w; }
-  }
-  if (cur) lines.push(cur);
-  return lines;
-}
 
 // ---------- Tooltip ----------
 const tooltip = d3.select(&quot;#tooltip&quot;);
@@ -1552,7 +1596,7 @@ events.forEach(e =&gt; {
   const cx = e._x;
   const isAbove = e._side === &quot;above&quot;;
   const dir = isAbove ? -1 : 1;
-  const stemLen = rowStemDist[e._row] || rowStemDist[rowStemDist.length - 1];
+  const stemLen = stemLenForRow(e._row);
   const stemEndY = axisY + dir * stemLen;
 
   // stem from the axis dot to the marker
