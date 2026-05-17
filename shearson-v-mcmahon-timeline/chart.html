@@ -817,34 +817,48 @@ function packEvents() {
 const { rowsAbove, rowsBelow } = packEvents();
 
 // ---------- Vertical positioning (PER-ROW dynamic spacing) ----------
-// Each row's stem length is computed from the actual tallest label IN THAT ROW
-// (date + N wrapped lines), with a small padding gap. This way:
-//   - a row of short single-line labels stays tight to the row above it
-//   - a row that happens to include a 3-line label gets just the extra space
-//     it needs, without wasting it on the rest of the side
-// Cumulative: row r's stem = ROW_BASE + Σ(row 0..r-1 heights) + padding * r.
-const LINE_H_PX = 14;
-const DATE_H_PX = 16;
-const ROW_PADDING_PX = 12;       // breathing room between adjacent rows
-const ROW_BASE_PX = 50;
+// Each row's stem position is computed cumulatively from the preceding rows'
+// label-block heights. The step formula explicitly accounts for every visual
+// element in a row so the next row's MARKER never overlaps this row's DATE.
+//
+// Row N's contribution to the stem of row N+1 (going away from the axis):
+//   MARKER_RADIUS_PX     ← clear the top of row N's marker
+//   MARKER_TO_LABEL_PX   ← gap from marker center to nearest label baseline
+//   (linesN - 1) * LINE_H_PX  ← extra wrapped label lines
+//   LABEL_TO_DATE_PX     ← gap from top label baseline to date baseline
+//   DATE_ASCENT_PX       ← height of date text above its baseline
+//   ROW_GAP_PX           ← visible separation between row N's date top and
+//                          row N+1's marker bottom
+const LINE_H_PX            = 14;
+const MARKER_RADIUS_PX     = 7;
+const MARKER_TO_LABEL_PX   = 22;
+const LABEL_TO_DATE_PX     = 16;
+const DATE_ASCENT_PX       = 10;
+const ROW_GAP_PX           = 8;
+const ROW_BASE_PX          = 50;
+
+function stepBetweenRows(linesInPrev) {
+  return MARKER_RADIUS_PX
+       + MARKER_TO_LABEL_PX
+       + (linesInPrev - 1) * LINE_H_PX
+       + LABEL_TO_DATE_PX
+       + DATE_ASCENT_PX
+       + ROW_GAP_PX;
+}
 
 function buildStemTable(side) {
-  // For each row on this side, find the max wrapped-label-line count.
   const rowMaxLines = new Map();
   events.filter(e => e._side === side).forEach(e => {
     const lines = wrap(e.label || "", LABEL_WRAP_CHARS).length;
     rowMaxLines.set(e._row, Math.max(rowMaxLines.get(e._row) || 1, lines));
   });
-  // Walk rows in order, accumulating stem length.
   const stemAt = new Map();
   if (rowMaxLines.size === 0) return stemAt;
   const maxRow = Math.max(...rowMaxLines.keys());
   let stem = ROW_BASE_PX;
   for (let r = 0; r <= maxRow; r++) {
     stemAt.set(r, stem);
-    const lines = rowMaxLines.get(r) || 1;
-    const blockH = lines * LINE_H_PX + DATE_H_PX;
-    stem += blockH + ROW_PADDING_PX;
+    stem += stepBetweenRows(rowMaxLines.get(r) || 1);
   }
   return stemAt;
 }
@@ -856,16 +870,19 @@ function stemLenForRow(rowIdx, side) {
   return table.get(rowIdx) || ROW_BASE_PX;
 }
 
-// Deepest stem on each side determines the chart's half-heights.
+// Deepest visible y-extent on each side = top of the LAST row's date text.
 function deepestStem(side) {
   const table = (side === "above") ? aboveStemTable : belowStemTable;
   if (table.size === 0) return 0;
   const maxRow = Math.max(...table.keys());
-  // Add the label block for the last row so its text isn't clipped.
   const lastLines = events
     .filter(e => e._side === side && e._row === maxRow)
     .reduce((m, e) => Math.max(m, wrap(e.label || "", LABEL_WRAP_CHARS).length), 1);
-  return table.get(maxRow) + lastLines * LINE_H_PX + DATE_H_PX;
+  return table.get(maxRow)
+       + MARKER_TO_LABEL_PX
+       + (lastLines - 1) * LINE_H_PX
+       + LABEL_TO_DATE_PX
+       + DATE_ASCENT_PX;
 }
 
 // Compute the chart height so even the deepest-row event has room for its label.
