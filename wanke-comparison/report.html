@@ -1920,13 +1920,15 @@ const legendEl = document.getElementById(&quot;legend&quot;);
       <tr><td class="dim-label">Rendering engine</td><td class="v1-cell">Mermaid <code>timeline</code></td><td class="v2-cell">Mermaid <code>timeline</code></td><td class="new-cell">D3.js (SVG, interactive)</td></tr>
       <tr><td class="dim-label">Layout</td><td class="v1-cell">Flat linear, section-grouped</td><td class="v2-cell">Flat linear, section-grouped</td><td class="new-cell">Centered-axis (facts above / procedure below), density-weighted time bar</td></tr>
       <tr><td class="dim-label">Event count</td><td class="v1-cell">7 events / 3 sections</td><td class="v2-cell">13 events / 5 sections</td><td class="new-cell"><b>21 events</b> (incl. all 5 subcontracts individually + collateral)</td></tr>
-      <tr><td class="dim-label">Party attribution</td><td class="v1-cell">None — events are flat</td><td class="v2-cell">None — events are flat</td><td class="new-cell">4 lanes: Plaintiff, Defendant, Judgment Debtors, Court</td></tr>
-      <tr><td class="dim-label">Disputed facts</td><td class="v1-cell">Not represented</td><td class="v2-cell">Not represented</td><td class="new-cell">First-class — hollow events + red bracket linking versions</td></tr>
-      <tr><td class="dim-label">Typed relationships</td><td class="v1-cell">None</td><td class="v2-cell">None</td><td class="new-cell">12 edges: causal, response, tolls (with <code>clock_id</code> + <code>clock_effect</code>)</td></tr>
-      <tr><td class="dim-label">Tolling clocks</td><td class="v1-cell">Not rendered</td><td class="v2-cell">Not rendered</td><td class="new-cell">Gold-dashed tolling arrows for AVB's and Wanke's competing SoL theories</td></tr>
+      <tr><td class="dim-label">Party attribution</td><td class="v1-cell">None — events are flat</td><td class="v2-cell">None — events are flat</td><td class="new-cell">4 parties color-coded on dots (Plaintiff, Defendant, Judgment Debtors, Court); swimlane variant renders them as horizontal tracks</td></tr>
+      <tr><td class="dim-label">Time axis</td><td class="v1-cell">Implicit (label-order only)</td><td class="v2-cell">Implicit (label-order only)</td><td class="new-cell">Density-weighted: empty months compress to as little as 1/15 the width of busy months; ratio adapts per case</td></tr>
+      <tr><td class="dim-label">Disputed facts</td><td class="v1-cell">Not represented</td><td class="v2-cell">Not represented</td><td class="new-cell">First-class — dashed red outline on disputed event dots; competing versions are separate events linked by a <code>dispute_id</code></td></tr>
+      <tr><td class="dim-label">Typed relationships</td><td class="v1-cell">None</td><td class="v2-cell">None</td><td class="new-cell">12 edges in the data model: <code>causal</code>, <code>response</code>, <code>tolls</code> (with <code>clock_id</code> + <code>clock_effect</code>); rendered as arrows in swimlane / dual-track styles</td></tr>
+      <tr><td class="dim-label">Tolling clocks</td><td class="v1-cell">Not rendered</td><td class="v2-cell">Not rendered</td><td class="new-cell">Encoded with <code>clock_id</code> and <code>clock_effect</code> for AVB's and Wanke's competing SoL theories; rendered as gold-dashed arrows in swimlane / dual-track variants</td></tr>
       <tr><td class="dim-label">Source citations</td><td class="v1-cell">None per event</td><td class="v2-cell">None per event</td><td class="new-cell">Per-event citation in tooltip (Slip op. p. 7, fn. 3, p. 13 etc.)</td></tr>
       <tr><td class="dim-label">Jurisdictional significance</td><td class="v1-cell">Free-text in summary docs</td><td class="v2-cell">Free-text in summary docs</td><td class="new-cell">Per-event field surfaced inline in tooltip</td></tr>
-      <tr><td class="dim-label">Interactivity</td><td class="v1-cell">Static</td><td class="v2-cell">Static</td><td class="new-cell">Hover tooltips · filters (disputed / response / causal / tolls)</td></tr>
+      <tr><td class="dim-label">Label collision</td><td class="v1-cell">Whatever Mermaid renders</td><td class="v2-cell">Whatever Mermaid renders</td><td class="new-cell">Width-aware row packer (centered-axis): no two same-side labels can overlap horizontally regardless of date density</td></tr>
+      <tr><td class="dim-label">Interactivity</td><td class="v1-cell">Static</td><td class="v2-cell">Static</td><td class="new-cell">Hover tooltips with source citations + jurisdictional significance (centered-axis); plus filter toggles for disputed / response / causal / tolls (swimlane / dual-track)</td></tr>
       <tr><td class="dim-label">Validation / warnings</td><td class="v1-cell">None</td><td class="v2-cell">None</td><td class="new-cell">Inline warnings banner · field defaults · lane inference</td></tr>
       <tr><td class="dim-label">Output</td><td class="v1-cell">Mermaid markdown text</td><td class="v2-cell">Mermaid markdown text</td><td class="new-cell">Single self-contained interactive HTML</td></tr>
     </tbody>
@@ -1963,7 +1965,7 @@ const legendEl = document.getElementById(&quot;legend&quot;);
         <td class="label">Saratoga West subcontract</td>
         <td class="chart-cell v1-cell"><span class="abs">—</span></td>
         <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">Grouped in T8 range (2009–2013)</span></td>
-        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Individual event on Judgment Debtors lane</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Individual event · Judgment Debtors color</span></td>
       </tr>
       <tr>
         <td class="date">2012</td>
@@ -1984,7 +1986,7 @@ const legendEl = document.getElementById(&quot;legend&quot;);
         <td class="label">Predicate judgment entered ($1,190,929)</td>
         <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T1 — section: Underlying judgment</span></td>
         <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T1</span></td>
-        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Court lane · category: judgment</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Court color · category: judgment · below the axis (procedure)</span></td>
       </tr>
       <tr>
         <td class="date">2013-04-25</td>
@@ -2019,7 +2021,7 @@ const legendEl = document.getElementById(&quot;legend&quot;);
         <td class="label">Writ of execution & notice of levy served on AVB</td>
         <td class="chart-cell v1-cell"><span class="pres">●</span><span class="qual">T3 — silently merged with examination proceeding</span></td>
         <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T3 — de-conflated; levy only</span></td>
-        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Plaintiff lane; starts 2-yr lien clock under § 697.710</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Plaintiff color · starts 2-yr lien clock under § 697.710</span></td>
       </tr>
       <tr>
         <td class="date">~2014-06</td>
@@ -2033,7 +2035,7 @@ const legendEl = document.getElementById(&quot;legend&quot;);
         <td class="label">Examination proceedings — $109,327 debt identified (§ 708.120)</td>
         <td class="chart-cell v1-cell"><span class="abs">—</span><span class="qual">Merged into T3</span></td>
         <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T9 — split from T3 in v2</span></td>
-        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Plaintiff lane · category: deposition · starts 1-yr exam lien</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Plaintiff color · category: deposition · starts 1-yr exam lien</span></td>
       </tr>
       <tr>
         <td class="date">~2014-07</td>
@@ -2047,14 +2049,14 @@ const legendEl = document.getElementById(&quot;legend&quot;);
         <td class="label">Examination lien expired (1-year under § 708.120(c))</td>
         <td class="chart-cell v1-cell"><span class="abs">—</span></td>
         <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T12 — clock event</span></td>
-        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Gold-dashed tolling arrow with clock_id</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Tolling relationship with <code>clock_id</code> (gold-dashed arrow in swimlane / dual-track variants)</span></td>
       </tr>
       <tr>
         <td class="date">~2016-06</td>
         <td class="label">Levy lien expired (2-year under § 697.710)</td>
         <td class="chart-cell v1-cell"><span class="abs">—</span></td>
         <td class="chart-cell v2-cell"><span class="pres">●</span><span class="qual">T13 — clock event</span></td>
-        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Gold-dashed tolling arrow with clock_id</span></td>
+        <td class="chart-cell new-cell"><span class="pres">●</span><span class="qual">Tolling relationship with <code>clock_id</code> (gold-dashed arrow in swimlane / dual-track variants)</span></td>
       </tr>
       <tr>
         <td class="date">2016-07</td>
@@ -2111,7 +2113,7 @@ const legendEl = document.getElementById(&quot;legend&quot;);
     <li><b>SoL dispute as a first-class record.</b> AVB's anchor (July 2014 license suspension) and Wanke's anchor (2013 subcontract breaches) are encoded as two competing events with <code>date_certainty: "disputed"</code> and linked via a <code>Dispute</code> record (type: <code>meaning</code>, resolution: <code>adjudicated_for_wanke</code>). The old extractor embeds this only in prose <code>phase_summary</code>.</li>
     <li><b>Competing SoL clocks rendered as <em>two</em> tolling relationships</b> — one with <code>strength: "alleged"</code> (AVB's rejected theory) and one with <code>strength: "adjudicated"</code> (Wanke's adopted theory). Lets the reader literally see both legal theories on one chart.</li>
     <li><b>Lien expirations as typed tolling arrows</b> with <code>clock_id</code> (<code>levy_lien_697_710</code>, <code>exam_lien_708_120c</code>) and <code>clock_effect: "expire"</code> — queryable, not just visual.</li>
-    <li><b>Party attribution via lanes.</b> Each event lives on Plaintiff, Defendant, Judgment Debtors, or Court — making the who-did-what answerable at a glance. Both old charts are party-blind.</li>
+    <li><b>Party attribution via color-coded dots.</b> Each event's dot is tinted by its party (Plaintiff, Defendant, Judgment Debtors, or Court) — making the who-did-what answerable at a glance even though the centered-axis layout doesn't use horizontal lanes. The swimlane variant renders the same data as one horizontal track per party. Both old charts are party-blind.</li>
     <li><b>Per-event source citations</b> surfaced in tooltip (Slip op. p. 7, p. 13, fn. 3 etc.). The old extractor stores grounding_refs in JSON but does not surface them in the rendered chart.</li>
     <li><b>Three chart styles + auto selection.</b> The skill ships <strong>swimlane</strong> (parties as horizontal lanes), <strong>dual-track</strong> (facts vs procedure), and <strong>centered-axis</strong> (thin axis through the middle with density-weighted time and width-aware label packing). The auto-selector picks the best fit for the case; the old extractor renders one fixed style.</li>
     <li><b>Density-weighted time axis</b> (centered-axis only). Each month's slice width is proportional to its event count, with both the compression ratio and the per-row vertical spacing derived from the data — sparse cases compress dramatically (up to 1:15), dense cases stay nearly linear (1:4).</li>
@@ -2172,13 +2174,13 @@ const legendEl = document.getElementById(&quot;legend&quot;);
     </div>
     <div class="callout new">
       <h4>New <span class="badge">21 events</span></h4>
-      <p>Same factual coverage as v2 plus 8 additional events (named subcontracts, collateral proceedings, AVB trial brief, Wanke's accrual theory). <b>Critical win: the SoL dispute is visible.</b> AVB's July 2014 license-suspension anchor and Wanke's 2013 subcontract anchor sit side by side with a red dispute bracket — the central legal question of the case is literally visible on the chart.</p>
+      <p>Same factual coverage as v2 plus 8 additional events (named subcontracts, collateral proceedings, AVB trial brief, Wanke's accrual theory). <b>Critical win: the SoL dispute is visible.</b> AVB's July 2014 license-suspension anchor and Wanke's 2013 subcontract anchor are flagged with a dashed-red outline as competing versions linked by a single <code>Dispute</code> record — the central legal question of the case is literally visible on the chart. The density-weighted axis pushes the 2013–2014 dispute window into prominence while the empty 2009–2012 and 2016–2020 stretches compress.</p>
     </div>
   </div>
 </section>
 
 <footer class="report">
-  Files: <code>wanke-extraction.json</code> · <code>wanke-chart-auto.html</code> (dual-track) · <code>wanke-chart-swimlane.html</code> · <code>wanke-chart-dualtrack.html</code> · <code>wanke-chart-old.html</code> (v1 vs v2) — all in <code>wanke-comparison/</code>.
+  Files: <code>wanke-extraction.json</code> · <code>wanke-chart-centered.html</code> (canonical, used in this report) · <code>wanke-chart-swimlane.html</code> · <code>wanke-chart-dualtrack.html</code> · <code>wanke-chart-auto.html</code> · <code>wanke-chart-old.html</code> (v1 vs v2) — all in <code>wanke-comparison/</code>.
 </footer>
 
 </div>

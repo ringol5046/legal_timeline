@@ -2,420 +2,1232 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Litigation Timeline — Centered Axis</title>
+<title>Wanke, Industrial, Commercial, Residential, Inc. v. AV Builder Corp. — Timeline</title>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
   :root {
-    --bg: #fafaf7;
-    --ink: #1a1a1a;
-    --muted: #6b6b6b;
-    --rule: #d8d4cc;
-    --axis: #c98826;          /* thin amber line */
-    --year-fill: #c98826;
-    --month-fill: #8a6420;
-    --smith: #d94e2a;
-    --smith-dark: #b04323;
-    --jones: #8a2c1e;
-    --evergreen: #3a3a3a;
-    --pt: #ed8a3a;
-    --flag: #3a3a3a;
-    --stem: #b3a99a;
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    padding: 24px 32px;
-  }
-  header { max-width: 1800px; margin: 0 auto 12px auto; }
-  h1 {
-    font-size: 48px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    text-align: center;
-    letter-spacing: -0.01em;
-  }
-  .subtitle {
-    font-size: 13px;
-    color: var(--muted);
-    margin: 0 auto 14px auto;
-    text-align: center;
-    max-width: 900px;
-  }
-  #chart-wrap {
-    max-width: 1800px;
-    margin: 0 auto;
-    background: white;
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    overflow: auto;
-    padding: 8px;
-  }
-  svg { display: block; margin: 0 auto; }
-
-  .axis-line { stroke: var(--axis); stroke-width: 2.5px; }
-  .year-label {
-    font-size: 22px;
-    font-weight: 700;
-    fill: var(--year-fill);
-    dominant-baseline: middle;
-    letter-spacing: 0.04em;
-  }
-  .month-label {
-    font-size: 11.5px;
-    font-weight: 600;
-    fill: var(--month-fill);
-    text-anchor: middle;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
-  .event-dot { stroke: white; stroke-width: 2px; }
-  .event-stem { stroke: var(--stem); stroke-width: 1px; }
-  .event-date {
-    font-size: 12px;
-    font-weight: 700;
-    fill: var(--smith-dark);
-    text-anchor: middle;
-  }
-  .event-date.flag { fill: var(--ink); }
-  .event-label {
-    font-size: 12px;
-    fill: var(--ink);
-    text-anchor: middle;
-  }
-  .event-label.italic {
-    font-style: italic;
-    font-weight: 600;
-    fill: #888;
-    font-size: 12px;
-  }
-  .event-group { cursor: pointer; }
-  .event-group:hover .event-shape { filter: brightness(1.1); }
-  .tooltip {
-    position: absolute;
-    pointer-events: none;
-    background: #1a1a1a;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 11.5px;
-    line-height: 1.45;
-    max-width: 280px;
-    opacity: 0;
-    transition: opacity 120ms ease;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-    z-index: 10;
-  }
-  .tooltip strong { color: #ffe066; display: block; margin-bottom: 4px; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .leader { stroke: var(--rule); stroke-width: 0.6px; }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 9.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 8.5px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.2px; fill: none; stroke-dasharray: 3 2; opacity: 0.75; }
+  .dispute-marker { font-size: 14px; fill: var(--dispute); font-weight: 600; }
+  .dispute-label { font-size: 10px; fill: var(--dispute); font-style: italic; }
+  .cluster { cursor: pointer; }
+  .cluster:hover .cluster-bg { stroke-width: 3px; }
+  .cluster-bg { stroke: white; stroke-width: 2px; transition: stroke-width 120ms ease; }
+  .cluster-count { font-size: 11px; font-weight: 700; fill: white; pointer-events: none; }
+  .cluster-month { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
   .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
-  .legend {
-    max-width: 1800px;
-    margin: 16px auto 0 auto;
-    padding: 10px 16px;
-    background: white;
-    border: 1px solid var(--rule);
-    border-radius: 6px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    font-size: 12px;
-    color: var(--muted);
-    justify-content: center;
-  }
-  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
-  .legend svg { display: inline-block; vertical-align: middle; }
-  footer {
-    max-width: 1800px;
-    margin: 12px auto 0 auto;
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-  }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+  .style-pill { display: inline-block; padding: 2px 8px; font-size: 10.5px; font-weight: 500; background: #edf2f7; color: #2d3748; border-radius: 10px; vertical-align: middle; margin-left: 8px; letter-spacing: 0.02em; }
+  .warnings { max-width: 1280px; margin-top: 12px; padding: 10px 14px; background: #fffaf0; border: 1px solid #f6e05e; border-left: 3px solid #d69e2e; border-radius: 4px; font-size: 12px; color: #744210; }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Litigation</h1>
-  <p class="subtitle">Personal-injury timeline — medical treatment from injury (05/20/2011) through lawsuit filing (09/14/2012). Hover any marker for details.</p>
+  <h1>Wanke, Industrial, Commercial, Residential, Inc. v. AV Builder Corp.<span class="style-pill">Swimlane</span> <span style="color:var(--muted);font-weight:400">— Cal. Ct. App. 4th Dist., Div. 1 · D074392 (Super. Ct. No. 37-2016-00023774-CU-EN-CTL)</span></h1>
+  <p class="subtitle">Wanke obtained a 2013 judgment against Keck and WP Solutions for $1,190,929. To collect, Wanke filed a creditor's suit against third party AVB seeking $109,327 AVB owed WP Solutions under five waterproofing subcontracts. After bench trial, the court entered judgment for Wanke for $83,418.94, largely rejecting AVB's setoff claims. The Court of Appeal affirmed on Feb. 19, 2020, rejecting AVB's standing/capacity, statute-of-limitations, and warranty-setoff challenges.</p>
 </header>
 
+
+
+<div class="controls" id="controls"></div>
 <div id="chart-wrap"></div>
-
-<div class="legend">
-  <span class="item"><svg width="14" height="14"><polygon points="7,2 12,12 2,12" fill="#d94e2a"/></svg> Dr. Smith</span>
-  <span class="item"><svg width="14" height="14"><polygon points="7,2 12,12 2,12" fill="#8a2c1e"/></svg> Dr. Jones</span>
-  <span class="item"><svg width="14" height="14"><polygon points="7,2 12,7 7,12 2,7" fill="#3a3a3a"/></svg> Evergreen</span>
-  <span class="item"><svg width="14" height="14"><polygon points="7,2 12,7 7,12 2,7" fill="#ed8a3a"/></svg> Physical Therapy</span>
-  <span class="item"><svg width="14" height="14"><path d="M3,2 L3,12 M3,2 L10,4 L3,6" stroke="#3a3a3a" stroke-width="1.5" fill="#3a3a3a"/></svg> Milestone</span>
-</div>
-
-<footer>Centered-axis variant · D3 · interactive · self-contained</footer>
-
 <div class="tooltip" id="tooltip"></div>
 
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
 <script>
-// -------------------- DATA --------------------
-const events = [
-  { date: "2011-05-20", side: "above", category: "flag",      label: "SUFFERS INJURY",                                    shape: "flag",          dateText: "05/20/11", italicLabel: true, detail: "Injury occurs — start of medical timeline." },
-  { date: "2011-06-14", side: "below", category: "evergreen", label: "EVERGREEN MRI",                                     shape: "diamond",       dateText: "06/14/11", detail: "Magnetic resonance imaging performed at Evergreen." },
-  { date: "2011-07-19", side: "above", category: "smith",     label: "Dr. Smith First Office Visit",                      shape: "triangle-down", dateText: "07/19/11", detail: "Initial office consultation with Dr. Smith." },
-  { date: "2011-08-12", side: "below", category: "smith",     label: "Dr. Smith Second Office Visit",                     shape: "triangle-up",   dateText: "08/12/11", detail: "Follow-up consultation with Dr. Smith." },
-  { date: "2011-09-27", side: "below", category: "evergreen", label: "EVERGREEN Surgery",                                 shape: "diamond",       dateText: "09/27/11", detail: "Surgical procedure performed at Evergreen." },
-  { date: "2011-10-03", side: "above", category: "evergreen", label: "EVERGREEN X-Ray / Cervical Collar",                 shape: "diamond",       dateText: "10/03/11", detail: "Post-operative imaging and cervical immobilization at Evergreen." },
-  { date: "2011-11-05", side: "below", category: "smith",     label: "Dr. Smith First Post-Op Visit",                     shape: "triangle-up",   dateText: "11/05/11", detail: "First post-operative follow-up with Dr. Smith." },
-  { date: "2011-11-28", side: "above", category: "evergreen", label: "EVERGREEN X-Ray",                                   shape: "diamond",       dateText: "11/28/11", detail: "Follow-up imaging at Evergreen." },
-  { date: "2011-12-17", side: "below", category: "smith",     label: "Dr. Smith Second Post-Op Visit",                    shape: "triangle-up",   dateText: "12/17/11", detail: "Second post-operative follow-up with Dr. Smith." },
-  { date: "2012-02-03", side: "below", category: "jones",     label: "Dr. Jones First Office Visit",                      shape: "triangle-up",   dateText: "02/03/12", detail: "Initial consultation with Dr. Jones." },
-  { date: "2012-02-29", side: "above", category: "pt",        label: "PHYSICAL THERAPY Starts",                           shape: "diamond",       dateText: "02/29/12", detail: "Physical therapy program commenced." },
-  { date: "2012-04-23", side: "below", category: "jones",     label: "Dr. Jones 2nd Office Visit — Referral Back to Dr. Smith", shape: "triangle-up", dateText: "04/23/12", detail: "Second visit with Dr. Jones; referral returned to Dr. Smith." },
-  { date: "2012-05-03", side: "above", category: "smith",     label: "Dr. Smith Missed Appointment",                      shape: "triangle-down", dateText: "05/03/12", detail: "Patient missed scheduled appointment with Dr. Smith." },
-  { date: "2012-07-03", side: "above", category: "jones",     label: "Dr. Jones Final Office Visit",                      shape: "triangle-down", dateText: "07/03/12", detail: "Final visit with Dr. Jones." },
-  { date: "2012-08-03", side: "below", category: "pt",        label: "PHYSICAL THERAPY Ends",                             shape: "diamond",       dateText: "08/03/12", detail: "Physical therapy program concluded." },
-  { date: "2012-09-14", side: "above", category: "flag",      label: "LAWSUIT FILED",                                     shape: "flag",          dateText: "09/14/12", italicLabel: true, detail: "Complaint filed — start of litigation phase." }
-];
-
-// -------------------- LAYOUT --------------------
-const margin = { top: 60, right: 120, bottom: 60, left: 120 };
-const width  = 1800;
-const height = 900;
-
-const xStart = new Date("2011-04-15");
-const xEnd   = new Date("2012-09-30");
-const x = d3.scaleTime().domain([xStart, xEnd]).range([margin.left, width - margin.right]);
-
-const axisY = height / 2;
-
-// -------------------- SVG --------------------
-const svg = d3.select("#chart-wrap").append("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .attr("viewBox", `0 0 ${width} ${height}`)
-  .attr("preserveAspectRatio", "xMidYMid meet");
-
-// -------------------- THIN CENTERED AXIS --------------------
-const axisX0 = x(new Date("2011-05-01"));
-const axisX1 = x(new Date("2012-09-15"));
-
-svg.append("line")
-  .attr("class", "axis-line")
-  .attr("x1", axisX0)
-  .attr("x2", axisX1)
-  .attr("y1", axisY)
-  .attr("y2", axisY)
-  .attr("stroke-linecap", "round");
-
-// Year labels
-svg.append("text")
-  .attr("class", "year-label")
-  .attr("x", axisX0 - 16)
-  .attr("y", axisY)
-  .attr("text-anchor", "end")
-  .text("2011");
-
-svg.append("text")
-  .attr("class", "year-label")
-  .attr("x", axisX1 + 16)
-  .attr("y", axisY)
-  .attr("text-anchor", "start")
-  .text("2012");
-
-// Month ticks + small labels just below the line
-const months = d3.timeMonths(new Date("2011-05-01"), new Date("2012-10-01"));
-months.forEach(m => {
-  const cx = x(m);
-  // small notch
-  svg.append("line")
-    .attr("class", "month-tick")
-    .attr("x1", cx).attr("x2", cx)
-    .attr("y1", axisY - 5)
-    .attr("y2", axisY + 5);
-});
-
-// Labels: every-other-month, just under the line
-months.filter((d, i) => i % 2 === 0).forEach(m => {
-  const cx = x(m);
-  const isJan = m.getMonth() === 0;
-  svg.append("text")
-    .attr("class", "month-label")
-    .attr("x", cx)
-    .attr("y", axisY + 22)
-    .text(d3.timeFormat("%b")(m));
-  if (isJan) {
-    svg.append("text")
-      .attr("class", "month-label")
-      .attr("x", cx)
-      .attr("y", axisY + 36)
-      .style("font-size", "10.5px")
-      .style("opacity", 0.8)
-      .text(d3.timeFormat("%Y")(m));
-  }
-});
-
-// -------------------- HELPERS --------------------
-const tooltip = d3.select("#tooltip");
-
-function colorFor(cat) {
-  switch (cat) {
-    case "smith":     return "#d94e2a";
-    case "jones":     return "#8a2c1e";
-    case "evergreen": return "#3a3a3a";
-    case "pt":        return "#ed8a3a";
-    case "flag":      return "#3a3a3a";
-    default:          return "#999";
-  }
-}
-
-function drawShape(g, e, s = 10) {
-  const c = colorFor(e.category);
-  if (e.shape === "triangle-up") {
-    g.append("polygon").attr("class", "event-shape")
-      .attr("points", `0,${-s} ${s},${s} ${-s},${s}`).attr("fill", c);
-  } else if (e.shape === "triangle-down") {
-    g.append("polygon").attr("class", "event-shape")
-      .attr("points", `0,${s} ${s},${-s} ${-s},${-s}`).attr("fill", c);
-  } else if (e.shape === "diamond") {
-    const d = s - 1;
-    g.append("polygon").attr("class", "event-shape")
-      .attr("points", `0,${-d} ${d},0 0,${d} ${-d},0`).attr("fill", c);
-  } else if (e.shape === "flag") {
-    g.append("line").attr("class", "event-shape")
-      .attr("x1", 0).attr("x2", 0).attr("y1", -18).attr("y2", 18)
-      .attr("stroke", c).attr("stroke-width", 2);
-    g.append("polygon").attr("class", "event-shape")
-      .attr("points", "0,-18 14,-13 0,-8").attr("fill", c);
-  }
-}
-
-// -------------------- ROW ASSIGNMENT (zigzag) --------------------
-// Events on the same side alternate between TWO row heights (short stem and
-// long stem), producing an up-and-down rhythm instead of a fan/cone.
-// If two adjacent events end up too close horizontally, bump the later one
-// to a third row so labels never overlap.
-function assignRows(side) {
-  const list = events.filter(e => e.side === side).sort((a, b) => new Date(a.date) - new Date(b.date));
-  const lastXByRow = [-Infinity, -Infinity, -Infinity]; // up to 3 rows available per side
-  const minGap = 150; // px of horizontal clearance required between events in the same row
-  list.forEach((e, i) => {
-    e._x = x(new Date(e.date));
-    // First try the zigzag preference: row = i % 2
-    let preferred = i % 2;
-    if (e._x - lastXByRow[preferred] >= minGap) {
-      e._row = preferred;
-    } else {
-      // Try the other zigzag row, then fallback row 2
-      const other = preferred === 0 ? 1 : 0;
-      if (e._x - lastXByRow[other] >= minGap) e._row = other;
-      else e._row = 2;
+const DATA = {
+  "case": {
+    "id": "wanke_v_av_builder_2020",
+    "caption": "Wanke, Industrial, Commercial, Residential, Inc. v. AV Builder Corp.",
+    "court": "Cal. Ct. App. 4th Dist., Div. 1",
+    "docket": "D074392 (Super. Ct. No. 37-2016-00023774-CU-EN-CTL)",
+    "jurisdiction": "California state appellate",
+    "date_range": [
+      "2008-01-01",
+      "2020-06-01"
+    ],
+    "cause_of_action": [
+      "creditor's suit (\u00a7 708.210)",
+      "warranty setoff (\u00a7 431.70)"
+    ],
+    "status": "judgment",
+    "summary": "Wanke obtained a 2013 judgment against Keck and WP Solutions for $1,190,929. To collect, Wanke filed a creditor's suit against third party AVB seeking $109,327 AVB owed WP Solutions under five waterproofing subcontracts. After bench trial, the court entered judgment for Wanke for $83,418.94, largely rejecting AVB's setoff claims. The Court of Appeal affirmed on Feb. 19, 2020, rejecting AVB's standing/capacity, statute-of-limitations, and warranty-setoff challenges."
+  },
+  "parties": [
+    {
+      "id": "wanke",
+      "name": "Wanke, Industrial, Commercial, Residential, Inc.",
+      "short_name": "Wanke",
+      "role": [
+        "plaintiff",
+        "respondent",
+        "judgment_creditor"
+      ],
+      "type": "corporation",
+      "representation": [
+        "Lindborg & Mazor \u2014 Peter F. Lindborg, Irina J. Mazor"
+      ]
+    },
+    {
+      "id": "avb",
+      "name": "AV Builder Corp.",
+      "short_name": "AVB",
+      "role": [
+        "defendant",
+        "appellant",
+        "third_party"
+      ],
+      "type": "corporation",
+      "representation": [
+        "Greco Traficante Schulz & Brick \u2014 Peter J. Schulz; Williams Iagmin \u2014 Jon R. Williams"
+      ]
+    },
+    {
+      "id": "wp_solutions",
+      "name": "WP Solutions, Inc.",
+      "short_name": "WP Solutions",
+      "role": [
+        "judgment_debtor",
+        "non_party"
+      ],
+      "type": "corporation"
+    },
+    {
+      "id": "keck",
+      "name": "Scott Keck",
+      "short_name": "Keck",
+      "role": [
+        "judgment_debtor",
+        "non_party",
+        "witness"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "trial_court",
+      "name": "San Diego County Superior Court (Hon. Timothy B. Taylor)",
+      "short_name": "Trial Court",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "court_of_appeal",
+      "name": "California Court of Appeal, 4th District, Division 1",
+      "short_name": "Court of Appeal",
+      "role": [
+        "court"
+      ],
+      "type": "court"
     }
-    lastXByRow[e._row] = e._x;
+  ],
+  "lanes": [
+    {
+      "id": "wanke",
+      "label": "Plaintiff/Respondent",
+      "sub": "Wanke",
+      "party_id": "wanke",
+      "color": "#2b6cb0",
+      "order": 0
+    },
+    {
+      "id": "avb",
+      "label": "Defendant/Appellant",
+      "sub": "AVB",
+      "party_id": "avb",
+      "color": "#b04a2b",
+      "order": 1
+    },
+    {
+      "id": "debtors",
+      "label": "Judgment Debtors",
+      "sub": "WP Solutions \u00b7 Keck",
+      "party_id": "wp_solutions",
+      "color": "#6b46c1",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "Trial \u00b7 Court of Appeal",
+      "party_id": "trial_court",
+      "color": "#4a5568",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_2008_trade_secret_suit",
+      "label": "Wanke sues Keck (trade secrets)",
+      "detail": "Wanke sued Keck and another former employee in 2008 for trade secret misappropriation after they left to form competing business WP Solutions. Collateral context for the later judgment.",
+      "date": "2008-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": [
+        "wanke",
+        "keck"
+      ],
+      "kind": "external",
+      "category": "related_proceeding",
+      "jurisdictional_significance": "Origin of the dispute that produced the predicate $1.19M judgment.",
+      "source_ids": [
+        "s_op_p2"
+      ]
+    },
+    {
+      "id": "e_subcontract_saratoga",
+      "label": "Saratoga West subcontract",
+      "detail": "WP Solutions \u2194 AVB waterproofing subcontract for Saratoga West project. Earliest of five subcontracts between the two companies.",
+      "date": "2009-11-16",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": [
+        "wp_solutions",
+        "avb"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "source_ids": [
+        "s_op_p3_fn3"
+      ]
+    },
+    {
+      "id": "e_subcontract_pointloma",
+      "label": "Point Loma Tennis Club subcontract",
+      "detail": "WP Solutions \u2194 AVB waterproofing subcontract. Pool deck on this project later caused $57,055.95 in repair damage (incompatible materials).",
+      "date": "2012-06-11",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": [
+        "wp_solutions",
+        "avb"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Source of the only setoff the trial court partially allowed ($25,908 for pool deck repair).",
+      "source_ids": [
+        "s_op_p3_fn3"
+      ]
+    },
+    {
+      "id": "e_subcontract_promenade",
+      "label": "133 Promenade subcontract",
+      "detail": "WP Solutions \u2194 AVB waterproofing subcontract.",
+      "date": "2013-04-25",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": [
+        "wp_solutions",
+        "avb"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "source_ids": [
+        "s_op_p3_fn3"
+      ]
+    },
+    {
+      "id": "e_subcontract_taitz",
+      "label": "Taitz Residence subcontract",
+      "detail": "WP Solutions \u2194 AVB waterproofing subcontract. One of two subcontracts (with Oxford Court) carrying open balances per Keck's testimony.",
+      "date": "2013-09-09",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": [
+        "wp_solutions",
+        "avb"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Within four years of Wanke's 2016 creditor's suit; anchors \u00a7 708.230(a)(1) timeliness analysis (Wanke's framework).",
+      "source_ids": [
+        "s_op_p3_fn3",
+        "s_op_p15",
+        "s_op_p16"
+      ]
+    },
+    {
+      "id": "e_subcontract_oxford",
+      "label": "Oxford Court subcontract",
+      "detail": "WP Solutions \u2194 AVB waterproofing subcontract. One of two subcontracts (with Taitz Residence) carrying open balances per Keck's testimony at trial (Ex. 13).",
+      "date": "2013-12-23",
+      "date_certainty": "exact",
+      "lane_id": "debtors",
+      "party_ids": [
+        "wp_solutions",
+        "avb"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Within four years of Wanke's 2016 creditor's suit; anchors \u00a7 708.230(a)(1) timeliness analysis (Wanke's framework).",
+      "source_ids": [
+        "s_op_p3_fn3",
+        "s_op_p15",
+        "s_op_p16"
+      ]
+    },
+    {
+      "id": "e_wanke_keck_appellate",
+      "label": "Wanke v. Keck (2012) (collateral)",
+      "detail": "Earlier appellate decision (Wanke I) at 209 Cal.App.4th 1151, 1156-1162. Background for the breach-of-settlement litigation that produced the 2013 judgment.",
+      "date": "2012-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "wanke",
+        "keck",
+        "court_of_appeal"
+      ],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": [
+        "s_op_p2"
+      ]
+    },
+    {
+      "id": "e_predicate_judgment",
+      "label": "Predicate judgment entered ($1,190,929)",
+      "detail": "Trial court enters judgment in favor of Wanke, holding Keck and WP Solutions jointly and severally liable for $1,190,929 \u2014 the predicate obligation Wanke later sought to collect through the creditor's suit.",
+      "date": "2013-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "wanke",
+        "keck",
+        "wp_solutions",
+        "trial_court"
+      ],
+      "kind": "ruling",
+      "category": "judgment",
+      "jurisdictional_significance": "Predicate judgment supporting Wanke's \u00a7 708.210 standing to bring creditor's suit against AVB.",
+      "source_ids": [
+        "s_op_p2"
+      ]
+    },
+    {
+      "id": "e_wp_corp_suspension",
+      "label": "WP Solutions corporate suspension",
+      "detail": "WP Solutions was suspended as a corporation during 2014 (Rev. & Tax. Code \u00a7 23301). Remained suspended at all times relevant. Source of the capacity-to-sue argument AVB pressed on appeal.",
+      "date": "2014-01-01",
+      "date_certainty": "approximate",
+      "lane_id": "debtors",
+      "party_ids": [
+        "wp_solutions"
+      ],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "Extinguished WP Solutions' capacity to sue; foundation of AVB's standing/capacity argument under Casiopea and Cal-Western.",
+      "source_ids": [
+        "s_op_p4",
+        "s_op_p8"
+      ]
+    },
+    {
+      "id": "e_work_complete_bankruptcy",
+      "label": "Work complete; Keck bankruptcy; WP dissolved",
+      "detail": "Around June 2014, Keck completed the subcontract work, declared bankruptcy facing the 2013 judgment, and dissolved WP Solutions. WP Solutions could no longer perform ongoing warranty obligations built into each subcontract \u2014 basis for AVB's warranty setoff theory.",
+      "date": "2014-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "debtors",
+      "party_ids": [
+        "keck",
+        "wp_solutions"
+      ],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Triggered AVB's argument that warranty work bargained-for could no longer be performed.",
+      "source_ids": [
+        "s_op_p3"
+      ]
+    },
+    {
+      "id": "e_levy_served",
+      "label": "Writ of execution & notice of levy on AVB",
+      "detail": "Wanke serves writ of execution and notice of levy on AVB in June 2014, targeting any property of WP Solutions in AVB's hands. Two-year levy lien arises under \u00a7 697.710.",
+      "date": "2014-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": [
+        "wanke",
+        "avb"
+      ],
+      "kind": "filing",
+      "category": "notice",
+      "jurisdictional_significance": "Creates a two-year levy lien under \u00a7 697.710 (later expired before creditor's suit).",
+      "source_ids": [
+        "s_op_p3",
+        "s_op_p7"
+      ]
+    },
+    {
+      "id": "e_examination_proceedings",
+      "label": "Examination proceedings; $109,327 debt identified",
+      "detail": "Wanke conducts examination proceedings of AVB's president Antonio Madureira under \u00a7 708.120. Learns AVB owed WP Solutions $109,327 under the subcontracts. One-year examination lien arises under \u00a7 708.120(c).",
+      "date": "2014-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": [
+        "wanke",
+        "avb"
+      ],
+      "kind": "discovery",
+      "category": "deposition",
+      "jurisdictional_significance": "Identified the specific receivable underlying the creditor's suit; created one-year examination lien.",
+      "source_ids": [
+        "s_op_p3",
+        "s_op_p7"
+      ]
+    },
+    {
+      "id": "e_license_suspended",
+      "label": "WP Solutions contractor's license suspended",
+      "detail": "WP Solutions' contractor's license suspended in July 2014. After this, WP Solutions was statutorily precluded from pursuing a collection action against AVB under Bus. & Prof. Code \u00a7 7031(a). AVB anchors its statute-of-limitations theory to this date.",
+      "date": "2014-07-01",
+      "date_certainty": "approximate",
+      "lane_id": "debtors",
+      "party_ids": [
+        "wp_solutions"
+      ],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "AVB's anchor date for SoL theory: WP Solutions could not 'bring an action' after this date, so \u00a7 708.230(a)(1) two-year window ran out July 2016.",
+      "source_ids": [
+        "s_op_p13"
+      ],
+      "disputed": true,
+      "dispute_id": "d_sol_anchor"
+    },
+    {
+      "id": "e_subcontract_breach_accrual",
+      "label": "Subcontract accrual (Wanke's theory)",
+      "detail": "Wanke's theory: \u00a7 708.230(a)(1) borrows the underlying contract limitations period (\u00a7 337(a)'s four-year written-contract clock), measured from when AVB failed to meet payment obligations. The 2013 subcontracts (Taitz, Oxford) are within four years of the July 2016 creditor's suit regardless.",
+      "date": "2013-12-23",
+      "date_certainty": "disputed",
+      "lane_id": "wanke",
+      "party_ids": [
+        "wanke"
+      ],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Wanke's anchor for SoL: contract accrual under \u00a7 337(a), 4-year clock from breach.",
+      "source_ids": [
+        "s_op_p15",
+        "s_op_p16"
+      ],
+      "disputed": true,
+      "dispute_id": "d_sol_anchor"
+    },
+    {
+      "id": "e_exam_lien_expired",
+      "label": "Examination lien expired (1-year)",
+      "detail": "One-year examination lien under \u00a7 708.120(c) expired in mid-2015 \u2014 before Wanke filed the July 2016 creditor's suit. Eliminated this path for \u00a7 708.230(a)(2) timeliness.",
+      "date": "2015-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "wanke"
+      ],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "Forced timeliness analysis onto \u00a7 708.230(a)(1) (judgment-debtor accrual window).",
+      "source_ids": [
+        "s_op_p7"
+      ]
+    },
+    {
+      "id": "e_levy_lien_expired",
+      "label": "Levy lien expired (2-year)",
+      "detail": "Two-year levy lien under \u00a7 697.710 expired ~June 2016 \u2014 before Wanke filed the July 2016 creditor's suit. Eliminated this path for \u00a7 708.230(a)(2) timeliness.",
+      "date": "2016-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "wanke",
+        "avb"
+      ],
+      "kind": "external",
+      "category": "regulation",
+      "jurisdictional_significance": "Forced timeliness analysis onto \u00a7 708.230(a)(1) (judgment-debtor accrual window).",
+      "source_ids": [
+        "s_op_p7"
+      ]
+    },
+    {
+      "id": "e_creditors_suit",
+      "label": "Creditor's suit filed ($109,327)",
+      "detail": "Wanke files creditor's suit against AVB under \u00a7 708.210 seeking to recover $109,327 toward outstanding judgment. Filed in San Diego Superior Court (Hon. Timothy B. Taylor).",
+      "date": "2016-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "wanke",
+      "party_ids": [
+        "wanke",
+        "avb",
+        "trial_court"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "jurisdictional_significance": "Commenced the \u00a7 708.210 creditor's suit; date against which \u00a7 708.230(a)(1) timeliness is measured.",
+      "source_ids": [
+        "s_op_p3",
+        "s_op_p7"
+      ]
+    },
+    {
+      "id": "e_avb_trial_brief_standing",
+      "label": "AVB trial brief: standing/capacity",
+      "detail": "AVB first presented its standing/capacity argument in its trial brief, invoking assignment principles from Cal-Western and Casiopea to argue Wanke stood in WP Solutions' shoes.",
+      "date": "2018-05-01",
+      "date_certainty": "approximate",
+      "lane_id": "avb",
+      "party_ids": [
+        "avb"
+      ],
+      "kind": "filing",
+      "category": "brief",
+      "source_ids": [
+        "s_op_p9"
+      ]
+    },
+    {
+      "id": "e_bench_trial",
+      "label": "Two-day bench trial",
+      "detail": "Two-day bench trial in June 2018. Parties stipulated to judgment, bankruptcy, levy, and debt facts. Sole trial issues: AVB's setoff claims (\u00a7 431.70) and Wanke's ability to collect given WP Solutions' incapacity. AVB called four witnesses (Canup, Keck, Madureira, Bagnall); Wanke called rebuttal expert Kushner.",
+      "date": "2018-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "wanke",
+        "avb",
+        "keck",
+        "trial_court"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_op_p3"
+      ]
+    },
+    {
+      "id": "e_trial_judgment",
+      "label": "Trial judgment for Wanke ($83,418.94)",
+      "detail": "Trial court enters judgment in favor of Wanke for $83,418.94, after allowing a $25,908 Point Loma pool deck repair offset and rejecting AVB's remaining setoff claims. Court found AVB failed to carry its burden to establish the value of warranty setoffs.",
+      "date": "2018-08-01",
+      "date_certainty": "unknown",
+      "lane_id": "court",
+      "party_ids": [
+        "wanke",
+        "avb",
+        "trial_court"
+      ],
+      "kind": "ruling",
+      "category": "judgment",
+      "jurisdictional_significance": "Operative trial-court judgment under review on appeal.",
+      "source_ids": [
+        "s_op_p4",
+        "s_op_p5"
+      ]
+    },
+    {
+      "id": "e_appeal_affirmed",
+      "label": "Court of Appeal affirms",
+      "detail": "Court of Appeal (Dato, J., with Benke, Acting P.J., and O'Rourke, J. concurring) files opinion affirming the judgment. Rejects all three contentions: (1) standing/capacity \u2014 \u00a7 708.210 creditor's suit is not derivative of WP Solutions' rights; (2) statute of limitations \u2014 AVB failed to meet burden of proof; (3) warranty setoffs \u2014 AVB failed to establish nonspeculative value. Costs to Wanke.",
+      "date": "2020-02-19",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "wanke",
+        "avb",
+        "court_of_appeal"
+      ],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Disposes of all three appellate issues; affirmance.",
+      "source_ids": [
+        "s_op_p1",
+        "s_op_p22"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_2008_to_judgment",
+      "from_event_id": "e_2008_trade_secret_suit",
+      "to_event_id": "e_predicate_judgment",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_judgment_to_levy",
+      "from_event_id": "e_predicate_judgment",
+      "to_event_id": "e_levy_served",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Unsatisfied judgment is the foundation for the levy on AVB."
+    },
+    {
+      "id": "r_levy_to_examination",
+      "from_event_id": "e_levy_served",
+      "to_event_id": "e_examination_proceedings",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_levy_lien_expiry",
+      "from_event_id": "e_levy_served",
+      "to_event_id": "e_levy_lien_expired",
+      "type": "tolls",
+      "strength": "undisputed",
+      "clock_id": "levy_lien_697_710",
+      "clock_effect": "expire",
+      "detail": "2-year levy lien under \u00a7 697.710 expires June 2016."
+    },
+    {
+      "id": "r_exam_lien_expiry",
+      "from_event_id": "e_examination_proceedings",
+      "to_event_id": "e_exam_lien_expired",
+      "type": "tolls",
+      "strength": "undisputed",
+      "clock_id": "exam_lien_708_120c",
+      "clock_effect": "expire",
+      "detail": "1-year examination lien under \u00a7 708.120(c) expires mid-2015."
+    },
+    {
+      "id": "r_examination_to_suit",
+      "from_event_id": "e_examination_proceedings",
+      "to_event_id": "e_creditors_suit",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Examination identified the $109,327 receivable that became the subject of the creditor's suit."
+    },
+    {
+      "id": "r_suit_to_trialbrief",
+      "from_event_id": "e_creditors_suit",
+      "to_event_id": "e_avb_trial_brief_standing",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_trialbrief_to_trial",
+      "from_event_id": "e_avb_trial_brief_standing",
+      "to_event_id": "e_bench_trial",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_trial_to_judgment",
+      "from_event_id": "e_bench_trial",
+      "to_event_id": "e_trial_judgment",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_judgment_to_appeal",
+      "from_event_id": "e_trial_judgment",
+      "to_event_id": "e_appeal_affirmed",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_license_tolls",
+      "from_event_id": "e_license_suspended",
+      "to_event_id": "e_creditors_suit",
+      "type": "tolls",
+      "strength": "alleged",
+      "clock_id": "sol_708_230_a1_avb_theory",
+      "clock_effect": "start",
+      "detail": "AVB's theory: license suspension started the two-year SoL window under \u00a7 708.230(a)(1); rejected on the merits."
+    },
+    {
+      "id": "r_subcontract_accrual_tolls",
+      "from_event_id": "e_subcontract_breach_accrual",
+      "to_event_id": "e_creditors_suit",
+      "type": "tolls",
+      "strength": "adjudicated",
+      "clock_id": "sol_708_230_a1_wanke_theory",
+      "clock_effect": "start",
+      "detail": "Wanke's theory (adopted): contract accrual under \u00a7 337(a) 4-year clock; suit timely as to 2013 subcontracts."
+    }
+  ],
+  "disputes": [
+    {
+      "id": "d_sol_anchor",
+      "subject": "What event starts the \u00a7 708.230(a)(1) limitations clock for Wanke's creditor's suit?",
+      "type": "meaning",
+      "versions": [
+        {
+          "event_id": "e_license_suspended",
+          "asserting_party_id": "avb",
+          "basis": "AVB: WP Solutions' July 2014 contractor's-license suspension under Bus. & Prof. Code \u00a7 7031 ended the period in which WP Solutions 'may bring an action.' Two-year clock under \u00a7 708.230(a)(1) ran out July 2016."
+        },
+        {
+          "event_id": "e_subcontract_breach_accrual",
+          "asserting_party_id": "wanke",
+          "basis": "Wanke: \u00a7 708.230(a)(1) effectively borrows \u00a7 337(a)'s four-year contract clock from when AVB failed to meet payment obligations under the subcontracts. 2013 subcontracts (Taitz, Oxford) are within four years of July 2016 suit."
+        }
+      ],
+      "resolution": "adjudicated_for_wanke",
+      "materiality": "Determines whether Wanke's July 2016 creditor's suit is time-barred. Court of Appeal held the statute deals with accrual of the underlying claim, without regard to factors like incapacity or licensure; also held AVB failed to meet its burden of proof either way."
+    }
+  ],
+  "sources": [
+    {
+      "id": "s_op_p1",
+      "type": "opinion",
+      "citation": "Slip op. p. 1 (caption)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p2",
+      "type": "opinion",
+      "citation": "Slip op. p. 2",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p3",
+      "type": "opinion",
+      "citation": "Slip op. p. 3",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p3_fn3",
+      "type": "opinion",
+      "citation": "Slip op. p. 3 fn. 3 (subcontract dates)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p4",
+      "type": "opinion",
+      "citation": "Slip op. p. 4",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p5",
+      "type": "opinion",
+      "citation": "Slip op. p. 5",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p7",
+      "type": "opinion",
+      "citation": "Slip op. p. 7",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p8",
+      "type": "opinion",
+      "citation": "Slip op. p. 8 (capacity / Casiopea)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p9",
+      "type": "opinion",
+      "citation": "Slip op. p. 9 (AVB trial brief)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p13",
+      "type": "opinion",
+      "citation": "Slip op. p. 13 (AVB SoL theory; Bus. & Prof. Code \u00a7 7031)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p15",
+      "type": "opinion",
+      "citation": "Slip op. p. 15 (\u00a7 337(a) 4-year contract clock)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p16",
+      "type": "opinion",
+      "citation": "Slip op. p. 16 (2013 subcontracts within 4 years of 2016 suit)",
+      "authenticity": "admitted"
+    },
+    {
+      "id": "s_op_p22",
+      "type": "opinion",
+      "citation": "Slip op. p. 22 (Disposition: judgment affirmed)",
+      "authenticity": "admitted"
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+// ---- Fixed-width month-column grid (one column per calendar month) ----
+const COL_WIDTH = 28;       // pixels per month column
+const margin = { top: 95, right: 40, bottom: 40, left: 170 };
+const laneHeight = 340;     // tall enough for ±140 slot offset plus expanded clusters and labels
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+// Derive the inclusive month range from case.date_range
+const [start, end] = DATA.case.date_range;
+const startMonth = d3.timeMonth.floor(parseDate(start));
+const endMonth   = d3.timeMonth.offset(d3.timeMonth.floor(parseDate(end)), 1);
+const months     = d3.timeMonth.range(startMonth, endMonth);  // array of Date, one per month
+const monthIndex = new Map(months.map((m, i) => [+m, i]));
+
+// xScale: maps any date to the center of its month column
+function xScale(date) {
+  const t = +d3.timeMonth.floor(date);
+  let idx = monthIndex.get(t);
+  if (idx === undefined) {
+    idx = t < +months[0] ? 0 : months.length - 1;
+  }
+  return idx * COL_WIDTH + COL_WIDTH / 2;
+}
+
+const innerW = months.length * COL_WIDTH;
+const width  = innerW + margin.left + margin.right;
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width)
+  .attr("height", height);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Lanes
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+// ---- Column gridlines: light per-month, darker per-year ----
+g.selectAll(".grid-month").data(months)
+  .join("line").attr("class","grid-month")
+  .attr("x1", d => xScale(d) + COL_WIDTH/2).attr("x2", d => xScale(d) + COL_WIDTH/2)
+  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
+  .attr("stroke", "var(--rule)").attr("opacity", 0.18);
+
+const yearStarts = months.filter(m => m.getMonth() === 0);
+g.selectAll(".grid-year").data(yearStarts)
+  .join("line").attr("class","grid-year")
+  .attr("x1", d => xScale(d) - COL_WIDTH/2).attr("x2", d => xScale(d) - COL_WIDTH/2)
+  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
+  .attr("stroke", "var(--rule)").attr("opacity", 0.6);
+
+// ---- Axis: prominent year labels, quieter quarterly month labels ----
+const axisG = g.append("g").attr("class","axis");
+axisG.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", 0).attr("y2", 0)
+  .attr("stroke", "var(--rule)");
+
+yearStarts.forEach(d => {
+  axisG.append("text").attr("class","year-label")
+    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
+    .style("font-size","12px").style("font-weight","600").style("fill","var(--ink)")
+    .text(d.getFullYear());
+});
+
+months.filter(m => m.getMonth() % 3 === 0 && m.getMonth() !== 0).forEach(d => {
+  axisG.append("text").attr("class","quarter-label")
+    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
+    .style("font-size","9.5px").style("fill","var(--muted)")
+    .text(d3.timeFormat("%b")(d));
+});
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    if (!isEventVisible(a) || !isEventVisible(b)) return;  // only draw between visible events
+    const x1=xScale(a._d);
+    const x2=xScale(b._d);
+    const y1=laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2=laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
   });
 }
-assignRows("above");
-assignRows("below");
 
-// -------------------- DOTS ON AXIS --------------------
-// Draw a small dot at each event's x position on the axis
-events.forEach(e => {
-  svg.append("circle")
-    .attr("class", "event-dot")
-    .attr("cx", e._x)
-    .attr("cy", axisY)
-    .attr("r", 5)
-    .attr("fill", colorFor(e.category));
-});
-
-// -------------------- EVENTS --------------------
-// Stem distances per row index (used in zigzag): row 0 = short, row 1 = long, row 2 = fallback longer
-const rowStemDist = [55, 165, 270];
-
-function wrap(text, maxLen) {
-  const words = text.split(" ");
-  const lines = [];
-  let cur = "";
-  for (const w of words) {
-    if ((cur + " " + w).trim().length <= maxLen) cur = (cur + " " + w).trim();
-    else { if (cur) lines.push(cur); cur = w; }
-  }
-  if (cur) lines.push(cur);
-  return lines;
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  // Arc top sits in the top margin, above the time axis (which is at y=0 within g)
+  const arcTopY = -32;
+  (DATA.disputes || []).forEach((d, i) => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    if (!evs.every(isEventVisible)) return;  // only draw arc when both versions are visible
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1 = xScale(a._d);
+    const x2 = xScale(b._d);
+    const y1 = laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2 = laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const midX = (x1 + x2) / 2;
+    // Stack multiple disputes so their arc labels don't collide
+    const tierTop = arcTopY - i * 22;
+    // Smooth arch: cubic Bezier from each dot up into the margin, peaking near tierTop
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1 - 10} C${x1},${tierTop} ${x2},${tierTop} ${x2},${y2 - 10}`);
+    // Diamond marker at the arc peak
+    disputeG.append("text").attr("class","dispute-marker")
+      .attr("x", midX).attr("y", tierTop - 6).attr("text-anchor","middle")
+      .text("◆");
+    // Label sits above the marker, wraps to two lines if long
+    const subject = d.subject || "disputed";
+    const labelText = `disputed: ${subject}`;
+    const maxLen = 70;
+    const label = disputeG.append("text").attr("class","dispute-label")
+      .attr("x", midX).attr("y", tierTop - 18).attr("text-anchor","middle");
+    if (labelText.length <= maxLen) {
+      label.text(labelText);
+    } else {
+      const cut = labelText.lastIndexOf(" ", maxLen);
+      const split = cut > maxLen / 2 ? cut : maxLen;
+      label.append("tspan").attr("x", midX).attr("dy", 0).text(labelText.slice(0, split));
+      label.append("tspan").attr("x", midX).attr("dy", 12).text(labelText.slice(split).trim());
+      // Push the marker down a bit when there are two lines so it doesn't crash into them
+      disputeG.selectAll(".dispute-marker").filter((_, idx, nodes) => nodes[idx].previousSibling === label.node().previousSibling)
+        .attr("y", tierTop - 4);
+    }
+  });
 }
 
-events.forEach(e => {
-  const cx = e._x;
-  const isAbove = e.side === "above";
-  const dir = isAbove ? -1 : 1;
+// ---- Dot-position staggering: each dot offset vertically so labels don't overlap horizontally ----
+const DOT_SLOTS_Y = [0, 80, -80, 140, -140]; // y-offsets from lane centerline (leaves room for expanded clusters)
+// Labels are always rendered directly below each dot at a fixed offset
+const LABEL_SLOTS = [
+  { y_label: 22,  y_date: 32, dir: 1 },   // fixed: 22px below dot
+];
+const MIN_X_GAP = 150;
+const MAX_LABEL_CHARS = 22;
+const STACK_STEP = 52;       // px between stacked event rows in an expanded cluster (dot + label + date + buffer)
+let slotIdx  = new Map();    // event.id -> slot index (or -1 to suppress label)
+let xOff     = new Map();    // (unused, kept for compat)
+let yJit     = new Map();    // event.id -> y pixel offset for stacking
+let forceSlot = new Map();   // event.id -> override slot index
+let clusters = [];           // array of {id, key, events, lane_id, x, size}
+let eventToCluster = new Map();  // event.id -> {cluster, index}
+let expandedSet = new Set(); // ids of currently expanded multi-event clusters
 
-  // Stem goes from axis line out to the label block.
-  // Row 0 = short stem (close to axis); row 1 = long stem (far from axis);
-  // row 2 = fallback even farther. This creates the up-and-down zigzag rhythm.
-  const stemLen = rowStemDist[e._row] || rowStemDist[rowStemDist.length - 1];
-  const stemEndY = axisY + dir * stemLen;
+function monthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
+}
 
-  // Shape (marker) is drawn at the END of the stem (away from axis),
-  // so the dot on the axis is the "anchor" and the shape labels the event.
-  const shapeY = stemEndY;
+function buildClusters(visible) {
+  clusters = [];
+  eventToCluster = new Map();
+  const groups = d3.group(visible, e => `${e.lane_id}|${monthKey(e._d)}`);
+  let cid = 0;
+  groups.forEach((evs, key) => {
+    const sortedEvs = evs.slice().sort((a,b) => a._d - b._d);
+    const meanX = d3.mean(sortedEvs, e => xScale(e._d));
+    const cluster = {
+      id: `cluster_${cid++}`,
+      key,
+      events: sortedEvs,
+      lane_id: sortedEvs[0].lane_id,
+      x: meanX,
+      size: sortedEvs.length,
+      month: monthKey(sortedEvs[0]._d),
+    };
+    clusters.push(cluster);
+    sortedEvs.forEach((e, i) => eventToCluster.set(e.id, { cluster, index: i }));
+  });
+}
 
-  svg.append("line")
-    .attr("class", "event-stem")
-    .attr("x1", cx).attr("x2", cx)
-    .attr("y1", axisY + dir * 6)
-    .attr("y2", shapeY + dir * -8);
+function isEventVisible(ev) {
+  const info = eventToCluster.get(ev.id);
+  if (!info) return true;
+  if (info.cluster.size === 1) return true;
+  return expandedSet.has(info.cluster.id);
+}
 
-  const g = svg.append("g")
-    .attr("class", "event-group")
-    .attr("transform", `translate(${cx}, ${shapeY})`)
-    .on("mouseover", () => {
-      tooltip.style("opacity", 1)
-        .html(`<strong>${e.label}</strong>${e.dateText}<div class="meta">${e.detail || ""}</div>`);
-    })
-    .on("mousemove", (ev) => {
-      tooltip.style("left", (ev.pageX + 14) + "px")
-             .style("top", (ev.pageY - 10) + "px");
-    })
-    .on("mouseout", () => tooltip.style("opacity", 0));
+function isClusterCollapsed(c) {
+  return c.size > 1 && !expandedSet.has(c.id);
+}
 
-  drawShape(g, e);
+function recomputeLayout(visible) {
+  slotIdx   = new Map();
+  xOff      = new Map();
+  yJit      = new Map();
+  forceSlot = new Map();
 
-  // Date text + label, placed beyond the marker (away from axis).
-  const lineH = 14;
-  const wrapped = wrap(e.label, 26);
-  const baseY = shapeY + dir * 20; // start past marker
-  if (isAbove) {
-    // Above axis: label lines render upward (so first line is closest to marker)
-    // Stack: date on top, then label lines under (i.e., date at baseY-... and label at baseY)
-    // Actually: above the axis, baseY is moving UP. We want: marker → label → date (highest).
-    const labelTopY = baseY - (wrapped.length - 1) * lineH;
-    wrapped.forEach((line, i) => {
-      svg.append("text")
-        .attr("class", "event-label" + (e.italicLabel ? " italic" : ""))
-        .attr("x", cx)
-        .attr("y", labelTopY + i * lineH)
-        .text(line);
+  buildClusters(visible);
+
+  // ---- Per-lane chronological dot-slot assignment ----
+  // Each cluster gets a y-offset based on x-proximity to neighbors in the same lane.
+  // Adjacent columns are assigned different slots so labels (always below dot) don't overlap.
+  const clustersByLane = d3.group(clusters, c => c.lane_id);
+  clustersByLane.forEach(laneClusters => {
+    const sorted = laneClusters.slice().sort((a,b) => a.x - b.x);
+    const lastX = DOT_SLOTS_Y.map(() => -Infinity);
+    sorted.forEach(cluster => {
+      const x = cluster.x;
+      let chosen = 0;
+      for (let i = 0; i < DOT_SLOTS_Y.length; i++) {
+        if (x - lastX[i] > MIN_X_GAP) { chosen = i; break; }
+      }
+      lastX[chosen] = x;
+      const baseY = DOT_SLOTS_Y[chosen];
+      cluster.dotSlotY = baseY;     // remember for cluster-marker positioning
+      if (cluster.size === 1) {
+        yJit.set(cluster.events[0].id, baseY);
+      } else {
+        // Multi-event clusters: stack vertically around their slot's base y
+        const center = (cluster.size - 1) / 2;
+        cluster.events.forEach((ev, i) => yJit.set(ev.id, baseY + (i - center) * STACK_STEP));
+      }
     });
-    svg.append("text")
-      .attr("class", "event-date" + (e.category === "flag" ? " flag" : ""))
-      .attr("x", cx)
-      .attr("y", labelTopY - lineH - 2)
-      .text(e.dateText);
-  } else {
-    // Below axis: marker → date → label
-    svg.append("text")
-      .attr("class", "event-date" + (e.category === "flag" ? " flag" : ""))
-      .attr("x", cx)
-      .attr("y", baseY)
-      .text(e.dateText);
-    wrapped.forEach((line, i) => {
-      svg.append("text")
-        .attr("class", "event-label" + (e.italicLabel ? " italic" : ""))
-        .attr("x", cx)
-        .attr("y", baseY + lineH * (i + 1) + 2)
-        .text(line);
+  });
+
+  // Labels always render at LABEL_SLOTS[0] (fixed offset below each dot). Force every event to slot 0,
+  // except for expanded multi-event clusters where middle events have no inline label.
+  const visibleEvts = visible.filter(isEventVisible);
+  visibleEvts.forEach(ev => {
+    const info = eventToCluster.get(ev.id);
+    if (info && info.cluster.size > 1) {
+      const i = info.index, n = info.cluster.size;
+      if (i === 0)            slotIdx.set(ev.id, 0);   // top of stack: label below
+      else if (i === n - 1)   slotIdx.set(ev.id, 0);   // bottom of stack: label below
+      else                    slotIdx.set(ev.id, -1);  // middle of stack: hover for info
+    } else {
+      slotIdx.set(ev.id, 0);
+    }
+  });
+}
+
+// ---- Cluster expansion logic ----
+function neighborsOf(clusterId) {
+  // Return set of cluster IDs connected to this cluster via relationships or disputes (1 hop)
+  const result = new Set([clusterId]);
+  const cluster = clusters.find(c => c.id === clusterId);
+  if (!cluster) return result;
+  const evIds = new Set(cluster.events.map(e => e.id));
+  (DATA.relationships || []).forEach(r => {
+    let otherEvId = null;
+    if (evIds.has(r.from_event_id)) otherEvId = r.to_event_id;
+    else if (evIds.has(r.to_event_id)) otherEvId = r.from_event_id;
+    if (otherEvId) {
+      const info = eventToCluster.get(otherEvId);
+      if (info && info.cluster.size > 1) result.add(info.cluster.id);
+    }
+  });
+  (DATA.disputes || []).forEach(d => {
+    const versionIds = d.versions.map(v => v.event_id);
+    if (versionIds.some(id => evIds.has(id))) {
+      versionIds.forEach(id => {
+        const info = eventToCluster.get(id);
+        if (info && info.cluster.size > 1) result.add(info.cluster.id);
+      });
+    }
+  });
+  return result;
+}
+
+let collapseTimer = null;
+function scheduleCollapse() {
+  if (collapseTimer) clearTimeout(collapseTimer);
+  collapseTimer = setTimeout(() => {
+    expandedSet = new Set();
+    rerenderAll();
+    collapseTimer = null;
+  }, 280);
+}
+function cancelCollapse() {
+  if (collapseTimer) { clearTimeout(collapseTimer); collapseTimer = null; }
+}
+function expandCluster(clusterId) {
+  cancelCollapse();
+  expandedSet = neighborsOf(clusterId);
+  rerenderAll();
+}
+function rerenderAll() {
+  renderEvents();
+  renderDisputes();
+  renderConnectors();
+}
+
+function truncateLabel(s) {
+  if (!s) return "";
+  return s.length > MAX_LABEL_CHARS ? s.slice(0, MAX_LABEL_CHARS - 1) + "…" : s;
+}
+
+const tooltip = d3.select("#tooltip");
+const leaderG = g.append("g").attr("class","leaders");
+const eventG = g.append("g").attr("class","events");
+const clusterG = g.append("g").attr("class","clusters");
+
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  recomputeLayout(visible);
+
+  // ---- Render cluster markers for collapsed multi-event clusters ----
+  const collapsedClusters = clusters.filter(isClusterCollapsed);
+  const clSel = clusterG.selectAll(".cluster").data(collapsedClusters, c => c.id);
+  clSel.exit().remove();
+  const clEnter = clSel.enter().append("g").attr("class","cluster");
+  clEnter.append("circle").attr("class","cluster-bg");
+  clEnter.append("text").attr("class","cluster-count");
+  clEnter.append("text").attr("class","cluster-month");
+  const clAll = clEnter.merge(clSel)
+    .attr("transform", c => `translate(${c.x}, ${laneY(c.lane_id) + (c.dotSlotY || 0)})`)
+    .on("mouseenter", function(_, c) { expandCluster(c.id); })
+    .on("mouseleave", function() { scheduleCollapse(); })
+    .on("click", function(_, c) { expandCluster(c.id); });
+  clAll.select(".cluster-bg")
+    .attr("r", 12)
+    .attr("fill", c => lanes.find(l => l.id === c.lane_id)?.color || "#999");
+  clAll.select(".cluster-count")
+    .attr("y", 4).attr("text-anchor","middle")
+    .text(c => c.size);
+  clAll.select(".cluster-month")
+    .attr("y", 28).attr("text-anchor","middle")
+    .text(c => {
+      const d = c.events[0]._d;
+      return d3.timeFormat("%b %Y")(d);
     });
-  }
+
+  // ---- Render individual events: single-event clusters + members of expanded multi-event clusters ----
+  const visibleIndividuals = visible.filter(isEventVisible);
+
+  // Helper: an event is "labeled" only when it got a real slot (>=0)
+  const hasLabel = d => slotIdx.get(d.id) >= 0;
+  const slotOf = d => LABEL_SLOTS[slotIdx.get(d.id)];
+
+  // Leader lines (drawn first so they sit below dots). Only for far-positioned labels.
+  const dotY = d => laneY(d.lane_id) + (yJit.get(d.id) || 0);
+  const leaders = leaderG.selectAll(".leader").data(visibleIndividuals.filter(hasLabel), d => d.id);
+  leaders.exit().remove();
+  leaders.enter().append("line").attr("class","leader").merge(leaders)
+    .attr("x1", d => xScale(d._d))
+    .attr("x2", d => xScale(d._d))
+    .attr("y1", d => dotY(d) + (slotOf(d).dir > 0 ? 6 : -6))
+    .attr("y2", d => dotY(d) + slotOf(d).y_label - (slotOf(d).dir > 0 ? 6 : -6))
+    .attr("opacity", d => Math.abs(slotOf(d).y_label) > 30 ? 0.65 : 0);
+
+  const sel = eventG.selectAll(".event").data(visibleIndividuals, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${dotY(d)})`);
+  all.select("circle").attr("r", 5)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+
+  all.select(".event-label").attr("x",0)
+    .attr("y", d => hasLabel(d) ? slotOf(d).y_label : 0)
+    .attr("text-anchor","middle")
+    .style("display", d => hasLabel(d) ? null : "none")
+    .text(d => truncateLabel(d.label));
+
+  all.select(".event-date").attr("x",0)
+    .attr("y", d => hasLabel(d) ? slotOf(d).y_date : 0)
+    .attr("text-anchor","middle")
+    .style("display", d => hasLabel(d) ? null : "none")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? " (~)" : ""));
+  all.on("mouseenter", function(event, d) {
+    // Keep expansion alive while hovering an event inside an expanded cluster
+    const info = eventToCluster.get(d.id);
+    if (info && info.cluster.size > 1) cancelCollapse();
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function(_, d) {
+    tooltip.style("opacity",0);
+    const info = eventToCluster.get(d.id);
+    if (info && info.cluster.size > 1) scheduleCollapse();
+  });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
 });
+renderEvents(); renderDisputes(); renderConnectors();
 </script>
 </body>
 </html>
