@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Shearson/American Express Inc. v. McMahon — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #d8d4cc;
+    --axis: #c98826;
+    --year-fill: #c98826;
+    --month-fill: #8a6420;
+    --stem: #b3a99a;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 24px 32px;
+  }
+  header { max-width: 1800px; margin: 0 auto 12px auto; }
+  h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+  .case-meta {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 auto 8px auto;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 auto 14px auto;
+    text-align: center;
+    max-width: 1000px;
+    line-height: 1.45;
+  }
+  .style-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10.5px;
+    font-weight: 500;
+    background: #fdf2dc;
+    color: #8a6420;
+    border-radius: 10px;
+    vertical-align: middle;
+    margin-left: 8px;
+    letter-spacing: 0.02em;
+  }
+  #chart-wrap {
+    max-width: 1800px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: auto;
+    padding: 8px;
+  }
+  svg { display: block; margin: 0 auto; }
+
+  .axis-line { stroke: var(--axis); stroke-width: 2.5px; }
+  .year-label {
+    font-size: 22px;
+    font-weight: 700;
+    fill: var(--year-fill);
+    dominant-baseline: middle;
+    letter-spacing: 0.04em;
+  }
+  .month-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--month-fill);
+    text-anchor: middle;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  .event-dot { stroke: white; stroke-width: 2px; }
+  .event-stem { stroke: var(--stem); stroke-width: 1px; }
+  .event-date {
+    font-size: 11.5px;
+    font-weight: 700;
+    fill: #8a4423;
+    text-anchor: middle;
+  }
+  .event-date.flag { fill: var(--ink); }
+  .event-date.disputed { fill: var(--dispute); }
+  .event-label {
+    font-size: 12px;
+    fill: var(--ink);
+    text-anchor: middle;
+  }
+  .event-label.italic {
+    font-style: italic;
+    font-weight: 600;
+    fill: #888;
+    font-size: 12px;
+  }
+  .event-group { cursor: pointer; }
+  .event-group:hover .event-shape { filter: brightness(1.08); }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #1a1a1a;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    max-width: 320px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 10;
+  }
+  .tooltip strong { color: #ffe066; display: block; margin-bottom: 4px; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  .legend {
+    max-width: 1800px;
+    margin: 16px auto 0 auto;
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    justify-content: center;
+  }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  footer {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .warnings {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    padding: 10px 14px;
+    background: #fffaf0;
+    border: 1px solid #f6e05e;
+    border-left: 3px solid #d69e2e;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #744210;
+  }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Shearson/American Express Inc. v. McMahon<span class="style-pill">Centered Axis</span></h1>
+  <p class="case-meta">U.S. · No. 86-44</p>
+  <p class="subtitle">Customers (the McMahons) sued their brokerage (Shearson/American Express) and its representative for fraudulent excessive trading, alleging §10(b)/Rule 10b-5, RICO, and state-law claims. Brokers moved to compel arbitration under FAA §3, relying on a predispute arbitration clause in the customer agreements. The District Court compelled arbitration of the Exchange Act and state claims but kept RICO; the Second Circuit reversed as to §10(b) and affirmed as to RICO. The Supreme Court reversed and remanded, holding both the §10(b) and RICO claims arbitrable under the FAA.</p>
+</header>
+
+
+
+<div id="chart-wrap"></div>
+
+<div class="legend" id="legend"></div>
+
+<footer>Centered-axis zigzag · Each colored dot is one event, color = party; stem and label alternate above and below the date axis. Hover for source citations.</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "shearson_v_mcmahon_1987",
+    "caption": "Shearson/American Express Inc. v. McMahon",
+    "court": "U.S.",
+    "docket": "No. 86-44",
+    "jurisdiction": "federal",
+    "date_range": [
+      "1980-01-01",
+      "1987-09-30"
+    ],
+    "cause_of_action": [
+      "Securities Exchange Act \u00a710(b) / SEC Rule 10b-5 (antifraud)",
+      "RICO 18 U.S.C. \u00a71962(c)",
+      "common-law fraud",
+      "breach of fiduciary duty"
+    ],
+    "status": "judgment",
+    "summary": "Customers (the McMahons) sued their brokerage (Shearson/American Express) and its representative for fraudulent excessive trading, alleging \u00a710(b)/Rule 10b-5, RICO, and state-law claims. Brokers moved to compel arbitration under FAA \u00a73, relying on a predispute arbitration clause in the customer agreements. The District Court compelled arbitration of the Exchange Act and state claims but kept RICO; the Second Circuit reversed as to \u00a710(b) and affirmed as to RICO. The Supreme Court reversed and remanded, holding both the \u00a710(b) and RICO claims arbitrable under the FAA."
+  },
+  "parties": [
+    {
+      "id": "shearson",
+      "name": "Shearson/American Express Inc.",
+      "short_name": "Shearson",
+      "role": [
+        "defendant",
+        "petitioner"
+      ],
+      "type": "corporation",
+      "representation": [
+        "Theodore A. Krebsbach"
+      ]
+    },
+    {
+      "id": "mcnulty",
+      "name": "Mary Ann McNulty",
+      "short_name": "McNulty",
+      "role": [
+        "defendant",
+        "petitioner"
+      ],
+      "type": "individual",
+      "representation": [
+        "Theodore A. Krebsbach"
+      ]
+    },
+    {
+      "id": "mcmahons",
+      "name": "Eugene and Julia McMahon (individually and as trustees)",
+      "short_name": "McMahons",
+      "role": [
+        "plaintiff",
+        "respondent"
+      ],
+      "type": "individual",
+      "representation": [
+        "Theodore G. Eppenstein",
+        "Madelaine Eppenstein"
+      ]
+    },
+    {
+      "id": "court_sdny",
+      "name": "U.S. District Court for the Southern District of New York",
+      "short_name": "S.D.N.Y.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "court_ca2",
+      "name": "U.S. Court of Appeals for the Second Circuit",
+      "short_name": "2d Cir.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "court_scotus",
+      "name": "Supreme Court of the United States",
+      "short_name": "SCOTUS",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "sec",
+      "name": "Securities and Exchange Commission",
+      "short_name": "SEC",
+      "role": [
+        "regulator",
+        "non_party"
+      ],
+      "type": "agency"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Plaintiff / Respondent",
+      "sub": "McMahons",
+      "party_id": "mcmahons",
+      "order": 1
+    },
+    {
+      "id": "defendant",
+      "label": "Defendant / Petitioner",
+      "sub": "Shearson & McNulty",
+      "party_id": "shearson",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "S.D.N.Y. \u2192 2d Cir. \u2192 SCOTUS",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_customer_relationship",
+      "label": "McMahons are Shearson customers",
+      "detail": "Between 1980 and 1982, Eugene and Julia McMahon, individually and as trustees for various pension and profit-sharing plans, maintained accounts with Shearson; Mary Ann McNulty was the registered representative handling those accounts.",
+      "date_range": [
+        "1980-01-01",
+        "1982-12-31"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "mcmahons",
+        "shearson",
+        "mcnulty"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_opinion_p222"
+      ]
+    },
+    {
+      "id": "e_arbitration_agreements",
+      "label": "Julia McMahon signs two customer agreements w/ arbitration clause",
+      "detail": "Two customer agreements signed by Julia McMahon provided that any controversy arising out of or relating to the accounts would be settled by arbitration under NASD, NYSE, or AMEX rules. This is the predispute arbitration clause at the heart of the appeal.",
+      "date_range": [
+        "1980-01-01",
+        "1982-12-31"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "mcmahons",
+        "shearson"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Predispute arbitration clause; enforceability under FAA \u00a73 is the central issue on appeal.",
+      "source_ids": [
+        "s_opinion_p222",
+        "s_fsupp_385"
+      ]
+    },
+    {
+      "id": "e_alleged_fraud",
+      "label": "Alleged fraudulent / excessive trading by McNulty",
+      "detail": "The McMahons allege that McNulty, with Shearson's knowledge, engaged in fraudulent and excessive (churning) trading on their accounts and made false statements and material omissions in advising them \u2014 conduct underlying the \u00a710(b)/Rule 10b-5 and RICO claims.",
+      "date_range": [
+        "1980-01-01",
+        "1984-09-30"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "mcnulty",
+        "shearson"
+      ],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Underlying conduct giving rise to \u00a710(b)/Rule 10b-5 and RICO claims.",
+      "source_ids": [
+        "s_compl"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "e_amended_complaint",
+      "label": "McMahons file amended complaint in S.D.N.Y.",
+      "detail": "In October 1984 the McMahons filed an amended complaint in the U.S. District Court for the Southern District of New York alleging violations of \u00a710(b) of the Exchange Act and SEC Rule 10b-5, civil RICO under 18 U.S.C. \u00a71962(c), and state-law fraud and breach-of-fiduciary-duty claims.",
+      "date": "1984-10-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "mcmahons",
+        "shearson",
+        "mcnulty"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_opinion_p222"
+      ]
+    },
+    {
+      "id": "e_mtc_arbitration",
+      "label": "Defendants move to compel arbitration under FAA \u00a73",
+      "detail": "Relying on the customer agreements, Shearson and McNulty moved under \u00a73 of the Federal Arbitration Act, 9 U.S.C. \u00a73, to compel arbitration of the McMahons' claims and stay the District Court action.",
+      "date": "1984-12-01",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "shearson",
+        "mcnulty"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_opinion_p222"
+      ]
+    },
+    {
+      "id": "e_dct_order",
+      "label": "S.D.N.Y. compels arbitration of \u00a710(b) & state claims; denies as to RICO",
+      "detail": "The District Court (618 F. Supp. 384 (S.D.N.Y. 1985)) granted the motion in part: it rejected the contracts-of-adhesion challenge, held the \u00a710(b) claims arbitrable under Dean Witter Reynolds Inc. v. Byrd, 470 U.S. 213 (1985), and held the state-law claims likewise arbitrable, but concluded the RICO claim was not arbitrable in light of the federal interests in RICO enforcement.",
+      "date": "1985-08-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "court_sdny"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_fsupp_384"
+      ]
+    },
+    {
+      "id": "e_ca2_decision",
+      "label": "2d Cir. reverses on \u00a710(b); affirms on RICO",
+      "detail": "The Second Circuit (788 F.2d 94 (2d Cir. 1986)) affirmed the District Court as to the state-law and RICO claims (RICO not arbitrable on public-policy grounds \u2014 the 'private attorney general' rationale) but reversed as to the Exchange Act \u00a710(b) claims, applying the rule of Wilko v. Swan, 346 U.S. 427 (1953), to hold \u00a710(b) claims nonarbitrable.",
+      "date": "1986-04-21",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "court_ca2"
+      ],
+      "kind": "ruling",
+      "category": "opinion",
+      "source_ids": [
+        "s_788f2d_94"
+      ]
+    },
+    {
+      "id": "e_cert_granted",
+      "label": "SCOTUS grants certiorari",
+      "detail": "The Supreme Court granted certiorari, 479 U.S. 812 (1986), to resolve a circuit conflict over the arbitrability of \u00a710(b) and RICO claims pursued under predispute customer arbitration agreements.",
+      "date": "1986-10-06",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "court_scotus"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_479us_812"
+      ]
+    },
+    {
+      "id": "e_oral_argument",
+      "label": "Oral argument at SCOTUS",
+      "detail": "Argued March 3, 1987. Theodore A. Krebsbach for petitioners; Richard G. Taranto for the United States as amicus curiae urging reversal; Theodore G. Eppenstein for respondents.",
+      "date": "1987-03-03",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_scotus",
+        "shearson",
+        "mcmahons"
+      ],
+      "kind": "filing",
+      "category": "argument",
+      "source_ids": [
+        "s_opinion_p220"
+      ]
+    },
+    {
+      "id": "e_scotus_decision",
+      "label": "SCOTUS: \u00a710(b) AND RICO claims arbitrable \u2014 reversed & remanded",
+      "detail": "Decided June 8, 1987. O'Connor, J., for the Court. Held: (1) the FAA establishes a federal policy favoring arbitration, and the burden is on the party opposing arbitration to show Congress intended to preclude waiver of a judicial forum; (2) \u00a710(b) Exchange Act claims are arbitrable \u2014 \u00a729(a) bars only waiver of substantive obligations, not jurisdiction under \u00a727, and Wilko v. Swan does not control given changes in SEC oversight of arbitration; (3) civil RICO \u00a71964(c) claims are arbitrable \u2014 nothing in RICO's text or history evinces congressional intent to exclude them, and the private-attorney-general rationale does not create an irreconcilable conflict with arbitration. Reversed and remanded.",
+      "date": "1987-06-08",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_scotus"
+      ],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Overrules circuit authority refusing to compel arbitration of \u00a710(b) and RICO claims; together with Rodriguez de Quijas (1989), establishes broad enforceability of predispute customer arbitration clauses in securities disputes.",
+      "source_ids": [
+        "s_opinion_p220",
+        "s_opinion_p242"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_agreements_to_fraud",
+      "from_event_id": "e_arbitration_agreements",
+      "to_event_id": "e_alleged_fraud",
+      "type": "references",
+      "strength": "alleged",
+      "detail": "The customer agreements that contain the arbitration clause governed the same accounts on which the alleged churning and fraud occurred."
+    },
+    {
+      "id": "r_fraud_to_complaint",
+      "from_event_id": "e_alleged_fraud",
+      "to_event_id": "e_amended_complaint",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "The McMahons sued in response to the alleged fraudulent and excessive trading by McNulty / Shearson."
+    },
+    {
+      "id": "r_complaint_to_mtc",
+      "from_event_id": "e_amended_complaint",
+      "to_event_id": "e_mtc_arbitration",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Shearson and McNulty responded to the amended complaint by moving to compel arbitration under FAA \u00a73."
+    },
+    {
+      "id": "r_mtc_to_dct",
+      "from_event_id": "e_mtc_arbitration",
+      "to_event_id": "e_dct_order",
+      "type": "response",
+      "strength": "adjudicated",
+      "detail": "The District Court's order ruled on the motion to compel arbitration, granting it in part and denying it as to the RICO claim."
+    },
+    {
+      "id": "r_dct_to_ca2",
+      "from_event_id": "e_dct_order",
+      "to_event_id": "e_ca2_decision",
+      "type": "response",
+      "strength": "adjudicated",
+      "detail": "The Second Circuit reviewed and partly reversed the District Court's order."
+    },
+    {
+      "id": "r_ca2_to_cert",
+      "from_event_id": "e_ca2_decision",
+      "to_event_id": "e_cert_granted",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Cert was granted to review the Second Circuit's decision and resolve a circuit split."
+    },
+    {
+      "id": "r_cert_to_argument",
+      "from_event_id": "e_cert_granted",
+      "to_event_id": "e_oral_argument",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_argument_to_decision",
+      "from_event_id": "e_oral_argument",
+      "to_event_id": "e_scotus_decision",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_scotus_supersedes_ca2",
+      "from_event_id": "e_ca2_decision",
+      "to_event_id": "e_scotus_decision",
+      "type": "supersedes",
+      "strength": "adjudicated",
+      "detail": "The Supreme Court reversed and remanded the Second Circuit's judgment on both the \u00a710(b) and RICO holdings."
+    },
+    {
+      "id": "r_agreements_to_mtc",
+      "from_event_id": "e_arbitration_agreements",
+      "to_event_id": "e_mtc_arbitration",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "The motion to compel arbitration relied on the arbitration clause in the customer agreements."
+    }
+  ],
+  "disputes": [],
+  "sources": [
+    {
+      "id": "s_opinion_p220",
+      "type": "opinion",
+      "citation": "482 U. S. 220 (1987)",
+      "page": "220"
+    },
+    {
+      "id": "s_opinion_p222",
+      "type": "opinion",
+      "citation": "482 U. S. 220, 222 (1987)",
+      "page": "222"
+    },
+    {
+      "id": "s_opinion_p242",
+      "type": "opinion",
+      "citation": "482 U. S. 220, 242 (1987)",
+      "page": "242"
+    },
+    {
+      "id": "s_fsupp_384",
+      "type": "opinion",
+      "citation": "618 F. Supp. 384 (S.D.N.Y. 1985)"
+    },
+    {
+      "id": "s_fsupp_385",
+      "type": "opinion",
+      "citation": "618 F. Supp. 384, 385 (S.D.N.Y. 1985)",
+      "page": "385"
+    },
+    {
+      "id": "s_788f2d_94",
+      "type": "opinion",
+      "citation": "788 F. 2d 94 (2d Cir. 1986)"
+    },
+    {
+      "id": "s_479us_812",
+      "type": "order",
+      "citation": "479 U. S. 812 (1986)"
+    },
+    {
+      "id": "s_compl",
+      "type": "pleading",
+      "citation": "Am. Compl. (S.D.N.Y. Oct. 1984)"
+    }
+  ]
+};
+
+// ---------- Parse + sort events chronologically ----------
+const parseDate = d3.timeParse("%Y-%m-%d");
+const fmtDateShort = d3.timeFormat("%m/%d/%y");
+const fmtDateLong  = d3.timeFormat("%B %d, %Y");
+
+const events = (DATA.events || []).map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d).sort((a, b) => a._d - b._d);
+
+// (Side assignment is done by packEvents() below, after we know label widths.)
+
+// ---------- Layout constants ----------
+const margin = { top: 60, right: 120, bottom: 60, left: 120 };
+const width  = 1800;
+
+// Date domain: pad 30 days on either side
+const dates = events.map(e => e._d);
+const minDate = d3.timeDay.offset(d3.min(dates), -30);
+const maxDate = d3.timeDay.offset(d3.max(dates), 30);
+const x = d3.scaleTime().domain([minDate, maxDate]).range([margin.left, width - margin.right]);
+
+// ---------- Lane lookup (for color/short-name) ----------
+const laneById = new Map((DATA.lanes || []).map(l => [l.id, l]));
+const partyById = new Map((DATA.parties || []).map(p => [p.id, p]));
+const sourceById = new Map((DATA.sources || []).map(s => [s.id, s]));
+
+function colorForEvent(e) {
+  const lane = laneById.get(e.lane_id);
+  return (lane && lane.color) || "#666";
+}
+
+function shortLabel(e) {
+  return e.label || "(unlabeled)";
+}
+
+// ---------- Word wrap helper (defined early; row packing uses it) ----------
+function wrap(text, maxLen) {
+  const words = (text || "").split(" ");
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length <= maxLen) cur = (cur + " " + w).trim();
+    else { if (cur) lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// ---------- Width-aware row packing ----------
+// 1. Estimate each event's label box width from its wrapped text.
+// 2. Compute event x-position on the time axis.
+// 3. For each event, find the LOWEST-INDEX row on its side whose last label's
+//    right edge is clear of this event's left edge; otherwise open a new row.
+// This guarantees no two labels overlap horizontally on the same side. Row index
+// then determines stem length so the chart fans out vertically only as needed.
+const LABEL_WRAP_CHARS  = 26;
+const APPROX_CHAR_PX    = 6.7;
+const LABEL_PAD_PX      = 14;
+const MIN_LABEL_GAP_PX  = 10;
+
+function estimateLabelWidth(e) {
+  const wrapped = wrap(e.label || "", LABEL_WRAP_CHARS);
+  const longest = wrapped.reduce((m, line) => Math.max(m, line.length), 9 /* date width */);
+  return Math.max(longest * APPROX_CHAR_PX + LABEL_PAD_PX * 2, 60);
+}
+
+// Pre-compute x and label width for every event
+events.forEach(e => {
+  e._x = x(e._d);
+  e._labelW = estimateLabelWidth(e);
+});
+
+// Smart side assignment: instead of strict alternation, on each placement choose
+// whichever side currently has fewer rows (ties broken by alternation). This
+// balances load and minimizes total chart height.
+function packEvents() {
+  const sideRowRightX = { above: [], below: [] };  // rowIdx → last right-edge x
+  let altIndex = 0;
+  events.forEach(e => {
+    const leftX = e._x - e._labelW / 2;
+    const rightX = e._x + e._labelW / 2;
+    // For each side, find the lowest row where this event fits, or one past the end.
+    function bestRowFor(side) {
+      const rows = sideRowRightX[side];
+      for (let r = 0; r < rows.length; r++) {
+        if (leftX >= rows[r] + MIN_LABEL_GAP_PX) return r;
+      }
+      return rows.length;
+    }
+    const aboveRow = bestRowFor("above");
+    const belowRow = bestRowFor("below");
+    // Pick side with the LOWER row index (= shorter stem). Ties: alternate.
+    let chosenSide;
+    if (aboveRow < belowRow) chosenSide = "above";
+    else if (belowRow < aboveRow) chosenSide = "below";
+    else { chosenSide = (altIndex % 2 === 0) ? "above" : "below"; altIndex++; }
+    const chosenRow = chosenSide === "above" ? aboveRow : belowRow;
+    e._side = chosenSide;
+    e._row = chosenRow;
+    sideRowRightX[chosenSide][chosenRow] = rightX;
+  });
+  return {
+    rowsAbove: sideRowRightX.above.length,
+    rowsBelow: sideRowRightX.below.length,
+  };
+}
+const { rowsAbove, rowsBelow } = packEvents();
+
+// ---------- Vertical positioning ----------
+// Row 0 sits close to the axis; each successive row steps farther by ROW_STEP_PX.
+const ROW_BASE_PX = 55;
+const ROW_STEP_PX = 95;
+const LABEL_BLOCK_PX = 56; // height reserved for date + ~2 lines of label per row
+function stemLenForRow(rowIdx) {
+  return ROW_BASE_PX + rowIdx * ROW_STEP_PX;
+}
+
+// Compute the chart height so even the deepest-row event has room for its label.
+const padBeyondLastLabel = 40;
+const aboveExtent = (rowsAbove === 0 ? 0 : stemLenForRow(rowsAbove - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
+const belowExtent = (rowsBelow === 0 ? 0 : stemLenForRow(rowsBelow - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
+const minHalfHeight = 380;
+const aboveH = Math.max(aboveExtent, minHalfHeight);
+const belowH = Math.max(belowExtent, minHalfHeight);
+const height = margin.top + aboveH + belowH + margin.bottom;
+const axisY  = margin.top + aboveH;
+
+// ---------- SVG ----------
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet");
+
+// ---------- Thin axis line ----------
+const axisX0 = x(minDate);
+const axisX1 = x(maxDate);
+svg.append("line")
+  .attr("class", "axis-line")
+  .attr("x1", axisX0).attr("x2", axisX1)
+  .attr("y1", axisY).attr("y2", axisY)
+  .attr("stroke-linecap", "round");
+
+// ---------- Year + month labels ----------
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX0 - 16).attr("y", axisY)
+  .attr("text-anchor", "end").text(d3.timeFormat("%Y")(minDate));
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX1 + 16).attr("y", axisY)
+  .attr("text-anchor", "start").text(d3.timeFormat("%Y")(maxDate));
+
+const months = d3.timeMonths(d3.timeMonth.floor(minDate), d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1));
+months.forEach(m => {
+  const cx = x(m);
+  svg.append("line").attr("class", "month-tick")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY - 5).attr("y2", axisY + 5);
+});
+
+const labelEvery = months.length > 30 ? 6 : (months.length > 15 ? 2 : 1);
+months.filter((_, i) => i % labelEvery === 0).forEach(m => {
+  const cx = x(m);
+  const isJan = m.getMonth() === 0;
+  svg.append("text").attr("class", "month-label")
+    .attr("x", cx).attr("y", axisY + 22)
+    .text(d3.timeFormat("%b")(m));
+  if (isJan && labelEvery <= 2) {
+    svg.append("text").attr("class", "month-label")
+      .attr("x", cx).attr("y", axisY + 36)
+      .style("font-size", "10.5px").style("opacity", 0.8)
+      .text(d3.timeFormat("%Y")(m));
+  }
+});
+
+// ---------- Dots on the axis ----------
+events.forEach(e => {
+  svg.append("circle")
+    .attr("class", "event-dot")
+    .attr("cx", e._x).attr("cy", axisY).attr("r", 5)
+    .attr("fill", colorForEvent(e));
+});
+
+// ---------- Tooltip ----------
+const tooltip = d3.select("#tooltip");
+
+// ---------- Render each event ----------
+events.forEach(e => {
+  const cx = e._x;
+  const isAbove = e._side === "above";
+  const dir = isAbove ? -1 : 1;
+  const stemLen = stemLenForRow(e._row);
+  const stemEndY = axisY + dir * stemLen;
+
+  // stem from the axis dot to the marker
+  svg.append("line").attr("class", "event-stem")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY + dir * 6)
+    .attr("y2", stemEndY + dir * -8);
+
+  // marker (small filled circle at the stem end)
+  const g = svg.append("g")
+    .attr("class", "event-group")
+    .attr("transform", `translate(${cx}, ${stemEndY})`)
+    .on("mouseover", () => {
+      const lane = laneById.get(e.lane_id);
+      const srcs = (e.source_ids || []).map(sid => sourceById.get(sid)).filter(Boolean);
+      const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+      const sig = e.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${e.jurisdictional_significance}</div>` : "";
+      tooltip.style("opacity", 1).html(
+        `<strong>${e.label}</strong>` +
+        `<div>${e.detail || ""}</div>` +
+        `<div class="meta">${(lane && lane.label) || e.lane_id} · ${fmtDateLong(e._d)}${e.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>` +
+        sig + srcHTML
+      );
+    })
+    .on("mousemove", (ev) => {
+      tooltip.style("left", (ev.pageX + 14) + "px").style("top", (ev.pageY + 14) + "px");
+    })
+    .on("mouseout", () => tooltip.style("opacity", 0));
+
+  g.append("circle").attr("class", "event-shape")
+    .attr("r", 7)
+    .attr("fill", colorForEvent(e))
+    .attr("stroke", e.disputed ? "var(--dispute)" : "white")
+    .attr("stroke-width", e.disputed ? 2 : 2)
+    .attr("stroke-dasharray", e.disputed ? "2 2" : null);
+
+  // date text and label text, placed past the marker (away from axis)
+  const lineH = 14;
+  const wrapped = wrap(shortLabel(e), 28);
+  const baseY = stemEndY + dir * 22;
+
+  if (isAbove) {
+    const labelTopY = baseY - (wrapped.length - 1) * lineH;
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", labelTopY + i * lineH).text(line);
+    });
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", labelTopY - lineH - 2)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+  } else {
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", baseY)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", baseY + lineH * (i + 1) + 2).text(line);
+    });
+  }
+});
+
+// ---------- Legend (one chip per lane) ----------
+const legendEl = document.getElementById("legend");
+(DATA.lanes || []).forEach(l => {
+  const item = document.createElement("span");
+  item.className = "item";
+  item.innerHTML = `<span class="swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}`;
+  legendEl.appendChild(item);
+});
+</script>
+</body>
+</html>
