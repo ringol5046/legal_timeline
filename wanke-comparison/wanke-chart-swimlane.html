@@ -10,17 +10,16 @@
     --ink: #1a1a1a;
     --muted: #6b6b6b;
     --rule: #d8d4cc;
-    --axis-fill: #f4b952;
-    --axis-stroke: #e09f2f;
+    --axis: #c98826;          /* thin amber line */
     --year-fill: #c98826;
-    --tick-stroke: #ffffff;
+    --month-fill: #8a6420;
     --smith: #d94e2a;
     --smith-dark: #b04323;
     --jones: #8a2c1e;
     --evergreen: #3a3a3a;
     --pt: #ed8a3a;
     --flag: #3a3a3a;
-    --stem: #6b6b6b;
+    --stem: #b3a99a;
   }
   * { box-sizing: border-box; }
   body {
@@ -55,30 +54,35 @@
     padding: 8px;
   }
   svg { display: block; margin: 0 auto; }
+
+  .axis-line { stroke: var(--axis); stroke-width: 2.5px; }
   .year-label {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
     fill: var(--year-fill);
     dominant-baseline: middle;
+    letter-spacing: 0.04em;
   }
   .month-label {
-    font-size: 15px;
+    font-size: 11.5px;
     font-weight: 600;
-    fill: #fff;
-    dominant-baseline: middle;
+    fill: var(--month-fill);
     text-anchor: middle;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
-  .month-tick { stroke: #fff; stroke-width: 2px; }
+  .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  .event-dot { stroke: white; stroke-width: 2px; }
   .event-stem { stroke: var(--stem); stroke-width: 1px; }
   .event-date {
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
     fill: var(--smith-dark);
     text-anchor: middle;
   }
   .event-date.flag { fill: var(--ink); }
   .event-label {
-    font-size: 12.5px;
+    font-size: 12px;
     fill: var(--ink);
     text-anchor: middle;
   }
@@ -174,9 +178,9 @@ const events = [
 ];
 
 // -------------------- LAYOUT --------------------
-const margin = { top: 40, right: 100, bottom: 40, left: 100 };
+const margin = { top: 60, right: 120, bottom: 60, left: 120 };
 const width  = 1800;
-const height = 760;
+const height = 900;
 
 const xStart = new Date("2011-04-15");
 const xEnd   = new Date("2012-09-30");
@@ -191,69 +195,62 @@ const svg = d3.select("#chart-wrap").append("svg")
   .attr("viewBox", `0 0 ${width} ${height}`)
   .attr("preserveAspectRatio", "xMidYMid meet");
 
-// -------------------- CENTERED CAPSULE AXIS --------------------
-const capsuleH = 40;
-const capsuleY = axisY - capsuleH / 2;
-const capsuleX0 = x(new Date("2011-05-01"));
-const capsuleX1 = x(new Date("2012-09-15"));
+// -------------------- THIN CENTERED AXIS --------------------
+const axisX0 = x(new Date("2011-05-01"));
+const axisX1 = x(new Date("2012-09-15"));
 
-svg.append("rect")
-  .attr("x", capsuleX0)
-  .attr("y", capsuleY)
-  .attr("width", capsuleX1 - capsuleX0)
-  .attr("height", capsuleH)
-  .attr("rx", capsuleH / 2)
-  .attr("ry", capsuleH / 2)
-  .attr("fill", "var(--axis-fill)")
-  .attr("stroke", "var(--axis-stroke)")
-  .attr("stroke-width", 1);
+svg.append("line")
+  .attr("class", "axis-line")
+  .attr("x1", axisX0)
+  .attr("x2", axisX1)
+  .attr("y1", axisY)
+  .attr("y2", axisY)
+  .attr("stroke-linecap", "round");
 
+// Year labels
 svg.append("text")
   .attr("class", "year-label")
-  .attr("x", capsuleX0 - 18)
+  .attr("x", axisX0 - 16)
   .attr("y", axisY)
   .attr("text-anchor", "end")
   .text("2011");
 
 svg.append("text")
   .attr("class", "year-label")
-  .attr("x", capsuleX1 + 18)
+  .attr("x", axisX1 + 16)
   .attr("y", axisY)
   .attr("text-anchor", "start")
   .text("2012");
 
-const monthsToShow = d3.timeMonths(new Date("2011-05-01"), new Date("2012-10-01"))
-  .filter((d, i) => i % 2 === 0);
-
-monthsToShow.forEach(m => {
+// Month ticks + small labels just below the line
+const months = d3.timeMonths(new Date("2011-05-01"), new Date("2012-10-01"));
+months.forEach(m => {
   const cx = x(m);
+  // small notch
   svg.append("line")
     .attr("class", "month-tick")
-    .attr("x1", cx)
-    .attr("x2", cx)
-    .attr("y1", capsuleY + 4)
-    .attr("y2", capsuleY + 12);
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY - 5)
+    .attr("y2", axisY + 5);
+});
 
-  const monthName = d3.timeFormat("%b")(m);
+// Labels: every-other-month, just under the line
+months.filter((d, i) => i % 2 === 0).forEach(m => {
+  const cx = x(m);
   const isJan = m.getMonth() === 0;
+  svg.append("text")
+    .attr("class", "month-label")
+    .attr("x", cx)
+    .attr("y", axisY + 22)
+    .text(d3.timeFormat("%b")(m));
   if (isJan) {
     svg.append("text")
       .attr("class", "month-label")
       .attr("x", cx)
-      .attr("y", axisY - 4)
-      .text(monthName);
-    svg.append("text")
-      .attr("class", "month-label")
-      .attr("x", cx)
-      .attr("y", axisY + 12)
-      .style("font-size", "12px")
+      .attr("y", axisY + 36)
+      .style("font-size", "10.5px")
+      .style("opacity", 0.8)
       .text(d3.timeFormat("%Y")(m));
-  } else {
-    svg.append("text")
-      .attr("class", "month-label")
-      .attr("x", cx)
-      .attr("y", axisY + 1)
-      .text(monthName);
   }
 });
 
@@ -271,7 +268,7 @@ function colorFor(cat) {
   }
 }
 
-function drawShape(g, e, s = 11) {
+function drawShape(g, e, s = 10) {
   const c = colorFor(e.category);
   if (e.shape === "triangle-up") {
     g.append("polygon").attr("class", "event-shape")
@@ -292,32 +289,36 @@ function drawShape(g, e, s = 11) {
   }
 }
 
-// -------------------- ROW ASSIGNMENT (greedy, prevents label overlap) --------------------
+// -------------------- ROW ASSIGNMENT --------------------
+// One row per event: assign each side's events to its own row (no sharing)
+// so labels NEVER overlap, even at the cost of more vertical space.
 function assignRows(side) {
   const list = events.filter(e => e.side === side).sort((a, b) => new Date(a.date) - new Date(b.date));
-  const slots = [];
-  list.forEach(e => {
+  list.forEach((e, i) => {
     e._x = x(new Date(e.date));
-    let placed = false;
-    for (let r = 0; r < slots.length; r++) {
-      if (e._x - slots[r] > 115) {
-        e._row = r;
-        slots[r] = e._x;
-        placed = true;
-        break;
-      }
-    }
-    if (!placed) {
-      e._row = slots.length;
-      slots.push(e._x);
-    }
+    e._row = i; // every event gets its own row
   });
+  return list.length;
 }
-assignRows("above");
-assignRows("below");
+const rowsAbove = assignRows("above");
+const rowsBelow = assignRows("below");
 
-const firstRowGap = 18;
-const rowSpacing  = 78;
+// -------------------- DOTS ON AXIS --------------------
+// Draw a small dot at each event's x position on the axis
+events.forEach(e => {
+  svg.append("circle")
+    .attr("class", "event-dot")
+    .attr("cx", e._x)
+    .attr("cy", axisY)
+    .attr("r", 5)
+    .attr("fill", colorFor(e.category));
+});
+
+// -------------------- EVENTS --------------------
+const firstRowGap = 28;
+const rowSpacing  = 36;       // controls vertical step between successive rows on same side
+const labelBlockH = 60;       // approximate height of a label group (date + 2-line label)
+const blockStep   = labelBlockH + 12; // total vertical step per row
 
 function wrap(text, maxLen) {
   const words = text.split(" ");
@@ -332,17 +333,26 @@ function wrap(text, maxLen) {
 }
 
 events.forEach(e => {
-  const cx = x(new Date(e.date));
+  const cx = e._x;
   const isAbove = e.side === "above";
   const dir = isAbove ? -1 : 1;
-  const shapeY  = axisY + dir * (capsuleH / 2 + 10);
-  const stemEndY = axisY + dir * (capsuleH / 2 + firstRowGap + e._row * rowSpacing);
+
+  // Stem goes from axis line out to the label block.
+  // Row index determines how far out: row 0 is closest, row N is farthest.
+  // To avoid stems overlapping when events are close horizontally, we step rows
+  // sequentially: every event gets a distinct stem length.
+  const stemLen = firstRowGap + e._row * rowSpacing;
+  const stemEndY = axisY + dir * stemLen;
+
+  // Shape (marker) is drawn at the END of the stem (away from axis),
+  // so the dot on the axis is the "anchor" and the shape labels the event.
+  const shapeY = stemEndY;
 
   svg.append("line")
     .attr("class", "event-stem")
     .attr("x1", cx).attr("x2", cx)
-    .attr("y1", shapeY + dir * 8)
-    .attr("y2", stemEndY);
+    .attr("y1", axisY + dir * 6)
+    .attr("y2", shapeY + dir * -8);
 
   const g = svg.append("g")
     .attr("class", "event-group")
@@ -359,27 +369,42 @@ events.forEach(e => {
 
   drawShape(g, e);
 
-  // Date text near the stem end (axis-facing side of label)
-  const dateY = isAbove ? stemEndY - 6 : stemEndY + 14;
-  svg.append("text")
-    .attr("class", "event-date" + (e.category === "flag" ? " flag" : ""))
-    .attr("x", cx)
-    .attr("y", dateY)
-    .text(e.dateText);
-
-  // Label
+  // Date text + label, placed beyond the marker (away from axis).
   const lineH = 14;
-  const wrapped = wrap(e.label, 24);
-  const labelStartY = isAbove
-    ? dateY - 8 - (wrapped.length - 1) * lineH
-    : dateY + 16;
-  wrapped.forEach((line, i) => {
+  const wrapped = wrap(e.label, 26);
+  const baseY = shapeY + dir * 20; // start past marker
+  if (isAbove) {
+    // Above axis: label lines render upward (so first line is closest to marker)
+    // Stack: date on top, then label lines under (i.e., date at baseY-... and label at baseY)
+    // Actually: above the axis, baseY is moving UP. We want: marker → label → date (highest).
+    const labelTopY = baseY - (wrapped.length - 1) * lineH;
+    wrapped.forEach((line, i) => {
+      svg.append("text")
+        .attr("class", "event-label" + (e.italicLabel ? " italic" : ""))
+        .attr("x", cx)
+        .attr("y", labelTopY + i * lineH)
+        .text(line);
+    });
     svg.append("text")
-      .attr("class", "event-label" + (e.italicLabel ? " italic" : ""))
+      .attr("class", "event-date" + (e.category === "flag" ? " flag" : ""))
       .attr("x", cx)
-      .attr("y", labelStartY + i * lineH)
-      .text(line);
-  });
+      .attr("y", labelTopY - lineH - 2)
+      .text(e.dateText);
+  } else {
+    // Below axis: marker → date → label
+    svg.append("text")
+      .attr("class", "event-date" + (e.category === "flag" ? " flag" : ""))
+      .attr("x", cx)
+      .attr("y", baseY)
+      .text(e.dateText);
+    wrapped.forEach((line, i) => {
+      svg.append("text")
+        .attr("class", "event-label" + (e.italicLabel ? " italic" : ""))
+        .attr("x", cx)
+        .attr("y", baseY + lineH * (i + 1) + 2)
+        .text(line);
+    });
+  }
 });
 </script>
 </body>
