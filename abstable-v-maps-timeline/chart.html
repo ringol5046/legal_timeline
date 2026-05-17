@@ -983,13 +983,25 @@ const minDate = d3.timeDay.offset(d3.min(dates), -30);
 const maxDate = d3.timeDay.offset(d3.max(dates), 30);
 
 // -------------------- DENSITY-WEIGHTED TIME AXIS --------------------
-// Replace a linear time scale with a piecewise-linear one whose monthly slice
-// width is proportional to event density. Empty months shrink to BASE_WEIGHT;
-// each event in a month adds PER_EVENT to the slice's weight, capped at
-// MAX_WEIGHT so a single super-packed month can't dominate the whole axis.
-const BASE_WEIGHT = 0.35;   // weight for a month with zero events
-const PER_EVENT   = 0.55;   // additional weight per event in that month
-const MAX_WEIGHT  = 3.2;    // upper cap so a busy month stays readable but bounded
+// Each calendar month is given a "weight" that determines its slice width
+// along the axis. The display-pixels-per-month ratio is therefore proportional
+// to event density, so:
+//   * empty months get squeezed (target ~ 1:15 compression vs. busiest)
+//   * busy months stretch out (target ~ 1:5 or less compression)
+//
+// Tuning:
+//   BASE_WEIGHT = 1  → empty-month width (reference unit)
+//   PER_EVENT   = 4  → each event in a month adds this much
+//   MAX_WEIGHT  = 13 → upper cap (a single super-packed month stays bounded)
+//
+// Resulting per-month widths:
+//   0 events → 1   (baseline, very compressed)
+//   1 event  → 5   ( 5× empty   — matches user's "1:5" floor for busy)
+//   2 events → 9   ( 9× empty)
+//   3 events → 13  (13× empty  — at the cap, matches user's "1:15" ceiling)
+const BASE_WEIGHT = 1;
+const PER_EVENT   = 4;
+const MAX_WEIGHT  = 13;
 
 const monthList = d3.timeMonths(
   d3.timeMonth.floor(minDate),
@@ -1178,7 +1190,9 @@ if (rowsBelow > 0) {
 
 // Highlight compressed (empty / sparse) axis segments with a fainter overlay
 // so the reader can see where time has been visually shortened.
-const COMPRESS_THRESHOLD = BASE_WEIGHT + PER_EVENT * 0.5; // anything below this is "sparse"
+// "Sparse" = any month at the empty baseline (no events). Months with at least
+// one event are visually marked as busy.
+const COMPRESS_THRESHOLD = BASE_WEIGHT + 0.001;
 monthList.forEach((m, i) => {
   if (monthWeights[i] <= COMPRESS_THRESHOLD) {
     svg.append("rect").attr("class", "axis-compressed")
