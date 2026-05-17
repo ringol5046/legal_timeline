@@ -6,50 +6,161 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
   :root {
-    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #d8d4cc;
+    --axis: #c98826;
+    --year-fill: #c98826;
+    --month-fill: #8a6420;
+    --stem: #b3a99a;
     --dispute: #c53030;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
-  header { max-width: 1280px; margin-bottom: 16px; }
-  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
-  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
-  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
-  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
-  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
-  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
-  svg { display: block; }
-  .axis text { font-size: 11px; fill: var(--muted); }
-  .leader { stroke: var(--rule); stroke-width: 0.6px; }
-  .axis path, .axis line { stroke: var(--rule); }
-  .lane-bg { fill: white; }
-  .lane-bg.alt { fill: #f5f3ee; }
-  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
-  .lane-sub { font-size: 10px; fill: var(--muted); }
-  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
-  .event:hover circle { r: 9; stroke-width: 3px; }
-  .event-label { font-size: 9.5px; fill: var(--ink); pointer-events: none; }
-  .event-date { font-size: 8.5px; fill: var(--muted); pointer-events: none; }
-  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
-  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
-  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
-  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
-  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.2px; fill: none; stroke-dasharray: 3 2; opacity: 0.75; }
-  .dispute-marker { font-size: 14px; fill: var(--dispute); font-weight: 600; }
-  .dispute-label { font-size: 10px; fill: var(--dispute); font-style: italic; }
-  .cluster { cursor: pointer; }
-  .cluster:hover .cluster-bg { stroke-width: 3px; }
-  .cluster-bg { stroke: white; stroke-width: 2px; transition: stroke-width 120ms ease; }
-  .cluster-count { font-size: 11px; font-weight: 700; fill: white; pointer-events: none; }
-  .cluster-month { font-size: 9px; fill: var(--muted); pointer-events: none; }
-  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
-  .tooltip strong { color: #ffe066; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 24px 32px;
+  }
+  header { max-width: 1800px; margin: 0 auto 12px auto; }
+  h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+  .case-meta {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 auto 8px auto;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 auto 14px auto;
+    text-align: center;
+    max-width: 1000px;
+    line-height: 1.45;
+  }
+  .style-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10.5px;
+    font-weight: 500;
+    background: #fdf2dc;
+    color: #8a6420;
+    border-radius: 10px;
+    vertical-align: middle;
+    margin-left: 8px;
+    letter-spacing: 0.02em;
+  }
+  #chart-wrap {
+    max-width: 1800px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: auto;
+    padding: 8px;
+  }
+  svg { display: block; margin: 0 auto; }
+
+  .axis-line { stroke: var(--axis); stroke-width: 2.5px; }
+  .year-label {
+    font-size: 22px;
+    font-weight: 700;
+    fill: var(--year-fill);
+    dominant-baseline: middle;
+    letter-spacing: 0.04em;
+  }
+  .month-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--month-fill);
+    text-anchor: middle;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  .event-dot { stroke: white; stroke-width: 2px; }
+  .event-stem { stroke: var(--stem); stroke-width: 1px; }
+  .event-date {
+    font-size: 11.5px;
+    font-weight: 700;
+    fill: #8a4423;
+    text-anchor: middle;
+  }
+  .event-date.flag { fill: var(--ink); }
+  .event-date.disputed { fill: var(--dispute); }
+  .event-label {
+    font-size: 12px;
+    fill: var(--ink);
+    text-anchor: middle;
+  }
+  .event-label.italic {
+    font-style: italic;
+    font-weight: 600;
+    fill: #888;
+    font-size: 12px;
+  }
+  .event-group { cursor: pointer; }
+  .event-group:hover .event-shape { filter: brightness(1.08); }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #1a1a1a;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    max-width: 320px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 10;
+  }
+  .tooltip strong { color: #ffe066; display: block; margin-bottom: 4px; }
   .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
   .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
-  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
-  .style-pill { display: inline-block; padding: 2px 8px; font-size: 10.5px; font-weight: 500; background: #edf2f7; color: #2d3748; border-radius: 10px; vertical-align: middle; margin-left: 8px; letter-spacing: 0.02em; }
-  .warnings { max-width: 1280px; margin-top: 12px; padding: 10px 14px; background: #fffaf0; border: 1px solid #f6e05e; border-left: 3px solid #d69e2e; border-radius: 4px; font-size: 12px; color: #744210; }
+  .legend {
+    max-width: 1800px;
+    margin: 16px auto 0 auto;
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    justify-content: center;
+  }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  footer {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .warnings {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    padding: 10px 14px;
+    background: #fffaf0;
+    border: 1px solid #f6e05e;
+    border-left: 3px solid #d69e2e;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #744210;
+  }
   .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
   .warnings li { margin: 2px 0; }
   .warnings strong { color: #5c2d00; }
@@ -57,17 +168,20 @@
 </head>
 <body>
 <header>
-  <h1>Shearson/American Express Inc. v. McMahon<span class="style-pill">Dual Track</span> <span style="color:var(--muted);font-weight:400">— U.S. · No. 86-44</span></h1>
+  <h1>Shearson/American Express Inc. v. McMahon<span class="style-pill">Centered Axis</span></h1>
+  <p class="case-meta">U.S. · No. 86-44</p>
   <p class="subtitle">Customers (the McMahons) sued their brokerage (Shearson/American Express) and its representative for fraudulent excessive trading, alleging §10(b)/Rule 10b-5, RICO, and state-law claims. Brokers moved to compel arbitration under FAA §3, relying on a predispute arbitration clause in the customer agreements. The District Court compelled arbitration of the Exchange Act and state claims but kept RICO; the Second Circuit reversed as to §10(b) and affirmed as to RICO. The Supreme Court reversed and remanded, holding both the §10(b) and RICO claims arbitrable under the FAA.</p>
 </header>
 
 
 
-<div class="controls" id="controls"></div>
 <div id="chart-wrap"></div>
-<div class="tooltip" id="tooltip"></div>
 
-<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+<div class="legend" id="legend"></div>
+
+<footer>Centered-axis zigzag · Each colored dot is one event, color = party; stem and label alternate above and below the date axis. Hover for source citations.</footer>
+
+<div class="tooltip" id="tooltip"></div>
 
 <script>
 const DATA = {
@@ -171,18 +285,24 @@ const DATA = {
   ],
   "lanes": [
     {
-      "id": "facts",
-      "label": "Facts",
-      "sub": "What happened",
-      "color": "#2b6cb0",
-      "order": 0
+      "id": "plaintiff",
+      "label": "Plaintiff / Respondent",
+      "sub": "McMahons",
+      "party_id": "mcmahons",
+      "order": 1
     },
     {
-      "id": "procedure",
-      "label": "Procedure",
-      "sub": "What the court did",
-      "color": "#4a5568",
-      "order": 1
+      "id": "defendant",
+      "label": "Defendant / Petitioner",
+      "sub": "Shearson & McNulty",
+      "party_id": "shearson",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "S.D.N.Y. \u2192 2d Cir. \u2192 SCOTUS",
+      "order": 3
     }
   ],
   "events": [
@@ -195,7 +315,7 @@ const DATA = {
         "1982-12-31"
       ],
       "date_certainty": "approximate",
-      "lane_id": "facts",
+      "lane_id": "plaintiff",
       "party_ids": [
         "mcmahons",
         "shearson",
@@ -216,7 +336,7 @@ const DATA = {
         "1982-12-31"
       ],
       "date_certainty": "approximate",
-      "lane_id": "facts",
+      "lane_id": "defendant",
       "party_ids": [
         "mcmahons",
         "shearson"
@@ -238,7 +358,7 @@ const DATA = {
         "1984-09-30"
       ],
       "date_certainty": "approximate",
-      "lane_id": "facts",
+      "lane_id": "defendant",
       "party_ids": [
         "mcnulty",
         "shearson"
@@ -257,7 +377,7 @@ const DATA = {
       "detail": "In October 1984 the McMahons filed an amended complaint in the U.S. District Court for the Southern District of New York alleging violations of \u00a710(b) of the Exchange Act and SEC Rule 10b-5, civil RICO under 18 U.S.C. \u00a71962(c), and state-law fraud and breach-of-fiduciary-duty claims.",
       "date": "1984-10-15",
       "date_certainty": "approximate",
-      "lane_id": "procedure",
+      "lane_id": "plaintiff",
       "party_ids": [
         "mcmahons",
         "shearson",
@@ -275,7 +395,7 @@ const DATA = {
       "detail": "Relying on the customer agreements, Shearson and McNulty moved under \u00a73 of the Federal Arbitration Act, 9 U.S.C. \u00a73, to compel arbitration of the McMahons' claims and stay the District Court action.",
       "date": "1984-12-01",
       "date_certainty": "approximate",
-      "lane_id": "procedure",
+      "lane_id": "defendant",
       "party_ids": [
         "shearson",
         "mcnulty"
@@ -292,7 +412,7 @@ const DATA = {
       "detail": "The District Court (618 F. Supp. 384 (S.D.N.Y. 1985)) granted the motion in part: it rejected the contracts-of-adhesion challenge, held the \u00a710(b) claims arbitrable under Dean Witter Reynolds Inc. v. Byrd, 470 U.S. 213 (1985), and held the state-law claims likewise arbitrable, but concluded the RICO claim was not arbitrable in light of the federal interests in RICO enforcement.",
       "date": "1985-08-15",
       "date_certainty": "approximate",
-      "lane_id": "procedure",
+      "lane_id": "court",
       "party_ids": [
         "court_sdny"
       ],
@@ -308,7 +428,7 @@ const DATA = {
       "detail": "The Second Circuit (788 F.2d 94 (2d Cir. 1986)) affirmed the District Court as to the state-law and RICO claims (RICO not arbitrable on public-policy grounds \u2014 the 'private attorney general' rationale) but reversed as to the Exchange Act \u00a710(b) claims, applying the rule of Wilko v. Swan, 346 U.S. 427 (1953), to hold \u00a710(b) claims nonarbitrable.",
       "date": "1986-04-21",
       "date_certainty": "approximate",
-      "lane_id": "procedure",
+      "lane_id": "court",
       "party_ids": [
         "court_ca2"
       ],
@@ -324,7 +444,7 @@ const DATA = {
       "detail": "The Supreme Court granted certiorari, 479 U.S. 812 (1986), to resolve a circuit conflict over the arbitrability of \u00a710(b) and RICO claims pursued under predispute customer arbitration agreements.",
       "date": "1986-10-06",
       "date_certainty": "approximate",
-      "lane_id": "procedure",
+      "lane_id": "court",
       "party_ids": [
         "court_scotus"
       ],
@@ -340,7 +460,7 @@ const DATA = {
       "detail": "Argued March 3, 1987. Theodore A. Krebsbach for petitioners; Richard G. Taranto for the United States as amicus curiae urging reversal; Theodore G. Eppenstein for respondents.",
       "date": "1987-03-03",
       "date_certainty": "exact",
-      "lane_id": "procedure",
+      "lane_id": "court",
       "party_ids": [
         "court_scotus",
         "shearson",
@@ -358,7 +478,7 @@ const DATA = {
       "detail": "Decided June 8, 1987. O'Connor, J., for the Court. Held: (1) the FAA establishes a federal policy favoring arbitration, and the burden is on the party opposing arbitration to show Congress intended to preclude waiver of a judicial forum; (2) \u00a710(b) Exchange Act claims are arbitrable \u2014 \u00a729(a) bars only waiver of substantive obligations, not jurisdiction under \u00a727, and Wilko v. Swan does not control given changes in SEC oversight of arbitration; (3) civil RICO \u00a71964(c) claims are arbitrable \u2014 nothing in RICO's text or history evinces congressional intent to exclude them, and the private-attorney-general rationale does not create an irreconcilable conflict with arbitration. Reversed and remanded.",
       "date": "1987-06-08",
       "date_certainty": "exact",
-      "lane_id": "procedure",
+      "lane_id": "court",
       "party_ids": [
         "court_scotus"
       ],
@@ -500,447 +620,267 @@ const DATA = {
   ]
 };
 
-// Build legend dynamically based on data
-const controls = document.getElementById("controls");
-function legendHTML() {
-  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
-  return `
-    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
-    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
-    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
-    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
-    <div class="divider"></div>
-    ${swatches}
-    <div class="divider"></div>
-    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
-  `;
-}
-controls.innerHTML = legendHTML();
-
-// ---- Fixed-width month-column grid (one column per calendar month) ----
-const COL_WIDTH = 28;       // pixels per month column
-const margin = { top: 95, right: 40, bottom: 40, left: 170 };
-const laneHeight = 340;     // tall enough for ±140 slot offset plus expanded clusters and labels
-const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
-
+// ---------- Parse + sort events chronologically ----------
 const parseDate = d3.timeParse("%Y-%m-%d");
-const events = DATA.events.map(e => ({
+const fmtDateShort = d3.timeFormat("%m/%d/%y");
+const fmtDateLong  = d3.timeFormat("%B %d, %Y");
+
+const events = (DATA.events || []).map(e => ({
   ...e,
   _d: parseDate(e.date || (e.date_range && e.date_range[0]))
-})).filter(e => e._d);
+})).filter(e => e._d).sort((a, b) => a._d - b._d);
 
-// Derive the inclusive month range from case.date_range
-const [start, end] = DATA.case.date_range;
-const startMonth = d3.timeMonth.floor(parseDate(start));
-const endMonth   = d3.timeMonth.offset(d3.timeMonth.floor(parseDate(end)), 1);
-const months     = d3.timeMonth.range(startMonth, endMonth);  // array of Date, one per month
-const monthIndex = new Map(months.map((m, i) => [+m, i]));
+// (Side assignment is done by packEvents() below, after we know label widths.)
 
-// xScale: maps any date to the center of its month column
-function xScale(date) {
-  const t = +d3.timeMonth.floor(date);
-  let idx = monthIndex.get(t);
-  if (idx === undefined) {
-    idx = t < +months[0] ? 0 : months.length - 1;
+// ---------- Layout constants ----------
+const margin = { top: 60, right: 120, bottom: 60, left: 120 };
+const width  = 1800;
+
+// Date domain: pad 30 days on either side
+const dates = events.map(e => e._d);
+const minDate = d3.timeDay.offset(d3.min(dates), -30);
+const maxDate = d3.timeDay.offset(d3.max(dates), 30);
+const x = d3.scaleTime().domain([minDate, maxDate]).range([margin.left, width - margin.right]);
+
+// ---------- Lane lookup (for color/short-name) ----------
+const laneById = new Map((DATA.lanes || []).map(l => [l.id, l]));
+const partyById = new Map((DATA.parties || []).map(p => [p.id, p]));
+const sourceById = new Map((DATA.sources || []).map(s => [s.id, s]));
+
+function colorForEvent(e) {
+  const lane = laneById.get(e.lane_id);
+  return (lane && lane.color) || "#666";
+}
+
+function shortLabel(e) {
+  return e.label || "(unlabeled)";
+}
+
+// ---------- Word wrap helper (defined early; row packing uses it) ----------
+function wrap(text, maxLen) {
+  const words = (text || "").split(" ");
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length <= maxLen) cur = (cur + " " + w).trim();
+    else { if (cur) lines.push(cur); cur = w; }
   }
-  return idx * COL_WIDTH + COL_WIDTH / 2;
+  if (cur) lines.push(cur);
+  return lines;
 }
 
-const innerW = months.length * COL_WIDTH;
-const width  = innerW + margin.left + margin.right;
-const height = lanes.length * laneHeight + margin.top + margin.bottom;
+// ---------- Width-aware row packing ----------
+// 1. Estimate each event's label box width from its wrapped text.
+// 2. Compute event x-position on the time axis.
+// 3. For each event, find the LOWEST-INDEX row on its side whose last label's
+//    right edge is clear of this event's left edge; otherwise open a new row.
+// This guarantees no two labels overlap horizontally on the same side. Row index
+// then determines stem length so the chart fans out vertically only as needed.
+const LABEL_WRAP_CHARS  = 26;
+const APPROX_CHAR_PX    = 6.7;
+const LABEL_PAD_PX      = 14;
+const MIN_LABEL_GAP_PX  = 10;
 
+function estimateLabelWidth(e) {
+  const wrapped = wrap(e.label || "", LABEL_WRAP_CHARS);
+  const longest = wrapped.reduce((m, line) => Math.max(m, line.length), 9 /* date width */);
+  return Math.max(longest * APPROX_CHAR_PX + LABEL_PAD_PX * 2, 60);
+}
+
+// Pre-compute x and label width for every event
+events.forEach(e => {
+  e._x = x(e._d);
+  e._labelW = estimateLabelWidth(e);
+});
+
+// Smart side assignment: instead of strict alternation, on each placement choose
+// whichever side currently has fewer rows (ties broken by alternation). This
+// balances load and minimizes total chart height.
+function packEvents() {
+  const sideRowRightX = { above: [], below: [] };  // rowIdx → last right-edge x
+  let altIndex = 0;
+  events.forEach(e => {
+    const leftX = e._x - e._labelW / 2;
+    const rightX = e._x + e._labelW / 2;
+    // For each side, find the lowest row where this event fits, or one past the end.
+    function bestRowFor(side) {
+      const rows = sideRowRightX[side];
+      for (let r = 0; r < rows.length; r++) {
+        if (leftX >= rows[r] + MIN_LABEL_GAP_PX) return r;
+      }
+      return rows.length;
+    }
+    const aboveRow = bestRowFor("above");
+    const belowRow = bestRowFor("below");
+    // Pick side with the LOWER row index (= shorter stem). Ties: alternate.
+    let chosenSide;
+    if (aboveRow < belowRow) chosenSide = "above";
+    else if (belowRow < aboveRow) chosenSide = "below";
+    else { chosenSide = (altIndex % 2 === 0) ? "above" : "below"; altIndex++; }
+    const chosenRow = chosenSide === "above" ? aboveRow : belowRow;
+    e._side = chosenSide;
+    e._row = chosenRow;
+    sideRowRightX[chosenSide][chosenRow] = rightX;
+  });
+  return {
+    rowsAbove: sideRowRightX.above.length,
+    rowsBelow: sideRowRightX.below.length,
+  };
+}
+const { rowsAbove, rowsBelow } = packEvents();
+
+// ---------- Vertical positioning ----------
+// Row 0 sits close to the axis; each successive row steps farther by ROW_STEP_PX.
+const ROW_BASE_PX = 55;
+const ROW_STEP_PX = 95;
+const LABEL_BLOCK_PX = 56; // height reserved for date + ~2 lines of label per row
+function stemLenForRow(rowIdx) {
+  return ROW_BASE_PX + rowIdx * ROW_STEP_PX;
+}
+
+// Compute the chart height so even the deepest-row event has room for its label.
+const padBeyondLastLabel = 40;
+const aboveExtent = (rowsAbove === 0 ? 0 : stemLenForRow(rowsAbove - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
+const belowExtent = (rowsBelow === 0 ? 0 : stemLenForRow(rowsBelow - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
+const minHalfHeight = 380;
+const aboveH = Math.max(aboveExtent, minHalfHeight);
+const belowH = Math.max(belowExtent, minHalfHeight);
+const height = margin.top + aboveH + belowH + margin.bottom;
+const axisY  = margin.top + aboveH;
+
+// ---------- SVG ----------
 const svg = d3.select("#chart-wrap").append("svg")
-  .attr("viewBox", `0 0 ${width} ${height}`)
   .attr("width", width)
-  .attr("height", height);
+  .attr("height", height)
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet");
 
-const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+// ---------- Thin axis line ----------
+const axisX0 = x(minDate);
+const axisX1 = x(maxDate);
+svg.append("line")
+  .attr("class", "axis-line")
+  .attr("x1", axisX0).attr("x2", axisX1)
+  .attr("y1", axisY).attr("y2", axisY)
+  .attr("stroke-linecap", "round");
 
-// Lanes
-const laneG = g.selectAll(".lane").data(lanes).join("g")
-  .attr("class", "lane")
-  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
-laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
-  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
-laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
-laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
-laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+// ---------- Year + month labels ----------
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX0 - 16).attr("y", axisY)
+  .attr("text-anchor", "end").text(d3.timeFormat("%Y")(minDate));
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX1 + 16).attr("y", axisY)
+  .attr("text-anchor", "start").text(d3.timeFormat("%Y")(maxDate));
 
-// ---- Column gridlines: light per-month, darker per-year ----
-g.selectAll(".grid-month").data(months)
-  .join("line").attr("class","grid-month")
-  .attr("x1", d => xScale(d) + COL_WIDTH/2).attr("x2", d => xScale(d) + COL_WIDTH/2)
-  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
-  .attr("stroke", "var(--rule)").attr("opacity", 0.18);
-
-const yearStarts = months.filter(m => m.getMonth() === 0);
-g.selectAll(".grid-year").data(yearStarts)
-  .join("line").attr("class","grid-year")
-  .attr("x1", d => xScale(d) - COL_WIDTH/2).attr("x2", d => xScale(d) - COL_WIDTH/2)
-  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
-  .attr("stroke", "var(--rule)").attr("opacity", 0.6);
-
-// ---- Axis: prominent year labels, quieter quarterly month labels ----
-const axisG = g.append("g").attr("class","axis");
-axisG.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", 0).attr("y2", 0)
-  .attr("stroke", "var(--rule)");
-
-yearStarts.forEach(d => {
-  axisG.append("text").attr("class","year-label")
-    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
-    .style("font-size","12px").style("font-weight","600").style("fill","var(--ink)")
-    .text(d.getFullYear());
+const months = d3.timeMonths(d3.timeMonth.floor(minDate), d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1));
+months.forEach(m => {
+  const cx = x(m);
+  svg.append("line").attr("class", "month-tick")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY - 5).attr("y2", axisY + 5);
 });
 
-months.filter(m => m.getMonth() % 3 === 0 && m.getMonth() !== 0).forEach(d => {
-  axisG.append("text").attr("class","quarter-label")
-    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
-    .style("font-size","9.5px").style("fill","var(--muted)")
-    .text(d3.timeFormat("%b")(d));
+const labelEvery = months.length > 30 ? 6 : (months.length > 15 ? 2 : 1);
+months.filter((_, i) => i % labelEvery === 0).forEach(m => {
+  const cx = x(m);
+  const isJan = m.getMonth() === 0;
+  svg.append("text").attr("class", "month-label")
+    .attr("x", cx).attr("y", axisY + 22)
+    .text(d3.timeFormat("%b")(m));
+  if (isJan && labelEvery <= 2) {
+    svg.append("text").attr("class", "month-label")
+      .attr("x", cx).attr("y", axisY + 36)
+      .style("font-size", "10.5px").style("opacity", 0.8)
+      .text(d3.timeFormat("%Y")(m));
+  }
 });
 
-svg.append("defs").selectAll("marker")
-  .data(["response","causal","tolls","supersedes"]).join("marker")
-  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
-  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
-  .append("path").attr("d","M0,-4L8,0L0,4")
-  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+// ---------- Dots on the axis ----------
+events.forEach(e => {
+  svg.append("circle")
+    .attr("class", "event-dot")
+    .attr("cx", e._x).attr("cy", axisY).attr("r", 5)
+    .attr("fill", colorForEvent(e));
+});
 
-function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
-function eventById(id) { return events.find(e => e.id === id); }
-function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
-
-const connectorG = g.append("g").attr("class","connectors");
-function renderConnectors() {
-  const flags = { response: document.getElementById("show-response").checked,
-                  causal: document.getElementById("show-causal").checked,
-                  tolls: document.getElementById("show-tolls").checked,
-                  supersedes: true, contradicts: true, references: true };
-  connectorG.selectAll("*").remove();
-  (DATA.relationships || []).forEach(c => {
-    if (!flags[c.type]) return;
-    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
-    if (!a || !b) return;
-    if (!isEventVisible(a) || !isEventVisible(b)) return;  // only draw between visible events
-    const x1=xScale(a._d);
-    const x2=xScale(b._d);
-    const y1=laneY(a.lane_id) + (yJit.get(a.id) || 0);
-    const y2=laneY(b.lane_id) + (yJit.get(b.id) || 0);
-    const mx=(x1+x2)/2;
-    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
-      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
-  });
-}
-
-const disputeG = g.append("g").attr("class","disputes");
-function renderDisputes() {
-  const show = document.getElementById("show-disputed").checked;
-  disputeG.selectAll("*").remove();
-  if (!show) return;
-  // Arc top sits in the top margin, above the time axis (which is at y=0 within g)
-  const arcTopY = -32;
-  (DATA.disputes || []).forEach((d, i) => {
-    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
-    if (evs.length < 2) return;
-    if (!evs.every(isEventVisible)) return;  // only draw arc when both versions are visible
-    evs.sort((a,b) => a._d - b._d);
-    const [a, b] = evs;
-    const x1 = xScale(a._d);
-    const x2 = xScale(b._d);
-    const y1 = laneY(a.lane_id) + (yJit.get(a.id) || 0);
-    const y2 = laneY(b.lane_id) + (yJit.get(b.id) || 0);
-    const midX = (x1 + x2) / 2;
-    // Stack multiple disputes so their arc labels don't collide
-    const tierTop = arcTopY - i * 22;
-    // Smooth arch: cubic Bezier from each dot up into the margin, peaking near tierTop
-    disputeG.append("path").attr("class","dispute-bracket")
-      .attr("d", `M${x1},${y1 - 10} C${x1},${tierTop} ${x2},${tierTop} ${x2},${y2 - 10}`);
-    // Diamond marker at the arc peak
-    disputeG.append("text").attr("class","dispute-marker")
-      .attr("x", midX).attr("y", tierTop - 6).attr("text-anchor","middle")
-      .text("◆");
-    // Label sits above the marker, wraps to two lines if long
-    const subject = d.subject || "disputed";
-    const labelText = `disputed: ${subject}`;
-    const maxLen = 70;
-    const label = disputeG.append("text").attr("class","dispute-label")
-      .attr("x", midX).attr("y", tierTop - 18).attr("text-anchor","middle");
-    if (labelText.length <= maxLen) {
-      label.text(labelText);
-    } else {
-      const cut = labelText.lastIndexOf(" ", maxLen);
-      const split = cut > maxLen / 2 ? cut : maxLen;
-      label.append("tspan").attr("x", midX).attr("dy", 0).text(labelText.slice(0, split));
-      label.append("tspan").attr("x", midX).attr("dy", 12).text(labelText.slice(split).trim());
-      // Push the marker down a bit when there are two lines so it doesn't crash into them
-      disputeG.selectAll(".dispute-marker").filter((_, idx, nodes) => nodes[idx].previousSibling === label.node().previousSibling)
-        .attr("y", tierTop - 4);
-    }
-  });
-}
-
-// ---- Dot-position staggering: each dot offset vertically so labels don't overlap horizontally ----
-const DOT_SLOTS_Y = [0, 80, -80, 140, -140]; // y-offsets from lane centerline (leaves room for expanded clusters)
-// Labels are always rendered directly below each dot at a fixed offset
-const LABEL_SLOTS = [
-  { y_label: 22,  y_date: 32, dir: 1 },   // fixed: 22px below dot
-];
-const MIN_X_GAP = 150;
-const MAX_LABEL_CHARS = 22;
-const STACK_STEP = 52;       // px between stacked event rows in an expanded cluster (dot + label + date + buffer)
-let slotIdx  = new Map();    // event.id -> slot index (or -1 to suppress label)
-let xOff     = new Map();    // (unused, kept for compat)
-let yJit     = new Map();    // event.id -> y pixel offset for stacking
-let forceSlot = new Map();   // event.id -> override slot index
-let clusters = [];           // array of {id, key, events, lane_id, x, size}
-let eventToCluster = new Map();  // event.id -> {cluster, index}
-let expandedSet = new Set(); // ids of currently expanded multi-event clusters
-
-function monthKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
-}
-
-function buildClusters(visible) {
-  clusters = [];
-  eventToCluster = new Map();
-  const groups = d3.group(visible, e => `${e.lane_id}|${monthKey(e._d)}`);
-  let cid = 0;
-  groups.forEach((evs, key) => {
-    const sortedEvs = evs.slice().sort((a,b) => a._d - b._d);
-    const meanX = d3.mean(sortedEvs, e => xScale(e._d));
-    const cluster = {
-      id: `cluster_${cid++}`,
-      key,
-      events: sortedEvs,
-      lane_id: sortedEvs[0].lane_id,
-      x: meanX,
-      size: sortedEvs.length,
-      month: monthKey(sortedEvs[0]._d),
-    };
-    clusters.push(cluster);
-    sortedEvs.forEach((e, i) => eventToCluster.set(e.id, { cluster, index: i }));
-  });
-}
-
-function isEventVisible(ev) {
-  const info = eventToCluster.get(ev.id);
-  if (!info) return true;
-  if (info.cluster.size === 1) return true;
-  return expandedSet.has(info.cluster.id);
-}
-
-function isClusterCollapsed(c) {
-  return c.size > 1 && !expandedSet.has(c.id);
-}
-
-function recomputeLayout(visible) {
-  slotIdx   = new Map();
-  xOff      = new Map();
-  yJit      = new Map();
-  forceSlot = new Map();
-
-  buildClusters(visible);
-
-  // ---- Per-lane chronological dot-slot assignment ----
-  // Each cluster gets a y-offset based on x-proximity to neighbors in the same lane.
-  // Adjacent columns are assigned different slots so labels (always below dot) don't overlap.
-  const clustersByLane = d3.group(clusters, c => c.lane_id);
-  clustersByLane.forEach(laneClusters => {
-    const sorted = laneClusters.slice().sort((a,b) => a.x - b.x);
-    const lastX = DOT_SLOTS_Y.map(() => -Infinity);
-    sorted.forEach(cluster => {
-      const x = cluster.x;
-      let chosen = 0;
-      for (let i = 0; i < DOT_SLOTS_Y.length; i++) {
-        if (x - lastX[i] > MIN_X_GAP) { chosen = i; break; }
-      }
-      lastX[chosen] = x;
-      const baseY = DOT_SLOTS_Y[chosen];
-      cluster.dotSlotY = baseY;     // remember for cluster-marker positioning
-      if (cluster.size === 1) {
-        yJit.set(cluster.events[0].id, baseY);
-      } else {
-        // Multi-event clusters: stack vertically around their slot's base y
-        const center = (cluster.size - 1) / 2;
-        cluster.events.forEach((ev, i) => yJit.set(ev.id, baseY + (i - center) * STACK_STEP));
-      }
-    });
-  });
-
-  // Labels always render at LABEL_SLOTS[0] (fixed offset below each dot). Force every event to slot 0,
-  // except for expanded multi-event clusters where middle events have no inline label.
-  const visibleEvts = visible.filter(isEventVisible);
-  visibleEvts.forEach(ev => {
-    const info = eventToCluster.get(ev.id);
-    if (info && info.cluster.size > 1) {
-      const i = info.index, n = info.cluster.size;
-      if (i === 0)            slotIdx.set(ev.id, 0);   // top of stack: label below
-      else if (i === n - 1)   slotIdx.set(ev.id, 0);   // bottom of stack: label below
-      else                    slotIdx.set(ev.id, -1);  // middle of stack: hover for info
-    } else {
-      slotIdx.set(ev.id, 0);
-    }
-  });
-}
-
-// ---- Cluster expansion logic ----
-function neighborsOf(clusterId) {
-  // Return set of cluster IDs connected to this cluster via relationships or disputes (1 hop)
-  const result = new Set([clusterId]);
-  const cluster = clusters.find(c => c.id === clusterId);
-  if (!cluster) return result;
-  const evIds = new Set(cluster.events.map(e => e.id));
-  (DATA.relationships || []).forEach(r => {
-    let otherEvId = null;
-    if (evIds.has(r.from_event_id)) otherEvId = r.to_event_id;
-    else if (evIds.has(r.to_event_id)) otherEvId = r.from_event_id;
-    if (otherEvId) {
-      const info = eventToCluster.get(otherEvId);
-      if (info && info.cluster.size > 1) result.add(info.cluster.id);
-    }
-  });
-  (DATA.disputes || []).forEach(d => {
-    const versionIds = d.versions.map(v => v.event_id);
-    if (versionIds.some(id => evIds.has(id))) {
-      versionIds.forEach(id => {
-        const info = eventToCluster.get(id);
-        if (info && info.cluster.size > 1) result.add(info.cluster.id);
-      });
-    }
-  });
-  return result;
-}
-
-let collapseTimer = null;
-function scheduleCollapse() {
-  if (collapseTimer) clearTimeout(collapseTimer);
-  collapseTimer = setTimeout(() => {
-    expandedSet = new Set();
-    rerenderAll();
-    collapseTimer = null;
-  }, 280);
-}
-function cancelCollapse() {
-  if (collapseTimer) { clearTimeout(collapseTimer); collapseTimer = null; }
-}
-function expandCluster(clusterId) {
-  cancelCollapse();
-  expandedSet = neighborsOf(clusterId);
-  rerenderAll();
-}
-function rerenderAll() {
-  renderEvents();
-  renderDisputes();
-  renderConnectors();
-}
-
-function truncateLabel(s) {
-  if (!s) return "";
-  return s.length > MAX_LABEL_CHARS ? s.slice(0, MAX_LABEL_CHARS - 1) + "…" : s;
-}
-
+// ---------- Tooltip ----------
 const tooltip = d3.select("#tooltip");
-const leaderG = g.append("g").attr("class","leaders");
-const eventG = g.append("g").attr("class","events");
-const clusterG = g.append("g").attr("class","clusters");
 
-function renderEvents() {
-  const showD = document.getElementById("show-disputed").checked;
-  const visible = events.filter(e => showD || !e.disputed);
-  recomputeLayout(visible);
+// ---------- Render each event ----------
+events.forEach(e => {
+  const cx = e._x;
+  const isAbove = e._side === "above";
+  const dir = isAbove ? -1 : 1;
+  const stemLen = stemLenForRow(e._row);
+  const stemEndY = axisY + dir * stemLen;
 
-  // ---- Render cluster markers for collapsed multi-event clusters ----
-  const collapsedClusters = clusters.filter(isClusterCollapsed);
-  const clSel = clusterG.selectAll(".cluster").data(collapsedClusters, c => c.id);
-  clSel.exit().remove();
-  const clEnter = clSel.enter().append("g").attr("class","cluster");
-  clEnter.append("circle").attr("class","cluster-bg");
-  clEnter.append("text").attr("class","cluster-count");
-  clEnter.append("text").attr("class","cluster-month");
-  const clAll = clEnter.merge(clSel)
-    .attr("transform", c => `translate(${c.x}, ${laneY(c.lane_id) + (c.dotSlotY || 0)})`)
-    .on("mouseenter", function(_, c) { expandCluster(c.id); })
-    .on("mouseleave", function() { scheduleCollapse(); })
-    .on("click", function(_, c) { expandCluster(c.id); });
-  clAll.select(".cluster-bg")
-    .attr("r", 12)
-    .attr("fill", c => lanes.find(l => l.id === c.lane_id)?.color || "#999");
-  clAll.select(".cluster-count")
-    .attr("y", 4).attr("text-anchor","middle")
-    .text(c => c.size);
-  clAll.select(".cluster-month")
-    .attr("y", 28).attr("text-anchor","middle")
-    .text(c => {
-      const d = c.events[0]._d;
-      return d3.timeFormat("%b %Y")(d);
+  // stem from the axis dot to the marker
+  svg.append("line").attr("class", "event-stem")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY + dir * 6)
+    .attr("y2", stemEndY + dir * -8);
+
+  // marker (small filled circle at the stem end)
+  const g = svg.append("g")
+    .attr("class", "event-group")
+    .attr("transform", `translate(${cx}, ${stemEndY})`)
+    .on("mouseover", () => {
+      const lane = laneById.get(e.lane_id);
+      const srcs = (e.source_ids || []).map(sid => sourceById.get(sid)).filter(Boolean);
+      const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+      const sig = e.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${e.jurisdictional_significance}</div>` : "";
+      tooltip.style("opacity", 1).html(
+        `<strong>${e.label}</strong>` +
+        `<div>${e.detail || ""}</div>` +
+        `<div class="meta">${(lane && lane.label) || e.lane_id} · ${fmtDateLong(e._d)}${e.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>` +
+        sig + srcHTML
+      );
+    })
+    .on("mousemove", (ev) => {
+      tooltip.style("left", (ev.pageX + 14) + "px").style("top", (ev.pageY + 14) + "px");
+    })
+    .on("mouseout", () => tooltip.style("opacity", 0));
+
+  g.append("circle").attr("class", "event-shape")
+    .attr("r", 7)
+    .attr("fill", colorForEvent(e))
+    .attr("stroke", e.disputed ? "var(--dispute)" : "white")
+    .attr("stroke-width", e.disputed ? 2 : 2)
+    .attr("stroke-dasharray", e.disputed ? "2 2" : null);
+
+  // date text and label text, placed past the marker (away from axis)
+  const lineH = 14;
+  const wrapped = wrap(shortLabel(e), 28);
+  const baseY = stemEndY + dir * 22;
+
+  if (isAbove) {
+    const labelTopY = baseY - (wrapped.length - 1) * lineH;
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", labelTopY + i * lineH).text(line);
     });
-
-  // ---- Render individual events: single-event clusters + members of expanded multi-event clusters ----
-  const visibleIndividuals = visible.filter(isEventVisible);
-
-  // Helper: an event is "labeled" only when it got a real slot (>=0)
-  const hasLabel = d => slotIdx.get(d.id) >= 0;
-  const slotOf = d => LABEL_SLOTS[slotIdx.get(d.id)];
-
-  // Leader lines (drawn first so they sit below dots). Only for far-positioned labels.
-  const dotY = d => laneY(d.lane_id) + (yJit.get(d.id) || 0);
-  const leaders = leaderG.selectAll(".leader").data(visibleIndividuals.filter(hasLabel), d => d.id);
-  leaders.exit().remove();
-  leaders.enter().append("line").attr("class","leader").merge(leaders)
-    .attr("x1", d => xScale(d._d))
-    .attr("x2", d => xScale(d._d))
-    .attr("y1", d => dotY(d) + (slotOf(d).dir > 0 ? 6 : -6))
-    .attr("y2", d => dotY(d) + slotOf(d).y_label - (slotOf(d).dir > 0 ? 6 : -6))
-    .attr("opacity", d => Math.abs(slotOf(d).y_label) > 30 ? 0.65 : 0);
-
-  const sel = eventG.selectAll(".event").data(visibleIndividuals, d => d.id);
-  sel.exit().remove();
-  const enter = sel.enter().append("g").attr("class","event");
-  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
-  const all = enter.merge(sel);
-  all.attr("transform", d => `translate(${xScale(d._d)}, ${dotY(d)})`);
-  all.select("circle").attr("r", 5)
-    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
-    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
-    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
-
-  all.select(".event-label").attr("x",0)
-    .attr("y", d => hasLabel(d) ? slotOf(d).y_label : 0)
-    .attr("text-anchor","middle")
-    .style("display", d => hasLabel(d) ? null : "none")
-    .text(d => truncateLabel(d.label));
-
-  all.select(".event-date").attr("x",0)
-    .attr("y", d => hasLabel(d) ? slotOf(d).y_date : 0)
-    .attr("text-anchor","middle")
-    .style("display", d => hasLabel(d) ? null : "none")
-    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? " (~)" : ""));
-  all.on("mouseenter", function(event, d) {
-    // Keep expansion alive while hovering an event inside an expanded cluster
-    const info = eventToCluster.get(d.id);
-    if (info && info.cluster.size > 1) cancelCollapse();
-    const lane = lanes.find(l => l.id === d.lane_id);
-    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
-    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
-    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
-    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
-      <div>${d.detail || ""}</div>
-      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
-      ${sig}${srcHTML}`);
-  }).on("mousemove", function(event) {
-    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
-  }).on("mouseleave", function(_, d) {
-    tooltip.style("opacity",0);
-    const info = eventToCluster.get(d.id);
-    if (info && info.cluster.size > 1) scheduleCollapse();
-  });
-}
-
-["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
-  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", labelTopY - lineH - 2)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+  } else {
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", baseY)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", baseY + lineH * (i + 1) + 2).text(line);
+    });
+  }
 });
-renderEvents(); renderDisputes(); renderConnectors();
+
+// ---------- Legend (one chip per lane) ----------
+const legendEl = document.getElementById("legend");
+(DATA.lanes || []).forEach(l => {
+  const item = document.createElement("span");
+  item.className = "item";
+  item.innerHTML = `<span class="swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}`;
+  legendEl.appendChild(item);
+});
 </script>
 </body>
 </html>
