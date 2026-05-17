@@ -448,7 +448,7 @@
 <!-- ============================================== -->
 <section>
   <h2><span class="num">1</span>The three charts, rendered</h2>
-  <p class="lede">The two prior charts (v1 and v2) use Mermaid's <code>timeline</code> block — a flat, sectioned linear list. The new chart uses D3 with swimlanes for parties and a separate fact-vs-procedure track when the case warrants it. The new chart is interactive: hover any event for source citation and jurisdictional significance.</p>
+  <p class="lede">The two prior charts (v1 and v2) use Mermaid's <code>timeline</code> block — a flat, sectioned linear list. The new chart uses D3 with a <strong>centered-axis</strong> layout: a thin amber time bar runs through the middle, factual events live above, procedural events live below, and the axis itself is <strong>density-weighted</strong> — empty stretches compress, busy stretches expand. The new chart is interactive: hover any event for source citation and jurisdictional significance.</p>
 
   <!-- v1 and v2 side by side -->
   <div class="charts">
@@ -501,7 +501,7 @@ timeline
     <!-- New chart full-width below -->
     <div class="chart-card full-width new">
       <h3>New (legal-timeline-extraction + legal-timeline-chart) <span class="tag">new</span></h3>
-      <p class="meta">D3 centered-axis · 21 events · 4 lanes · zigzag distribution above/below the date bar · interactive (hover for citations + jurisdictional significance)</p>
+      <p class="meta">D3 centered-axis · 21 events · facts above / procedure below · density-weighted time bar (empty months compress, busy months expand) · width-aware label packer (no overlaps) · interactive (hover for citations + jurisdictional significance)</p>
       <iframe class="chart-frame" srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
 &lt;head&gt;
@@ -1918,7 +1918,7 @@ const legendEl = document.getElementById(&quot;legend&quot;);
     </thead>
     <tbody>
       <tr><td class="dim-label">Rendering engine</td><td class="v1-cell">Mermaid <code>timeline</code></td><td class="v2-cell">Mermaid <code>timeline</code></td><td class="new-cell">D3.js (SVG, interactive)</td></tr>
-      <tr><td class="dim-label">Layout</td><td class="v1-cell">Flat linear, section-grouped</td><td class="v2-cell">Flat linear, section-grouped</td><td class="new-cell">Swimlane (4 lanes) or dual-track (Facts/Procedure)</td></tr>
+      <tr><td class="dim-label">Layout</td><td class="v1-cell">Flat linear, section-grouped</td><td class="v2-cell">Flat linear, section-grouped</td><td class="new-cell">Centered-axis (facts above / procedure below), density-weighted time bar</td></tr>
       <tr><td class="dim-label">Event count</td><td class="v1-cell">7 events / 3 sections</td><td class="v2-cell">13 events / 5 sections</td><td class="new-cell"><b>21 events</b> (incl. all 5 subcontracts individually + collateral)</td></tr>
       <tr><td class="dim-label">Party attribution</td><td class="v1-cell">None — events are flat</td><td class="v2-cell">None — events are flat</td><td class="new-cell">4 lanes: Plaintiff, Defendant, Judgment Debtors, Court</td></tr>
       <tr><td class="dim-label">Disputed facts</td><td class="v1-cell">Not represented</td><td class="v2-cell">Not represented</td><td class="new-cell">First-class — hollow events + red bracket linking versions</td></tr>
@@ -2113,7 +2113,9 @@ const legendEl = document.getElementById(&quot;legend&quot;);
     <li><b>Lien expirations as typed tolling arrows</b> with <code>clock_id</code> (<code>levy_lien_697_710</code>, <code>exam_lien_708_120c</code>) and <code>clock_effect: "expire"</code> — queryable, not just visual.</li>
     <li><b>Party attribution via lanes.</b> Each event lives on Plaintiff, Defendant, Judgment Debtors, or Court — making the who-did-what answerable at a glance. Both old charts are party-blind.</li>
     <li><b>Per-event source citations</b> surfaced in tooltip (Slip op. p. 7, p. 13, fn. 3 etc.). The old extractor stores grounding_refs in JSON but does not surface them in the rendered chart.</li>
-    <li><b>Auto style selection.</b> The new chart skill picked dual-track automatically based on the 62/38 factual/procedural ratio. The old extractor renders one fixed style.</li>
+    <li><b>Three chart styles + auto selection.</b> The skill ships <strong>swimlane</strong> (parties as horizontal lanes), <strong>dual-track</strong> (facts vs procedure), and <strong>centered-axis</strong> (thin axis through the middle with density-weighted time and width-aware label packing). The auto-selector picks the best fit for the case; the old extractor renders one fixed style.</li>
+    <li><b>Density-weighted time axis</b> (centered-axis only). Each month's slice width is proportional to its event count, with both the compression ratio and the per-row vertical spacing derived from the data — sparse cases compress dramatically (up to 1:15), dense cases stay nearly linear (1:4).</li>
+    <li><b>Width-aware label packer with no-overlap guarantee.</b> The renderer estimates each label's pixel width and assigns rows so no two labels on the same side ever overlap horizontally, regardless of date density.</li>
   </ul>
 </section>
 
