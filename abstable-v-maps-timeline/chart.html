@@ -86,6 +86,16 @@
     text-transform: uppercase;
   }
   .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  /* Compressed (event-free) axis segments get a faint diagonal-stripe overlay */
+  .axis-compressed {
+    fill: var(--axis);
+    opacity: 0.25;
+  }
+  .month-label.busy {
+    fill: var(--ink);
+    opacity: 0.9;
+    font-weight: 700;
+  }
   .track-label {
     font-size: 11px;
     font-weight: 700;
@@ -187,7 +197,7 @@
 
 <div class="legend" id="legend"></div>
 
-<footer>Centered-axis · Events above the date bar are <strong>facts</strong> (kind: fact / external); events below are <strong>procedure</strong> (filings, rulings, discovery, settlement). Dot color = party. Hover for source citations.</footer>
+<footer>Centered-axis · <strong>Facts</strong> above the axis, <strong>procedure</strong> below. Dot color = party. <strong>Time axis is density-weighted</strong>: empty months are compressed (faint amber segments), busy months expand (bold month labels). Hover for source citations.</footer>
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -971,7 +981,57 @@ const width  = 1800;
 const dates = events.map(e => e._d);
 const minDate = d3.timeDay.offset(d3.min(dates), -30);
 const maxDate = d3.timeDay.offset(d3.max(dates), 30);
-const x = d3.scaleTime().domain([minDate, maxDate]).range([margin.left, width - margin.right]);
+
+// -------------------- DENSITY-WEIGHTED TIME AXIS --------------------
+// Replace a linear time scale with a piecewise-linear one whose monthly slice
+// width is proportional to event density. Empty months shrink to BASE_WEIGHT;
+// each event in a month adds PER_EVENT to the slice's weight, capped at
+// MAX_WEIGHT so a single super-packed month can't dominate the whole axis.
+const BASE_WEIGHT = 0.35;   // weight for a month with zero events
+const PER_EVENT   = 0.55;   // additional weight per event in that month
+const MAX_WEIGHT  = 3.2;    // upper cap so a busy month stays readable but bounded
+
+const monthList = d3.timeMonths(
+  d3.timeMonth.floor(minDate),
+  d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1)
+);
+const eventsPerMonth = new Map();
+events.forEach(e => {
+  const key = +d3.timeMonth.floor(e._d);
+  eventsPerMonth.set(key, (eventsPerMonth.get(key) || 0) + 1);
+});
+const monthWeights = monthList.map(m => {
+  const c = eventsPerMonth.get(+m) || 0;
+  return Math.min(MAX_WEIGHT, BASE_WEIGHT + c * PER_EVENT);
+});
+const totalWeight = d3.sum(monthWeights);
+const axisStart = margin.left;
+const axisEnd   = width - margin.right;
+const axisRange = axisEnd - axisStart;
+
+// Pre-compute each month's left/right x boundary on the axis
+const monthBoundaries = [axisStart];
+{
+  let cum = 0;
+  for (let i = 0; i < monthWeights.length; i++) {
+    cum += monthWeights[i];
+    monthBoundaries.push(axisStart + (cum / totalWeight) * axisRange);
+  }
+}
+
+// x() maps any date to an x-pixel by interpolating linearly within its month slice.
+// Dates before the first month or after the last get clamped to the axis ends.
+function x(date) {
+  const monthStart = d3.timeMonth.floor(date);
+  let idx = -1;
+  for (let i = 0; i < monthList.length; i++) {
+    if (+monthList[i] === +monthStart) { idx = i; break; }
+  }
+  if (idx === -1) return date < monthList[0] ? monthBoundaries[0] : monthBoundaries[monthBoundaries.length - 1];
+  const monthEnd = d3.timeMonth.offset(monthStart, 1);
+  const frac = (date - monthStart) / (monthEnd - monthStart);
+  return monthBoundaries[idx] + frac * (monthBoundaries[idx + 1] - monthBoundaries[idx]);
+}
 
 // ---------- Lane lookup (for color/short-name) ----------
 const laneById = new Map((DATA.lanes || []).map(l => [l.id, l]));
@@ -1116,22 +1176,39 @@ if (rowsBelow > 0) {
     .attr("text-anchor", "end").text("PROCEDURE");
 }
 
-const months = d3.timeMonths(d3.timeMonth.floor(minDate), d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1));
-months.forEach(m => {
-  const cx = x(m);
+// Highlight compressed (empty / sparse) axis segments with a fainter overlay
+// so the reader can see where time has been visually shortened.
+const COMPRESS_THRESHOLD = BASE_WEIGHT + PER_EVENT * 0.5; // anything below this is "sparse"
+monthList.forEach((m, i) => {
+  if (monthWeights[i] <= COMPRESS_THRESHOLD) {
+    svg.append("rect").attr("class", "axis-compressed")
+      .attr("x", monthBoundaries[i])
+      .attr("y", axisY - 3)
+      .attr("width", monthBoundaries[i + 1] - monthBoundaries[i])
+      .attr("height", 6);
+  }
+});
+
+// Month ticks at every month boundary
+monthList.forEach((m, i) => {
+  const cx = monthBoundaries[i];
   svg.append("line").attr("class", "month-tick")
     .attr("x1", cx).attr("x2", cx)
     .attr("y1", axisY - 5).attr("y2", axisY + 5);
 });
 
-const labelEvery = months.length > 30 ? 6 : (months.length > 15 ? 2 : 1);
-months.filter((_, i) => i % labelEvery === 0).forEach(m => {
+// Month labels: cadence depends on total month count, but ALWAYS label busy
+// months (weight above threshold) so readers can identify the activity peaks.
+const labelEvery = monthList.length > 30 ? 6 : (monthList.length > 15 ? 2 : 1);
+monthList.forEach((m, i) => {
+  const isBusy = monthWeights[i] > COMPRESS_THRESHOLD;
+  if (!isBusy && i % labelEvery !== 0) return;
   const cx = x(m);
   const isJan = m.getMonth() === 0;
-  svg.append("text").attr("class", "month-label")
+  svg.append("text").attr("class", "month-label" + (isBusy ? " busy" : ""))
     .attr("x", cx).attr("y", axisY + 22)
     .text(d3.timeFormat("%b")(m));
-  if (isJan && labelEvery <= 2) {
+  if (isJan) {
     svg.append("text").attr("class", "month-label")
       .attr("x", cx).attr("y", axisY + 36)
       .style("font-size", "10.5px").style("opacity", 0.8)
