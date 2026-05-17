@@ -390,16 +390,20 @@
     padding: 0;
     cursor: default;
   }
-  /* Mermaid SVGs: scale to fit viewport width, allow horizontal scroll if they exceed */
-  .zoom-modal .zoom-stage > .mermaid {
-    min-width: 100%;
-    padding: 24px;
+  /* Mermaid SVGs: scale to fit viewport width, allow vertical scroll if they're tall */
+  .zoom-modal .zoom-stage > .mermaid-enlarged {
+    width: 100%;
+    min-height: 100%;
+    padding: 32px;
     background: white;
+    box-sizing: border-box;
     display: block;
   }
-  .zoom-modal .zoom-stage > .mermaid svg {
-    min-width: 100%;
+  .zoom-modal .zoom-stage > .mermaid-enlarged svg {
+    display: block;
+    width: 100%;
     height: auto;
+    max-width: none;
   }
   /* Swimlane iframe: physically scaled up 1.5x via transform, wrapped in a sized container
      so the stage gets BOTH horizontal AND vertical scrollbars on the enlarged content. */
@@ -2058,12 +2062,15 @@ renderEvents(); renderDisputes(); renderConnectors();
           const svgClone = mermaidSvg.cloneNode(true);
           svgClone.removeAttribute('width');
           svgClone.removeAttribute('height');
-          svgClone.style.width = '100%';
-          svgClone.style.height = 'auto';
-          svgClone.style.maxHeight = 'calc(100vh - 130px)';
-          stage.appendChild(svgClone);
+          svgClone.removeAttribute('style');
+          const wrap = document.createElement('div');
+          wrap.className = 'mermaid-enlarged';
+          wrap.appendChild(svgClone);
+          stage.appendChild(wrap);
         } else if (mermaidPre) {
-          stage.appendChild(mermaidPre.cloneNode(true));
+          const preClone = mermaidPre.cloneNode(true);
+          preClone.classList.add('mermaid-enlarged');
+          stage.appendChild(preClone);
         }
 
         modal.classList.add('open');
