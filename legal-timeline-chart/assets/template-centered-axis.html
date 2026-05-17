@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>__CASE_CAPTION__ — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #d8d4cc;
+    --axis: #c98826;
+    --year-fill: #c98826;
+    --month-fill: #8a6420;
+    --stem: #b3a99a;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 24px 32px;
+  }
+  header { max-width: 1800px; margin: 0 auto 12px auto; }
+  h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+  .case-meta {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 auto 8px auto;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 auto 14px auto;
+    text-align: center;
+    max-width: 1000px;
+    line-height: 1.45;
+  }
+  .style-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10.5px;
+    font-weight: 500;
+    background: #fdf2dc;
+    color: #8a6420;
+    border-radius: 10px;
+    vertical-align: middle;
+    margin-left: 8px;
+    letter-spacing: 0.02em;
+  }
+  #chart-wrap {
+    max-width: 1800px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: auto;
+    padding: 8px;
+  }
+  svg { display: block; margin: 0 auto; }
+
+  .axis-line { stroke: var(--axis); stroke-width: 2.5px; }
+  .year-label {
+    font-size: 22px;
+    font-weight: 700;
+    fill: var(--year-fill);
+    dominant-baseline: middle;
+    letter-spacing: 0.04em;
+  }
+  .month-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--month-fill);
+    text-anchor: middle;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  .event-dot { stroke: white; stroke-width: 2px; }
+  .event-stem { stroke: var(--stem); stroke-width: 1px; }
+  .event-date {
+    font-size: 11.5px;
+    font-weight: 700;
+    fill: #8a4423;
+    text-anchor: middle;
+  }
+  .event-date.flag { fill: var(--ink); }
+  .event-date.disputed { fill: var(--dispute); }
+  .event-label {
+    font-size: 12px;
+    fill: var(--ink);
+    text-anchor: middle;
+  }
+  .event-label.italic {
+    font-style: italic;
+    font-weight: 600;
+    fill: #888;
+    font-size: 12px;
+  }
+  .event-group { cursor: pointer; }
+  .event-group:hover .event-shape { filter: brightness(1.08); }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #1a1a1a;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    max-width: 320px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 10;
+  }
+  .tooltip strong { color: #ffe066; display: block; margin-bottom: 4px; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  .legend {
+    max-width: 1800px;
+    margin: 16px auto 0 auto;
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    justify-content: center;
+  }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  footer {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .warnings {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    padding: 10px 14px;
+    background: #fffaf0;
+    border: 1px solid #f6e05e;
+    border-left: 3px solid #d69e2e;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #744210;
+  }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
+</style>
+</head>
+<body>
+<header>
+  <h1>__CASE_CAPTION__<span class="style-pill">__CHART_STYLE__</span></h1>
+  <p class="case-meta">__CASE_COURT__ · __CASE_DOCKET__</p>
+  <p class="subtitle">__CASE_SUMMARY__</p>
+</header>
+
+__WARNINGS_HTML__
+
+<div id="chart-wrap"></div>
+
+<div class="legend" id="legend"></div>
+
+<footer>Centered-axis zigzag · Each colored dot is one event, color = party; stem and label alternate above and below the date axis. Hover for source citations.</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = /* __TIMELINE_DATA__ */;
+
+// ---------- Parse + sort events chronologically ----------
+const parseDate = d3.timeParse("%Y-%m-%d");
+const fmtDateShort = d3.timeFormat("%m/%d/%y");
+const fmtDateLong  = d3.timeFormat("%B %d, %Y");
+
+const events = (DATA.events || []).map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d).sort((a, b) => a._d - b._d);
+
+// Assign sides: alternate above/below by chronological index.
+events.forEach((e, i) => { e._side = (i % 2 === 0) ? "above" : "below"; });
+
+// ---------- Layout constants ----------
+const margin = { top: 60, right: 120, bottom: 60, left: 120 };
+const width  = 1800;
+const height = 900;
+const axisY  = height / 2;
+
+// Date domain: pad 30 days on either side
+const dates = events.map(e => e._d);
+const minDate = d3.timeDay.offset(d3.min(dates), -30);
+const maxDate = d3.timeDay.offset(d3.max(dates), 30);
+const x = d3.scaleTime().domain([minDate, maxDate]).range([margin.left, width - margin.right]);
+
+// ---------- SVG ----------
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet");
+
+// ---------- Thin axis line ----------
+const axisX0 = x(minDate);
+const axisX1 = x(maxDate);
+svg.append("line")
+  .attr("class", "axis-line")
+  .attr("x1", axisX0).attr("x2", axisX1)
+  .attr("y1", axisY).attr("y2", axisY)
+  .attr("stroke-linecap", "round");
+
+// ---------- Year + month labels ----------
+const yearsInRange = d3.timeYears(d3.timeYear.floor(minDate), d3.timeYear.offset(d3.timeYear.floor(maxDate), 1));
+const yearStart = d3.timeYear.floor(minDate);
+const yearEnd   = d3.timeYear.offset(d3.timeYear.floor(maxDate), 1);
+
+// Show first and last year as big amber labels at axis ends
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX0 - 16).attr("y", axisY)
+  .attr("text-anchor", "end").text(d3.timeFormat("%Y")(minDate));
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX1 + 16).attr("y", axisY)
+  .attr("text-anchor", "start").text(d3.timeFormat("%Y")(maxDate));
+
+// Month ticks across the axis
+const months = d3.timeMonths(d3.timeMonth.floor(minDate), d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1));
+months.forEach(m => {
+  const cx = x(m);
+  svg.append("line").attr("class", "month-tick")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY - 5).attr("y2", axisY + 5);
+});
+
+// Pick label cadence based on total span: more months → sparser labels
+const labelEvery = months.length > 30 ? 6 : (months.length > 15 ? 2 : 1);
+months.filter((_, i) => i % labelEvery === 0).forEach(m => {
+  const cx = x(m);
+  const isJan = m.getMonth() === 0;
+  svg.append("text").attr("class", "month-label")
+    .attr("x", cx).attr("y", axisY + 22)
+    .text(d3.timeFormat("%b")(m));
+  if (isJan && labelEvery <= 2) {
+    svg.append("text").attr("class", "month-label")
+      .attr("x", cx).attr("y", axisY + 36)
+      .style("font-size", "10.5px").style("opacity", 0.8)
+      .text(d3.timeFormat("%Y")(m));
+  }
+});
+
+// ---------- Lane lookup (for color/short-name) ----------
+const laneById = new Map((DATA.lanes || []).map(l => [l.id, l]));
+const partyById = new Map((DATA.parties || []).map(p => [p.id, p]));
+const sourceById = new Map((DATA.sources || []).map(s => [s.id, s]));
+
+function colorForEvent(e) {
+  const lane = laneById.get(e.lane_id);
+  return (lane && lane.color) || "#666";
+}
+
+function shortLabel(e) {
+  return e.label || "(unlabeled)";
+}
+
+// ---------- Row assignment (zigzag) ----------
+// On each side, events alternate between row 0 (short stem) and row 1 (long stem);
+// if two adjacent events in the same row would collide horizontally, the later one
+// is bumped to a third fallback row.
+const rowStemDist = [55, 165, 270];
+const MIN_GAP = 150;
+
+function assignRowsOnSide(sideKey) {
+  const list = events.filter(e => e._side === sideKey);
+  const lastXByRow = [-Infinity, -Infinity, -Infinity];
+  list.forEach((e, i) => {
+    e._x = x(e._d);
+    let preferred = i % 2;
+    if (e._x - lastXByRow[preferred] >= MIN_GAP) {
+      e._row = preferred;
+    } else {
+      const other = preferred === 0 ? 1 : 0;
+      e._row = (e._x - lastXByRow[other] >= MIN_GAP) ? other : 2;
+    }
+    lastXByRow[e._row] = e._x;
+  });
+}
+assignRowsOnSide("above");
+assignRowsOnSide("below");
+
+// ---------- Dots on the axis ----------
+events.forEach(e => {
+  svg.append("circle")
+    .attr("class", "event-dot")
+    .attr("cx", e._x).attr("cy", axisY).attr("r", 5)
+    .attr("fill", colorForEvent(e));
+});
+
+// ---------- Word wrap helper ----------
+function wrap(text, maxLen) {
+  const words = (text || "").split(" ");
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length <= maxLen) cur = (cur + " " + w).trim();
+    else { if (cur) lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// ---------- Tooltip ----------
+const tooltip = d3.select("#tooltip");
+
+// ---------- Render each event ----------
+events.forEach(e => {
+  const cx = e._x;
+  const isAbove = e._side === "above";
+  const dir = isAbove ? -1 : 1;
+  const stemLen = rowStemDist[e._row] || rowStemDist[rowStemDist.length - 1];
+  const stemEndY = axisY + dir * stemLen;
+
+  // stem from the axis dot to the marker
+  svg.append("line").attr("class", "event-stem")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY + dir * 6)
+    .attr("y2", stemEndY + dir * -8);
+
+  // marker (small filled circle at the stem end)
+  const g = svg.append("g")
+    .attr("class", "event-group")
+    .attr("transform", `translate(${cx}, ${stemEndY})`)
+    .on("mouseover", () => {
+      const lane = laneById.get(e.lane_id);
+      const srcs = (e.source_ids || []).map(sid => sourceById.get(sid)).filter(Boolean);
+      const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+      const sig = e.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${e.jurisdictional_significance}</div>` : "";
+      tooltip.style("opacity", 1).html(
+        `<strong>${e.label}</strong>` +
+        `<div>${e.detail || ""}</div>` +
+        `<div class="meta">${(lane && lane.label) || e.lane_id} · ${fmtDateLong(e._d)}${e.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>` +
+        sig + srcHTML
+      );
+    })
+    .on("mousemove", (ev) => {
+      tooltip.style("left", (ev.pageX + 14) + "px").style("top", (ev.pageY + 14) + "px");
+    })
+    .on("mouseout", () => tooltip.style("opacity", 0));
+
+  g.append("circle").attr("class", "event-shape")
+    .attr("r", 7)
+    .attr("fill", colorForEvent(e))
+    .attr("stroke", e.disputed ? "var(--dispute)" : "white")
+    .attr("stroke-width", e.disputed ? 2 : 2)
+    .attr("stroke-dasharray", e.disputed ? "2 2" : null);
+
+  // date text and label text, placed past the marker (away from axis)
+  const lineH = 14;
+  const wrapped = wrap(shortLabel(e), 28);
+  const baseY = stemEndY + dir * 22;
+
+  if (isAbove) {
+    const labelTopY = baseY - (wrapped.length - 1) * lineH;
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", labelTopY + i * lineH).text(line);
+    });
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", labelTopY - lineH - 2)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+  } else {
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", baseY)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", baseY + lineH * (i + 1) + 2).text(line);
+    });
+  }
+});
+
+// ---------- Legend (one chip per lane) ----------
+const legendEl = document.getElementById("legend");
+(DATA.lanes || []).forEach(l => {
+  const item = document.createElement("span");
+  item.className = "item";
+  item.innerHTML = `<span class="swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}`;
+  legendEl.appendChild(item);
+});
+</script>
+</body>
+</html>

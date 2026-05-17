@@ -3,12 +3,15 @@
 Render legal-timeline JSON into a self-contained interactive HTML chart.
 
 Usage:
-    python3 render.py <input.json> <output.html> [--style swimlane|dual-track|auto]
+    python3 render.py <input.json> <output.html> [--style swimlane|dual-track|centered-axis|auto]
 
 Styles:
-    swimlane    Parties-as-lanes (default; best for "who did what when")
-    dual-track  Facts (top) vs Procedure (bottom) (best for appellate/SoL framing)
-    auto        Picks based on event composition (see chart-patterns.md)
+    swimlane        Parties-as-lanes (default; best for "who did what when")
+    dual-track      Facts (top) vs Procedure (bottom) (best for appellate/SoL framing)
+    centered-axis   Thin centered date bar with zigzag events above/below (best for
+                    linear, chronological narratives with ≤ ~25 events; lane colors
+                    are preserved on dots so party identity is still legible)
+    auto            Picks based on event composition (see chart-patterns.md)
 
 The script validates and auto-completes the input before rendering, and prints
 a report of the choices it made + any warnings to stdout.
@@ -291,7 +294,9 @@ def render(input_path, output_path, style_requested):
     style, reason = pick_style(data, style_requested)
     rendered_data = transform_for_dual_track(data) if style == "dual-track" else data
 
-    template_path = Path(__file__).resolve().parent.parent / "assets" / "template.html"
+    # Pick template by style: centered-axis uses a different layout
+    template_name = "template-centered-axis.html" if style == "centered-axis" else "template.html"
+    template_path = Path(__file__).resolve().parent.parent / "assets" / template_name
     if not template_path.exists():
         raise FileNotFoundError(f"Template not found at {template_path}")
     template = template_path.read_text()
@@ -325,7 +330,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("input", type=Path, help="Input JSON file")
     parser.add_argument("output", type=Path, help="Output HTML file")
-    parser.add_argument("--style", choices=["swimlane", "dual-track", "auto"], default="auto",
+    parser.add_argument("--style", choices=["swimlane", "dual-track", "centered-axis", "auto"], default="auto",
                         help="Chart style (default: auto)")
     args = parser.parse_args()
 
