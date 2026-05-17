@@ -77,6 +77,38 @@ If `kind` is missing on many events, the renderer should default and warn — bu
 
 ---
 
+## Pattern 3: Centered-axis
+
+A thin horizontal date axis runs through the middle of the chart. Events are placed above OR below the axis as colored markers connected to the axis by short vertical stems. There are no lanes — every event sits on the same time axis. Lane colors are preserved on the dots so party identity is still legible without giving each party its own track.
+
+### Use when
+
+- The case is a single linear narrative (one plaintiff, one defendant) — no per-party divergence to highlight
+- Event count is moderate (~10–30) — too few looks empty, too many overflows even with the packer
+- The story matters more than the actor — e.g., a medical-treatment chronology for a personal-injury complaint, a single-arc procedural history
+- The reader is consuming the chart visually (presentation slide, exhibit, brief illustration) rather than interactively querying it
+
+### Avoid when
+
+- Multi-party comparison is the point (use **Swimlane**)
+- Facts-vs-procedure separation is the point (use **Dual-track**)
+- You have > 30 events with long labels (the packer can place them, but the chart gets very tall)
+
+### Layout invariants
+
+The renderer uses a width-aware row packer to guarantee no two event labels overlap horizontally:
+
+1. Each event's label width is estimated from its wrapped text (`LABEL_WRAP_CHARS = 26` chars per line).
+2. For each event in chronological order, the packer finds the lowest-index row on each side (above / below the axis) whose previous label's right edge clears this event's left edge with a small gap (`MIN_LABEL_GAP_PX = 10`).
+3. The event is placed on whichever side has the lower best-fit row; ties alternate, so balanced data zigzags.
+4. The chart height is derived from the deepest row actually used on each side, so sparse timelines stay compact and dense ones grow vertically.
+
+### Data requirements
+
+Same as swimlane. Lane colors flow through to dot fill. If `lanes` is empty, every event renders in the same color.
+
+---
+
 ## Decision guide
 
 | If the user emphasizes... | Use |
@@ -85,6 +117,7 @@ If `kind` is missing on many events, the renderer should default and warn — bu
 | "The story of the case" / "what happened then sued" / "accrual" / "statute of limitations" | **Dual-track** |
 | "An appellate brief" / "the statement of the case" | **Dual-track** |
 | "Multiple parties" / "co-defendants" / "third-party witness" | **Swimlane** |
+| "A visual for a slide / brief exhibit" / "linear chronology" / "medical timeline" | **Centered-axis** |
 | Nothing in particular | **Swimlane** (safer default) |
 
 ### The 30/30 heuristic for auto-style
