@@ -941,26 +941,23 @@ const minDate = d3.timeDay.offset(d3.min(dates), -30);
 const maxDate = d3.timeDay.offset(d3.max(dates), 30);
 
 // -------------------- DENSITY-WEIGHTED TIME AXIS --------------------
-// Each calendar month is given a "weight" that determines its slice width
-// along the axis. The display-pixels-per-month ratio is therefore proportional
-// to event density, so:
-//   * empty months get squeezed (target ~ 1:15 compression vs. busiest)
-//   * busy months stretch out (target ~ 1:5 or less compression)
+// Each calendar month gets a "weight" that drives its slice width along the
+// axis. Empty months stay at a baseline of 1; busy months expand. All three
+// tuning knobs are DERIVED from the actual event distribution, not fixed:
 //
-// Tuning:
-//   BASE_WEIGHT = 1  → empty-month width (reference unit)
-//   PER_EVENT   = 4  → each event in a month adds this much
-//   MAX_WEIGHT  = 13 → upper cap (a single super-packed month stays bounded)
+//   emptyFraction       = portion of months with zero events
+//   maxEventsInAnyMonth = how event-dense the busiest month is
 //
-// Resulting per-month widths:
-//   0 events → 1   (baseline, very compressed)
-//   1 event  → 5   ( 5× empty   — matches user's "1:5" floor for busy)
-//   2 events → 9   ( 9× empty)
-//   3 events → 13  (13× empty  — at the cap, matches user's "1:15" ceiling)
-const BASE_WEIGHT = 1;
-const PER_EVENT   = 4;
-const MAX_WEIGHT  = 13;
-
+//   TARGET_RATIO  ∈ [4, 15]  - how much wider the busiest month is vs empty;
+//                              more empty time → more aggressive compression.
+//   BASE_WEIGHT   = 1        - normalized empty-month width.
+//   MAX_WEIGHT    = TARGET_RATIO
+//   PER_EVENT     calibrated so the busiest month hits MAX_WEIGHT exactly.
+//
+// Example case-by-case behavior:
+//   - Wanke (21 ev / 130 mo / ~85% empty, max 3 ev): ratio ≈ 13:1, dramatic.
+//   - Williams (20 ev / ~12 mo / dense, max 5 ev): ratio ≈ 5:1, gentle.
+//   - Shearson (10 ev / ~85 mo / sparse, max 1 ev): ratio ≈ 14:1, dramatic.
 const monthList = d3.timeMonths(
   d3.timeMonth.floor(minDate),
   d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1)
@@ -970,10 +967,19 @@ events.forEach(e => {
   const key = +d3.timeMonth.floor(e._d);
   eventsPerMonth.set(key, (eventsPerMonth.get(key) || 0) + 1);
 });
-const monthWeights = monthList.map(m => {
-  const c = eventsPerMonth.get(+m) || 0;
-  return Math.min(MAX_WEIGHT, BASE_WEIGHT + c * PER_EVENT);
-});
+const monthCounts = monthList.map(m => eventsPerMonth.get(+m) || 0);
+const emptyMonths = monthCounts.filter(c => c === 0).length;
+const emptyFraction = monthCounts.length ? emptyMonths / monthCounts.length : 0;
+const maxEventsInAnyMonth = Math.max(1, ...monthCounts);
+
+const TARGET_RATIO = Math.min(15, Math.max(4, 4 + 11 * emptyFraction));
+const BASE_WEIGHT  = 1;
+const MAX_WEIGHT   = TARGET_RATIO;
+const PER_EVENT    = (MAX_WEIGHT - BASE_WEIGHT) / maxEventsInAnyMonth;
+
+const monthWeights = monthCounts.map(c =>
+  Math.min(MAX_WEIGHT, BASE_WEIGHT + c * PER_EVENT)
+);
 const totalWeight = d3.sum(monthWeights);
 const axisStart = margin.left;
 const axisEnd   = width - margin.right;
@@ -1091,20 +1097,36 @@ function packEvents() {
 }
 const { rowsAbove, rowsBelow } = packEvents();
 
-// ---------- Vertical positioning ----------
-// Row 0 sits close to the axis; each successive row steps farther by ROW_STEP_PX.
-const ROW_BASE_PX = 55;
-const ROW_STEP_PX = 95;
-const LABEL_BLOCK_PX = 56; // height reserved for date + ~2 lines of label per row
-function stemLenForRow(rowIdx) {
-  return ROW_BASE_PX + rowIdx * ROW_STEP_PX;
+// ---------- Vertical positioning (row spacing derived from actual labels) ----------
+// Compute the worst-case label height we'll need on each side, so rows don't
+// crash into the row above them even when labels are long. lineH and dateH
+// are CSS-driven (12px label, 11.5px date, plus padding).
+const LINE_H_PX = 14;
+const DATE_H_PX = 16;
+const ROW_PADDING_PX = 18;       // breathing room between row stacks
+function maxLabelLinesOnSide(side) {
+  return events
+    .filter(e => e._side === side)
+    .reduce((m, e) => Math.max(m, wrap(e.label || "", LABEL_WRAP_CHARS).length), 1);
 }
+const aboveMaxLines = Math.max(1, maxLabelLinesOnSide("above"));
+const belowMaxLines = Math.max(1, maxLabelLinesOnSide("below"));
+const aboveRowStep  = aboveMaxLines * LINE_H_PX + DATE_H_PX + ROW_PADDING_PX;
+const belowRowStep  = belowMaxLines * LINE_H_PX + DATE_H_PX + ROW_PADDING_PX;
+const ROW_BASE_PX   = 50;
+function stemLenForRow(rowIdx, side) {
+  const step = (side === "above") ? aboveRowStep : belowRowStep;
+  return ROW_BASE_PX + rowIdx * step;
+}
+// label-block height for chart-height computation
+const LABEL_BLOCK_PX_ABOVE = aboveMaxLines * LINE_H_PX + DATE_H_PX;
+const LABEL_BLOCK_PX_BELOW = belowMaxLines * LINE_H_PX + DATE_H_PX;
 
 // Compute the chart height so even the deepest-row event has room for its label.
 const padBeyondLastLabel = 40;
-const aboveExtent = (rowsAbove === 0 ? 0 : stemLenForRow(rowsAbove - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
-const belowExtent = (rowsBelow === 0 ? 0 : stemLenForRow(rowsBelow - 1) + LABEL_BLOCK_PX) + padBeyondLastLabel;
-const minHalfHeight = 380;
+const aboveExtent = (rowsAbove === 0 ? 0 : stemLenForRow(rowsAbove - 1, "above") + LABEL_BLOCK_PX_ABOVE) + padBeyondLastLabel;
+const belowExtent = (rowsBelow === 0 ? 0 : stemLenForRow(rowsBelow - 1, "below") + LABEL_BLOCK_PX_BELOW) + padBeyondLastLabel;
+const minHalfHeight = 240;
 const aboveH = Math.max(aboveExtent, minHalfHeight);
 const belowH = Math.max(belowExtent, minHalfHeight);
 const height = margin.top + aboveH + belowH + margin.bottom;
@@ -1172,17 +1194,22 @@ monthList.forEach((m, i) => {
 // ---------- Greedy non-overlapping month-label placement ----------
 // Goal: never let two month labels overlap. Strategy:
 //   1. Lay down all *year* (January) labels first — highest priority.
-//   2. Then lay down busy-month labels (highest event count first) in any
-//      remaining gaps.
+//   2. Then lay down busy-month labels (highest event count first).
 //   3. Finally fill quiet regions with sparse-month labels at a regular
 //      cadence, skipping any that would collide.
-// Each label reserves a horizontal slot of width = LABEL_WIDTH_PX around its
-// center; we accept a candidate only if its slot doesn't overlap with any
-// already-placed slot.
-const LABEL_WIDTH_PX = 32;   // includes ~5px breathing room on each side
-const placedSlots = [];      // array of {x, width} already taken
+// Each label reserves a horizontal slot of `LABEL_SLOT_PX` around its center.
+// LABEL_SLOT_PX is itself derived from the chart's average pixels-per-month —
+// so dense compressed charts use a tight slot and sparse open charts get a
+// generous one, but every chart still satisfies the no-overlap invariant.
+const avgPxPerMonth = axisRange / monthList.length;
+const LABEL_SLOT_PX = Math.max(26, Math.min(56, Math.round(avgPxPerMonth * 1.6)));
+const sparseEvery = monthList.length > 80 ? 12
+                 : monthList.length > 40 ? 6
+                 : monthList.length > 18 ? 3
+                 : 1;
+const placedSlots = [];
 function fitsAt(cx) {
-  const halfW = LABEL_WIDTH_PX / 2;
+  const halfW = LABEL_SLOT_PX / 2;
   for (let i = 0; i < placedSlots.length; i++) {
     if (Math.abs(cx - placedSlots[i].x) < (halfW + placedSlots[i].width / 2)) return false;
   }
@@ -1190,7 +1217,7 @@ function fitsAt(cx) {
 }
 function placeLabel(cx, text, opts) {
   if (!fitsAt(cx)) return false;
-  placedSlots.push({ x: cx, width: LABEL_WIDTH_PX });
+  placedSlots.push({ x: cx, width: LABEL_SLOT_PX });
   const cls = "month-label" + (opts && opts.busy ? " busy" : "");
   svg.append("text").attr("class", cls)
     .attr("x", cx).attr("y", axisY + 22)
@@ -1223,7 +1250,6 @@ busyOrder.forEach(d => {
 });
 
 // Pass 3: sparse-region fill labels at a regular cadence (only if they fit)
-const sparseEvery = monthList.length > 60 ? 12 : (monthList.length > 30 ? 6 : 3);
 monthList.forEach((m, i) => {
   if (i % sparseEvery !== 0) return;
   if (m.getMonth() === 0) return; // already handled in pass 1
@@ -1248,7 +1274,7 @@ events.forEach(e => {
   const cx = e._x;
   const isAbove = e._side === "above";
   const dir = isAbove ? -1 : 1;
-  const stemLen = stemLenForRow(e._row);
+  const stemLen = stemLenForRow(e._row, e._side);
   const stemEndY = axisY + dir * stemLen;
 
   // stem from the axis dot to the marker
