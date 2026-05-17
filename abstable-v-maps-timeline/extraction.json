@@ -1,0 +1,611 @@
+{
+  "case": {
+    "id": "abstable_v_maps_2021",
+    "caption": "AB Stable VIII LLC v. MAPS Hotels and Resorts One LLC",
+    "court": "Del.",
+    "docket": "No. 71, 2021 (on appeal from C.A. No. 2020-0310, Del. Ch.)",
+    "jurisdiction": "Delaware",
+    "date_range": ["2018-06-01", "2022-03-31"],
+    "cause_of_action": [
+      "specific performance of Sale and Purchase Agreement",
+      "breach of contract (Ordinary Course Covenant)",
+      "breach of contract (title insurance closing condition)",
+      "fraud / breach of express and implied obligations (counterclaim)"
+    ],
+    "status": "judgment",
+    "summary": "AB Stable VIII LLC (Anbang-affiliated 'Seller') agreed to sell fifteen luxury U.S. hotels (the Strategic portfolio) to MAPS Hotels and Resorts One LLC (Mirae-affiliated 'Buyer') for $5.8 billion under a Sept. 10, 2019 Sale and Purchase Agreement. Closing was delayed by both fraudulent-deed problems on the underlying real estate and the COVID-19 pandemic. The Seller closed hotels, furloughed/laid off over 5,200 FTE employees, and made other drastic operational changes without Buyer consent. The Buyer terminated; the Seller sued in the Court of Chancery for specific performance. After an August 2020 expedited trial, the Court of Chancery (Laster, V.C., post-trial opinion Nov. 30, 2020) held the Seller breached the Ordinary Course Covenant and a title-insurance closing condition failed. The Delaware Supreme Court AFFIRMED on Dec. 8, 2021 (Seitz, C.J., en banc), resting on the Ordinary Course Covenant breach alone."
+  },
+  "parties": [
+    {
+      "id": "ab_stable",
+      "name": "AB Stable VIII LLC (Anbang-affiliated Seller)",
+      "short_name": "AB Stable / Seller",
+      "role": ["plaintiff", "appellant"],
+      "type": "llc",
+      "representation": [
+        "Richards, Layton & Finger, P.A. (DiCamillo, Gallagher, Clark, O'Toole)",
+        "Wachtell, Lipton, Rosen & Katz (Mirvis, Savitt, Eddy, McLeod)",
+        "Gibson, Dunn & Crutcher LLP (Olson, Tayrani, Offenhartz, King)"
+      ]
+    },
+    {
+      "id": "anbang",
+      "name": "Anbang Insurance Group (Seller's parent)",
+      "short_name": "Anbang",
+      "role": ["non_party"],
+      "type": "corporation"
+    },
+    {
+      "id": "maps_mirae",
+      "name": "MAPS Hotels and Resorts One LLC & Mirae Asset entities",
+      "short_name": "MAPS / Mirae / Buyer",
+      "role": ["defendant", "appellee", "counterclaim_plaintiff"],
+      "type": "llc",
+      "representation": [
+        "Abrams & Bayliss LLP (Bayliss, Barlow, Kirby, Childs)",
+        "Quinn Emanuel Urquhart & Sullivan, LLP (Sullivan, Carlinsky, Adams, Kercher, Baker, Beattie, Feder)",
+        "Peter & Kim Attorneys at Law (Kap-You Kim, Seoul)"
+      ]
+    },
+    {
+      "id": "strategic",
+      "name": "Strategic Hotels & Resorts (target company)",
+      "short_name": "Strategic",
+      "role": ["non_party"],
+      "type": "corporation"
+    },
+    {
+      "id": "court_chancery",
+      "name": "Delaware Court of Chancery (Laster, V.C.)",
+      "short_name": "Del. Ch.",
+      "role": ["court"],
+      "type": "court"
+    },
+    {
+      "id": "court_supreme",
+      "name": "Supreme Court of Delaware",
+      "short_name": "Del. Supreme Ct.",
+      "role": ["court"],
+      "type": "court"
+    },
+    {
+      "id": "zhou",
+      "name": "Hai Bin Zhou (perpetrator of fraudulent deeds)",
+      "short_name": "Zhou",
+      "role": ["non_party"],
+      "type": "individual"
+    },
+    {
+      "id": "draa_petitioners",
+      "name": "DRAA Petitioners",
+      "short_name": "DRAA Petitioners",
+      "role": ["third_party"],
+      "type": "unknown"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Seller / Appellant",
+      "sub": "AB Stable (Anbang)",
+      "party_id": "ab_stable",
+      "order": 1
+    },
+    {
+      "id": "defendant",
+      "label": "Buyer / Appellee",
+      "sub": "MAPS / Mirae",
+      "party_id": "maps_mirae",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "Del. Ch. → Del. Supreme Ct.",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_anbang_changes",
+      "label": "Anbang leadership changes & Chinese overseas-investment rules tighten",
+      "detail": "Following leadership changes in 2018 and new Chinese regulations restricting overseas investment, Anbang decided to divest its U.S. hotel holdings.",
+      "date_range": ["2018-01-01", "2018-12-31"],
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["anbang"],
+      "kind": "external",
+      "category": "regulation",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_anbang_knows_deeds",
+      "label": "Anbang aware of fraudulent deeds (Zhou)",
+      "detail": "By December 2018, Anbang knew about some of the fraudulent deeds purportedly transferring rights in the Strategic hotel properties to Zhou-affiliated entities. Anbang had been litigating with Zhou for over ten years in five countries.",
+      "date": "2018-12-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["anbang", "zhou"],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Anbang's pre-deal knowledge of the fraudulent-deed problem is central to fraud counterclaim and to the title-insurance closing-condition analysis.",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_bidding_opens",
+      "label": "Anbang opens bidding for Strategic portfolio",
+      "detail": "In April 2019 Anbang opened bidding for the Strategic Hotels & Resorts portfolio of fifteen luxury U.S. hotels.",
+      "date": "2019-04-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["anbang", "strategic"],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_first_round_bids",
+      "label": "17 first-round bidders submit",
+      "detail": "By early May 2019, Anbang received first-round bids from seventeen potential bidders, including the Mirae Asset entities.",
+      "date": "2019-05-05",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_greenberg_finds_deeds",
+      "label": "Greenberg Traurig identifies fraudulent deeds in title diligence",
+      "detail": "In July 2019, Mirae's counsel Greenberg Traurig identified the fraudulent deeds while reviewing title — but only nine months after Anbang itself had become aware of them in December 2018.",
+      "date": "2019-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "discovery",
+      "category": "production",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_mirae_final_bid",
+      "label": "Mirae's final bid: $5.8B for 100% of Strategic",
+      "detail": "On August 5, 2019, Mirae made its final bid — $5.8 billion to acquire a 100% interest in Strategic Hotels & Resorts.",
+      "date": "2019-08-05",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_draa_filed",
+      "label": "DRAA Chancery Action filed against Anbang",
+      "detail": "On August 20, 2019, the DRAA Petitioners filed an action in the Delaware Court of Chancery against Anbang and affiliated entities concerning rights to the Strategic hotels claimed in the fraudulent deeds. Gibson Dunn learned of the action the day it was filed but did not disclose it to Mirae or Greenberg Traurig.",
+      "date": "2019-08-20",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": ["draa_petitioners", "anbang"],
+      "kind": "external",
+      "category": "related_proceeding",
+      "jurisdictional_significance": "Non-disclosure of the DRAA Chancery Action by the Seller's counsel later figures in the Buyer's fraud counterclaim and in the failed title-insurance closing condition.",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_sale_agreement",
+      "label": "Sale and Purchase Agreement executed",
+      "detail": "On September 10, 2019 the Seller and Buyer executed the Sale and Purchase Agreement covering all 15 Strategic hotels for $5.8 billion. Closing was pushed off to allow time to quiet title against the fraudulent deeds and to permit Buyer to firm up debt financing. Title insurance commitments without an exception for the fraudulent deeds were a closing condition.",
+      "date": "2019-09-10",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": ["ab_stable", "maps_mirae"],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Establishes the Ordinary Course Covenant (§5.1) and the title-insurance closing condition; sets the Outside Date under the Temporal Termination Right.",
+      "source_ids": ["s_opinion", "s_sale_agreement"]
+    },
+    {
+      "id": "e_alameda_quiet_title",
+      "label": "Gibson Dunn files Alameda quiet-title actions",
+      "detail": "In September 2019, Gibson Dunn filed actions in Alameda County, California to quiet title to the Strategic hotels subject to the fraudulent deeds, hoping to resolve the issues in California.",
+      "date": "2019-09-25",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["anbang"],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_draa_filings_oct_nov",
+      "label": "DRAA Petitioners file purported response documents",
+      "detail": "In October and November 2019, Delaware attorneys representing the DRAA Petitioners filed documents in the DRAA Chancery Action purporting to be responses concerning the contested deeds.",
+      "date_range": ["2019-10-01", "2019-11-30"],
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["draa_petitioners"],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_zhou_recognition",
+      "label": "Zhou attorney requests recognition of California judgment",
+      "detail": "On December 6, 2019, an attorney associated with Zhou requested recognition of a California Judgment; Gibson Dunn and Anbang became aware of it later that month.",
+      "date": "2019-12-06",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": ["zhou", "anbang"],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_buyer_financing_ready",
+      "label": "Buyer ready to confirm debt financing",
+      "detail": "By mid-February 2020, after restarting its search for debt financing in December 2019, the Buyer was ready to confirm financing. On February 18, 2020, the Buyer received the final versions of the financing documents.",
+      "date": "2020-02-18",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_covid_hits",
+      "label": "COVID-19 disrupts hospitality industry",
+      "detail": "As the process stretched into March 2020, the novel coronavirus COVID-19 began to wreak havoc on the hospitality industry, with revenues and occupancy collapsing.",
+      "date_range": ["2020-03-01", "2020-05-31"],
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["strategic"],
+      "kind": "external",
+      "category": "media_event",
+      "jurisdictional_significance": "Pandemic risk allocation under the Material Adverse Effect provision is central to Seller's defense; Buyer alleges Seller's pandemic response breached the Ordinary Course Covenant.",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_hotel_closures",
+      "label": "Strategic closes / 'closed but open' / mass furloughs",
+      "detail": "Starting March 24, 2020, Strategic temporarily closed two hotels; the other thirteen operated as 'closed but open'. Strategic laid off or furloughed over 5,200 full-time-equivalent employees, deferred raises, and made other drastic operational changes — without obtaining Buyer's consent. Occupancy fell to 33.1% (March), 76.4%-decline (April) and 69%-decline (May) 2020.",
+      "date_range": ["2020-03-24", "2020-05-31"],
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": ["ab_stable", "strategic"],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Core breach of the Ordinary Course Covenant (§5.1) found by the Court of Chancery and affirmed by the Delaware Supreme Court.",
+      "source_ids": ["s_opinion", "s_chancery_opinion"]
+    },
+    {
+      "id": "e_buyer_notice_breach",
+      "label": "Buyer formal notice of breaches",
+      "detail": "On April 15, 2020, the Buyer gave formal notice that the Seller's drastic operational changes constituted breaches of the Sale Agreement.",
+      "date": "2020-04-15",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Triggers cure clock under the Sale Agreement's termination machinery.",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_anbang_emergency_motion",
+      "label": "Anbang emergency motion for DRAA Agreement",
+      "detail": "On April 16, 2020, Anbang filed an emergency motion in the Court of Chancery to obtain a copy of the DRAA Agreement, attempting to clear title issues.",
+      "date": "2020-04-16",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": ["anbang"],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_buyer_failure_to_close",
+      "label": "Scheduled closing fails; Buyer demands cure by May 2",
+      "detail": "April 17, 2020 was the scheduled closing date. The Buyer gave formal notice that the Seller had failed to close, identifying both the Ordinary Course Covenant breaches and the title-insurance condition failure. The Buyer warned that if the Seller did not cure by May 2, 2020, the Buyer could terminate the Sale Agreement.",
+      "date": "2020-04-17",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Starts the May 2, 2020 cure period that, when unfulfilled, ripens the Buyer's termination right.",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_seller_chancery_action",
+      "label": "Seller files Chancery action for specific performance",
+      "detail": "On April 27, 2020, Anbang and the Seller filed this action in the Delaware Court of Chancery (C.A. No. 2020-0310) seeking specific performance to compel the Buyer to perform under the Sale Agreement.",
+      "date": "2020-04-27",
+      "date_certainty": "exact",
+      "lane_id": "plaintiff",
+      "party_ids": ["ab_stable", "anbang", "maps_mirae"],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": ["s_chancery_compl"]
+    },
+    {
+      "id": "e_buyer_termination",
+      "label": "Buyer gives notice of termination",
+      "detail": "On May 3, 2020 — the day after the cure deadline — the Buyer gave notice of termination of the Sale Agreement on the grounds that the Seller had failed to cure its breaches.",
+      "date": "2020-05-03",
+      "date_certainty": "exact",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Formal exercise of contractual termination right that the courts ultimately upheld.",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_buyer_counterclaims",
+      "label": "Buyer files counterclaims (fraud, breach, condition failure)",
+      "detail": "Soon after termination, the Buyer filed counterclaims asserting that the Seller had failed to satisfy closing conditions, breached express and implied contractual obligations, and committed fraud (in connection with concealment of the fraudulent-deed litigation).",
+      "date": "2020-05-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["maps_mirae"],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_chancery_trial",
+      "label": "Expedited Chancery trial",
+      "detail": "The Court of Chancery held an expedited trial in August 2020 on the Seller's specific-performance claims and the Buyer's counterclaims.",
+      "date_range": ["2020-08-03", "2020-08-21"],
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["court_chancery", "ab_stable", "maps_mirae"],
+      "kind": "discovery",
+      "category": "testimony",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_chancery_opinion",
+      "label": "Chancery post-trial opinion: Buyer wins",
+      "detail": "On November 30, 2020, the Court of Chancery (Laster, V.C.) issued its post-trial opinion holding that the Seller breached the Ordinary Course Covenant by making 'extraordinary changes to its business' that 'departed radically from the normal and routine operation of the Hotels' without Buyer consent, and that the title-insurance closing condition failed because the title commitments contained an exception for the fraudulent deeds. The Seller's request for specific performance was denied; the Buyer was entitled to terminate.",
+      "date": "2020-11-30",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["court_chancery"],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Trial-court judgment that the Buyer could terminate — supplies the 'first principles' M&A-litigation reading of an ordinary-course covenant during a pandemic.",
+      "source_ids": ["s_chancery_opinion"]
+    },
+    {
+      "id": "e_oral_argument",
+      "label": "Oral argument at Delaware Supreme Court",
+      "detail": "September 15, 2021 — case Submitted to the en banc Delaware Supreme Court (Seitz, C.J., Valihura, Vaughn, Traynor, Montgomery-Reeves, JJ.). William Savitt argued for Appellant; Kathleen Sullivan argued for Appellees.",
+      "date": "2021-09-15",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["court_supreme", "ab_stable", "maps_mirae"],
+      "kind": "filing",
+      "category": "argument",
+      "source_ids": ["s_opinion"]
+    },
+    {
+      "id": "e_supreme_affirms",
+      "label": "Delaware Supreme Court AFFIRMS",
+      "detail": "Decided December 8, 2021. Seitz, C.J., for an en banc Court: the Seller's drastic, unilateral pandemic response without Buyer consent breached the Ordinary Course Covenant. Because the Ordinary Course Covenant breach is dispositive, the Court did not reach the title-insurance closing condition. Judgment AFFIRMED; Buyer was entitled to terminate.",
+      "date": "2021-12-08",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["court_supreme"],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Authoritative Delaware appellate guidance on ordinary-course covenants in M&A — a 'flat ordinary course' covenant is not impliedly relaxed by a pandemic, and the buyer's consent right is enforceable.",
+      "source_ids": ["s_opinion"]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_anbang_changes_to_bidding",
+      "from_event_id": "e_anbang_changes",
+      "to_event_id": "e_bidding_opens",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_bidding_to_first_round",
+      "from_event_id": "e_bidding_opens",
+      "to_event_id": "e_first_round_bids",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_first_round_to_final_bid",
+      "from_event_id": "e_first_round_bids",
+      "to_event_id": "e_mirae_final_bid",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_anbang_knows_to_draa",
+      "from_event_id": "e_anbang_knows_deeds",
+      "to_event_id": "e_draa_filed",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Anbang's long-running litigation with Zhou foreshadows the DRAA Chancery Action filed shortly before signing."
+    },
+    {
+      "id": "r_greenberg_to_sale",
+      "from_event_id": "e_greenberg_finds_deeds",
+      "to_event_id": "e_sale_agreement",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "Identification of the fraudulent deeds caused the parties to push closing out and to make title insurance free of the fraudulent-deed exception a closing condition."
+    },
+    {
+      "id": "r_mirae_bid_to_sale",
+      "from_event_id": "e_mirae_final_bid",
+      "to_event_id": "e_sale_agreement",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_draa_to_alameda",
+      "from_event_id": "e_draa_filed",
+      "to_event_id": "e_alameda_quiet_title",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Gibson Dunn pursued the Alameda quiet-title actions in part to short-circuit the DRAA Chancery Action."
+    },
+    {
+      "id": "r_alameda_to_draa_oct_nov",
+      "from_event_id": "e_alameda_quiet_title",
+      "to_event_id": "e_draa_filings_oct_nov",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_draa_oct_to_zhou",
+      "from_event_id": "e_draa_filings_oct_nov",
+      "to_event_id": "e_zhou_recognition",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_sale_to_financing",
+      "from_event_id": "e_sale_agreement",
+      "to_event_id": "e_buyer_financing_ready",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_covid_to_closures",
+      "from_event_id": "e_covid_hits",
+      "to_event_id": "e_hotel_closures",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Seller's drastic operational changes were ostensibly a response to the pandemic — the dispositive question on appeal."
+    },
+    {
+      "id": "r_sale_to_closures_breach",
+      "from_event_id": "e_sale_agreement",
+      "to_event_id": "e_hotel_closures",
+      "type": "contradicts",
+      "strength": "adjudicated",
+      "detail": "The hotel closures, mass furloughs, and operational changes were ultimately held to be inconsistent with the Ordinary Course Covenant (§5.1)."
+    },
+    {
+      "id": "r_closures_to_notice",
+      "from_event_id": "e_hotel_closures",
+      "to_event_id": "e_buyer_notice_breach",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_notice_to_emergency",
+      "from_event_id": "e_buyer_notice_breach",
+      "to_event_id": "e_anbang_emergency_motion",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_notice_to_failure_close",
+      "from_event_id": "e_buyer_notice_breach",
+      "to_event_id": "e_buyer_failure_to_close",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_failure_to_cure_clock",
+      "from_event_id": "e_buyer_failure_to_close",
+      "to_event_id": "e_buyer_termination",
+      "type": "tolls",
+      "strength": "adjudicated",
+      "detail": "The April 17 notice started the May 2 cure clock; failure to cure ripened the Buyer's termination right exercised May 3.",
+      "clock_id": "cure_period_april17",
+      "clock_effect": "start"
+    },
+    {
+      "id": "r_failure_to_seller_action",
+      "from_event_id": "e_buyer_failure_to_close",
+      "to_event_id": "e_seller_chancery_action",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Seller responded to the threatened termination by suing for specific performance."
+    },
+    {
+      "id": "r_seller_action_to_termination",
+      "from_event_id": "e_seller_chancery_action",
+      "to_event_id": "e_buyer_termination",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_termination_to_counterclaims",
+      "from_event_id": "e_buyer_termination",
+      "to_event_id": "e_buyer_counterclaims",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_counterclaims_to_trial",
+      "from_event_id": "e_buyer_counterclaims",
+      "to_event_id": "e_chancery_trial",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_trial_to_opinion",
+      "from_event_id": "e_chancery_trial",
+      "to_event_id": "e_chancery_opinion",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_chancery_to_argument",
+      "from_event_id": "e_chancery_opinion",
+      "to_event_id": "e_oral_argument",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_argument_to_supreme",
+      "from_event_id": "e_oral_argument",
+      "to_event_id": "e_supreme_affirms",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_supreme_references_chancery",
+      "from_event_id": "e_chancery_opinion",
+      "to_event_id": "e_supreme_affirms",
+      "type": "references",
+      "strength": "adjudicated",
+      "detail": "Supreme Court affirmed Chancery's Ordinary Course Covenant ruling and did not reach the title-insurance ground."
+    }
+  ],
+  "disputes": [],
+  "sources": [
+    {
+      "id": "s_opinion",
+      "type": "opinion",
+      "citation": "AB Stable VIII LLC v. MAPS Hotels & Resorts One LLC, No. 71, 2021 (Del. Dec. 8, 2021) (en banc) (Seitz, C.J.)"
+    },
+    {
+      "id": "s_chancery_opinion",
+      "type": "opinion",
+      "citation": "AB Stable VIII LLC v. MAPS Hotels & Resorts One LLC, 2020 WL 7024929 (Del. Ch. Nov. 30, 2020) (Laster, V.C.)"
+    },
+    {
+      "id": "s_chancery_compl",
+      "type": "pleading",
+      "citation": "Verified Complaint, AB Stable VIII LLC v. MAPS Hotels & Resorts One LLC, C.A. No. 2020-0310 (Del. Ch. Apr. 27, 2020)"
+    },
+    {
+      "id": "s_sale_agreement",
+      "type": "contract",
+      "citation": "Sale and Purchase Agreement § 5.1 (Sept. 10, 2019)"
+    }
+  ]
+}
