@@ -328,6 +328,77 @@
     .charts, .callouts, .feature-grid { grid-template-columns: 1fr; }
     iframe.chart-frame { height: 600px; }
   }
+
+  /* --- Click-to-enlarge modal --- */
+  .chart-card { cursor: zoom-in; transition: box-shadow 0.15s ease, transform 0.15s ease; }
+  .chart-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .chart-card .zoom-hint {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 10.5px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.9);
+    padding: 2px 7px;
+    border-radius: 10px;
+    border: 1px solid var(--rule);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+  }
+  .chart-card { position: relative; }
+  .chart-card:hover .zoom-hint { opacity: 1; }
+
+  .zoom-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 20, 0.85);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    padding: 24px;
+    cursor: zoom-out;
+    backdrop-filter: blur(4px);
+  }
+  .zoom-modal.open { display: flex; }
+  .zoom-modal .zoom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fafaf7;
+    font-size: 12.5px;
+    margin-bottom: 10px;
+    cursor: default;
+  }
+  .zoom-modal .zoom-title { font-weight: 600; }
+  .zoom-modal .zoom-close {
+    background: rgba(255,255,255,0.12);
+    color: #fafaf7;
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .zoom-modal .zoom-close:hover { background: rgba(255,255,255,0.22); }
+  .zoom-modal .zoom-stage {
+    flex: 1;
+    background: var(--paper);
+    border-radius: 6px;
+    overflow: auto;
+    padding: 20px;
+    cursor: default;
+  }
+  .zoom-modal .zoom-stage > iframe,
+  .zoom-modal .zoom-stage > .mermaid {
+    width: 100%;
+    min-height: 100%;
+    border: 0;
+    background: white;
+  }
+  .zoom-modal .zoom-stage > iframe { height: calc(100vh - 110px); }
+  body.zoom-open { overflow: hidden; }
 </style>
 </head>
 <body>
@@ -1919,6 +1990,75 @@ renderEvents(); renderDisputes(); renderConnectors();
       fontFamily: "ui-sans-serif, -apple-system, system-ui, sans-serif"
     }
   });
+</script>
+
+<!-- Click-to-enlarge modal -->
+<div class="zoom-modal" id="zoomModal" role="dialog" aria-modal="true" aria-label="Enlarged chart">
+  <div class="zoom-bar">
+    <span class="zoom-title" id="zoomTitle"></span>
+    <button class="zoom-close" type="button" aria-label="Close">Close (Esc)</button>
+  </div>
+  <div class="zoom-stage" id="zoomStage"></div>
+</div>
+
+<script>
+  (function () {
+    const modal = document.getElementById('zoomModal');
+    const stage = document.getElementById('zoomStage');
+    const title = document.getElementById('zoomTitle');
+    const closeBtn = modal.querySelector('.zoom-close');
+
+    document.querySelectorAll('.chart-card').forEach(card => {
+      const hint = document.createElement('span');
+      hint.className = 'zoom-hint';
+      hint.textContent = 'Click to enlarge';
+      card.appendChild(hint);
+
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('a, button')) return;
+        const heading = card.querySelector('h3');
+        title.textContent = heading ? heading.textContent.trim() : 'Chart';
+        stage.innerHTML = '';
+
+        const iframe = card.querySelector('iframe.chart-frame');
+        const mermaidSvg = card.querySelector('.mermaid svg');
+        const mermaidPre = card.querySelector('.mermaid');
+
+        if (iframe) {
+          const clone = iframe.cloneNode(true);
+          clone.removeAttribute('style');
+          stage.appendChild(clone);
+        } else if (mermaidSvg) {
+          const svgClone = mermaidSvg.cloneNode(true);
+          svgClone.removeAttribute('width');
+          svgClone.removeAttribute('height');
+          svgClone.style.width = '100%';
+          svgClone.style.height = 'auto';
+          svgClone.style.maxHeight = 'calc(100vh - 130px)';
+          stage.appendChild(svgClone);
+        } else if (mermaidPre) {
+          stage.appendChild(mermaidPre.cloneNode(true));
+        }
+
+        modal.classList.add('open');
+        document.body.classList.add('zoom-open');
+      });
+    });
+
+    function closeModal() {
+      modal.classList.remove('open');
+      document.body.classList.remove('zoom-open');
+      stage.innerHTML = '';
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+  })();
 </script>
 </body>
 </html>
