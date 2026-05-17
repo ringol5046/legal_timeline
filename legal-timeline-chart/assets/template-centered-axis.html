@@ -454,23 +454,67 @@ monthList.forEach((m, i) => {
     .attr("y1", axisY - 5).attr("y2", axisY + 5);
 });
 
-// Month labels: cadence depends on total month count, but ALWAYS label busy
-// months (weight above threshold) so readers can identify the activity peaks.
-const labelEvery = monthList.length > 30 ? 6 : (monthList.length > 15 ? 2 : 1);
-monthList.forEach((m, i) => {
-  const isBusy = monthWeights[i] > COMPRESS_THRESHOLD;
-  if (!isBusy && i % labelEvery !== 0) return;
-  const cx = x(m);
-  const isJan = m.getMonth() === 0;
-  svg.append("text").attr("class", "month-label" + (isBusy ? " busy" : ""))
+// ---------- Greedy non-overlapping month-label placement ----------
+// Goal: never let two month labels overlap. Strategy:
+//   1. Lay down all *year* (January) labels first — highest priority.
+//   2. Then lay down busy-month labels (highest event count first) in any
+//      remaining gaps.
+//   3. Finally fill quiet regions with sparse-month labels at a regular
+//      cadence, skipping any that would collide.
+// Each label reserves a horizontal slot of width = LABEL_WIDTH_PX around its
+// center; we accept a candidate only if its slot doesn't overlap with any
+// already-placed slot.
+const LABEL_WIDTH_PX = 32;   // includes ~5px breathing room on each side
+const placedSlots = [];      // array of {x, width} already taken
+function fitsAt(cx) {
+  const halfW = LABEL_WIDTH_PX / 2;
+  for (let i = 0; i < placedSlots.length; i++) {
+    if (Math.abs(cx - placedSlots[i].x) < (halfW + placedSlots[i].width / 2)) return false;
+  }
+  return true;
+}
+function placeLabel(cx, text, opts) {
+  if (!fitsAt(cx)) return false;
+  placedSlots.push({ x: cx, width: LABEL_WIDTH_PX });
+  const cls = "month-label" + (opts && opts.busy ? " busy" : "");
+  svg.append("text").attr("class", cls)
     .attr("x", cx).attr("y", axisY + 22)
-    .text(d3.timeFormat("%b")(m));
-  if (isJan) {
+    .text(text);
+  if (opts && opts.isJan) {
     svg.append("text").attr("class", "month-label")
       .attr("x", cx).attr("y", axisY + 36)
       .style("font-size", "10.5px").style("opacity", 0.8)
-      .text(d3.timeFormat("%Y")(m));
+      .text(opts.year);
   }
+  return true;
+}
+
+// Pass 1: all Januaries (year markers)
+monthList.forEach((m, i) => {
+  if (m.getMonth() === 0) {
+    placeLabel(monthBoundaries[i] + (monthBoundaries[i + 1] - monthBoundaries[i]) / 2,
+      d3.timeFormat("%b")(m), { isJan: true, year: d3.timeFormat("%Y")(m) });
+  }
+});
+
+// Pass 2: busy months (sorted by descending event count so peaks always label)
+const busyOrder = monthList
+  .map((m, i) => ({ m, i, c: eventsPerMonth.get(+m) || 0 }))
+  .filter(d => d.c > 0)
+  .sort((a, b) => b.c - a.c);
+busyOrder.forEach(d => {
+  const cx = monthBoundaries[d.i] + (monthBoundaries[d.i + 1] - monthBoundaries[d.i]) / 2;
+  placeLabel(cx, d3.timeFormat("%b")(d.m), { busy: true });
+});
+
+// Pass 3: sparse-region fill labels at a regular cadence (only if they fit)
+const sparseEvery = monthList.length > 60 ? 12 : (monthList.length > 30 ? 6 : 3);
+monthList.forEach((m, i) => {
+  if (i % sparseEvery !== 0) return;
+  if (m.getMonth() === 0) return; // already handled in pass 1
+  if ((eventsPerMonth.get(+m) || 0) > 0) return; // already handled in pass 2
+  const cx = monthBoundaries[i] + (monthBoundaries[i + 1] - monthBoundaries[i]) / 2;
+  placeLabel(cx, d3.timeFormat("%b")(m), {});
 });
 
 // ---------- Dots on the axis ----------
