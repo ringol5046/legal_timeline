@@ -1,0 +1,347 @@
+{
+  "case": {
+    "id": "shearson_v_mcmahon_1987",
+    "caption": "Shearson/American Express Inc. v. McMahon",
+    "court": "U.S.",
+    "docket": "No. 86-44",
+    "jurisdiction": "federal",
+    "date_range": ["1980-01-01", "1987-09-30"],
+    "cause_of_action": [
+      "Securities Exchange Act §10(b) / SEC Rule 10b-5 (antifraud)",
+      "RICO 18 U.S.C. §1962(c)",
+      "common-law fraud",
+      "breach of fiduciary duty"
+    ],
+    "status": "judgment",
+    "summary": "Customers (the McMahons) sued their brokerage (Shearson/American Express) and its representative for fraudulent excessive trading, alleging §10(b)/Rule 10b-5, RICO, and state-law claims. Brokers moved to compel arbitration under FAA §3, relying on a predispute arbitration clause in the customer agreements. The District Court compelled arbitration of the Exchange Act and state claims but kept RICO; the Second Circuit reversed as to §10(b) and affirmed as to RICO. The Supreme Court reversed and remanded, holding both the §10(b) and RICO claims arbitrable under the FAA."
+  },
+  "parties": [
+    {
+      "id": "shearson",
+      "name": "Shearson/American Express Inc.",
+      "short_name": "Shearson",
+      "role": ["defendant", "petitioner"],
+      "type": "corporation",
+      "representation": ["Theodore A. Krebsbach"]
+    },
+    {
+      "id": "mcnulty",
+      "name": "Mary Ann McNulty",
+      "short_name": "McNulty",
+      "role": ["defendant", "petitioner"],
+      "type": "individual",
+      "representation": ["Theodore A. Krebsbach"]
+    },
+    {
+      "id": "mcmahons",
+      "name": "Eugene and Julia McMahon (individually and as trustees)",
+      "short_name": "McMahons",
+      "role": ["plaintiff", "respondent"],
+      "type": "individual",
+      "representation": ["Theodore G. Eppenstein", "Madelaine Eppenstein"]
+    },
+    {
+      "id": "court_sdny",
+      "name": "U.S. District Court for the Southern District of New York",
+      "short_name": "S.D.N.Y.",
+      "role": ["court"],
+      "type": "court"
+    },
+    {
+      "id": "court_ca2",
+      "name": "U.S. Court of Appeals for the Second Circuit",
+      "short_name": "2d Cir.",
+      "role": ["court"],
+      "type": "court"
+    },
+    {
+      "id": "court_scotus",
+      "name": "Supreme Court of the United States",
+      "short_name": "SCOTUS",
+      "role": ["court"],
+      "type": "court"
+    },
+    {
+      "id": "sec",
+      "name": "Securities and Exchange Commission",
+      "short_name": "SEC",
+      "role": ["regulator", "non_party"],
+      "type": "agency"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Plaintiff / Respondent",
+      "sub": "McMahons",
+      "party_id": "mcmahons",
+      "order": 1
+    },
+    {
+      "id": "defendant",
+      "label": "Defendant / Petitioner",
+      "sub": "Shearson & McNulty",
+      "party_id": "shearson",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "S.D.N.Y. → 2d Cir. → SCOTUS",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_customer_relationship",
+      "label": "McMahons are Shearson customers",
+      "detail": "Between 1980 and 1982, Eugene and Julia McMahon, individually and as trustees for various pension and profit-sharing plans, maintained accounts with Shearson; Mary Ann McNulty was the registered representative handling those accounts.",
+      "date_range": ["1980-01-01", "1982-12-31"],
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["mcmahons", "shearson", "mcnulty"],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": ["s_opinion_p222"]
+    },
+    {
+      "id": "e_arbitration_agreements",
+      "label": "Julia McMahon signs two customer agreements w/ arbitration clause",
+      "detail": "Two customer agreements signed by Julia McMahon provided that any controversy arising out of or relating to the accounts would be settled by arbitration under NASD, NYSE, or AMEX rules. This is the predispute arbitration clause at the heart of the appeal.",
+      "date_range": ["1980-01-01", "1982-12-31"],
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["mcmahons", "shearson"],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Predispute arbitration clause; enforceability under FAA §3 is the central issue on appeal.",
+      "source_ids": ["s_opinion_p222", "s_fsupp_385"]
+    },
+    {
+      "id": "e_alleged_fraud",
+      "label": "Alleged fraudulent / excessive trading by McNulty",
+      "detail": "The McMahons allege that McNulty, with Shearson's knowledge, engaged in fraudulent and excessive (churning) trading on their accounts and made false statements and material omissions in advising them — conduct underlying the §10(b)/Rule 10b-5 and RICO claims.",
+      "date_range": ["1980-01-01", "1984-09-30"],
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["mcnulty", "shearson"],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Underlying conduct giving rise to §10(b)/Rule 10b-5 and RICO claims.",
+      "source_ids": ["s_compl"],
+      "confidence": "medium"
+    },
+    {
+      "id": "e_amended_complaint",
+      "label": "McMahons file amended complaint in S.D.N.Y.",
+      "detail": "In October 1984 the McMahons filed an amended complaint in the U.S. District Court for the Southern District of New York alleging violations of §10(b) of the Exchange Act and SEC Rule 10b-5, civil RICO under 18 U.S.C. §1962(c), and state-law fraud and breach-of-fiduciary-duty claims.",
+      "date": "1984-10-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["mcmahons", "shearson", "mcnulty"],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": ["s_opinion_p222"]
+    },
+    {
+      "id": "e_mtc_arbitration",
+      "label": "Defendants move to compel arbitration under FAA §3",
+      "detail": "Relying on the customer agreements, Shearson and McNulty moved under §3 of the Federal Arbitration Act, 9 U.S.C. §3, to compel arbitration of the McMahons' claims and stay the District Court action.",
+      "date": "1984-12-01",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["shearson", "mcnulty"],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": ["s_opinion_p222"]
+    },
+    {
+      "id": "e_dct_order",
+      "label": "S.D.N.Y. compels arbitration of §10(b) & state claims; denies as to RICO",
+      "detail": "The District Court (618 F. Supp. 384 (S.D.N.Y. 1985)) granted the motion in part: it rejected the contracts-of-adhesion challenge, held the §10(b) claims arbitrable under Dean Witter Reynolds Inc. v. Byrd, 470 U.S. 213 (1985), and held the state-law claims likewise arbitrable, but concluded the RICO claim was not arbitrable in light of the federal interests in RICO enforcement.",
+      "date": "1985-08-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["court_sdny"],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": ["s_fsupp_384"]
+    },
+    {
+      "id": "e_ca2_decision",
+      "label": "2d Cir. reverses on §10(b); affirms on RICO",
+      "detail": "The Second Circuit (788 F.2d 94 (2d Cir. 1986)) affirmed the District Court as to the state-law and RICO claims (RICO not arbitrable on public-policy grounds — the 'private attorney general' rationale) but reversed as to the Exchange Act §10(b) claims, applying the rule of Wilko v. Swan, 346 U.S. 427 (1953), to hold §10(b) claims nonarbitrable.",
+      "date": "1986-04-21",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["court_ca2"],
+      "kind": "ruling",
+      "category": "opinion",
+      "source_ids": ["s_788f2d_94"]
+    },
+    {
+      "id": "e_cert_granted",
+      "label": "SCOTUS grants certiorari",
+      "detail": "The Supreme Court granted certiorari, 479 U.S. 812 (1986), to resolve a circuit conflict over the arbitrability of §10(b) and RICO claims pursued under predispute customer arbitration agreements.",
+      "date": "1986-10-06",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["court_scotus"],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": ["s_479us_812"]
+    },
+    {
+      "id": "e_oral_argument",
+      "label": "Oral argument at SCOTUS",
+      "detail": "Argued March 3, 1987. Theodore A. Krebsbach for petitioners; Richard G. Taranto for the United States as amicus curiae urging reversal; Theodore G. Eppenstein for respondents.",
+      "date": "1987-03-03",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["court_scotus", "shearson", "mcmahons"],
+      "kind": "filing",
+      "category": "argument",
+      "source_ids": ["s_opinion_p220"]
+    },
+    {
+      "id": "e_scotus_decision",
+      "label": "SCOTUS: §10(b) AND RICO claims arbitrable — reversed & remanded",
+      "detail": "Decided June 8, 1987. O'Connor, J., for the Court. Held: (1) the FAA establishes a federal policy favoring arbitration, and the burden is on the party opposing arbitration to show Congress intended to preclude waiver of a judicial forum; (2) §10(b) Exchange Act claims are arbitrable — §29(a) bars only waiver of substantive obligations, not jurisdiction under §27, and Wilko v. Swan does not control given changes in SEC oversight of arbitration; (3) civil RICO §1964(c) claims are arbitrable — nothing in RICO's text or history evinces congressional intent to exclude them, and the private-attorney-general rationale does not create an irreconcilable conflict with arbitration. Reversed and remanded.",
+      "date": "1987-06-08",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["court_scotus"],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Overrules circuit authority refusing to compel arbitration of §10(b) and RICO claims; together with Rodriguez de Quijas (1989), establishes broad enforceability of predispute customer arbitration clauses in securities disputes.",
+      "source_ids": ["s_opinion_p220", "s_opinion_p242"]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_agreements_to_fraud",
+      "from_event_id": "e_arbitration_agreements",
+      "to_event_id": "e_alleged_fraud",
+      "type": "references",
+      "strength": "alleged",
+      "detail": "The customer agreements that contain the arbitration clause governed the same accounts on which the alleged churning and fraud occurred."
+    },
+    {
+      "id": "r_fraud_to_complaint",
+      "from_event_id": "e_alleged_fraud",
+      "to_event_id": "e_amended_complaint",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "The McMahons sued in response to the alleged fraudulent and excessive trading by McNulty / Shearson."
+    },
+    {
+      "id": "r_complaint_to_mtc",
+      "from_event_id": "e_amended_complaint",
+      "to_event_id": "e_mtc_arbitration",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Shearson and McNulty responded to the amended complaint by moving to compel arbitration under FAA §3."
+    },
+    {
+      "id": "r_mtc_to_dct",
+      "from_event_id": "e_mtc_arbitration",
+      "to_event_id": "e_dct_order",
+      "type": "response",
+      "strength": "adjudicated",
+      "detail": "The District Court's order ruled on the motion to compel arbitration, granting it in part and denying it as to the RICO claim."
+    },
+    {
+      "id": "r_dct_to_ca2",
+      "from_event_id": "e_dct_order",
+      "to_event_id": "e_ca2_decision",
+      "type": "response",
+      "strength": "adjudicated",
+      "detail": "The Second Circuit reviewed and partly reversed the District Court's order."
+    },
+    {
+      "id": "r_ca2_to_cert",
+      "from_event_id": "e_ca2_decision",
+      "to_event_id": "e_cert_granted",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Cert was granted to review the Second Circuit's decision and resolve a circuit split."
+    },
+    {
+      "id": "r_cert_to_argument",
+      "from_event_id": "e_cert_granted",
+      "to_event_id": "e_oral_argument",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_argument_to_decision",
+      "from_event_id": "e_oral_argument",
+      "to_event_id": "e_scotus_decision",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_scotus_supersedes_ca2",
+      "from_event_id": "e_ca2_decision",
+      "to_event_id": "e_scotus_decision",
+      "type": "supersedes",
+      "strength": "adjudicated",
+      "detail": "The Supreme Court reversed and remanded the Second Circuit's judgment on both the §10(b) and RICO holdings."
+    },
+    {
+      "id": "r_agreements_to_mtc",
+      "from_event_id": "e_arbitration_agreements",
+      "to_event_id": "e_mtc_arbitration",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "The motion to compel arbitration relied on the arbitration clause in the customer agreements."
+    }
+  ],
+  "disputes": [],
+  "sources": [
+    {
+      "id": "s_opinion_p220",
+      "type": "opinion",
+      "citation": "482 U. S. 220 (1987)",
+      "page": "220"
+    },
+    {
+      "id": "s_opinion_p222",
+      "type": "opinion",
+      "citation": "482 U. S. 220, 222 (1987)",
+      "page": "222"
+    },
+    {
+      "id": "s_opinion_p242",
+      "type": "opinion",
+      "citation": "482 U. S. 220, 242 (1987)",
+      "page": "242"
+    },
+    {
+      "id": "s_fsupp_384",
+      "type": "opinion",
+      "citation": "618 F. Supp. 384 (S.D.N.Y. 1985)"
+    },
+    {
+      "id": "s_fsupp_385",
+      "type": "opinion",
+      "citation": "618 F. Supp. 384, 385 (S.D.N.Y. 1985)",
+      "page": "385"
+    },
+    {
+      "id": "s_788f2d_94",
+      "type": "opinion",
+      "citation": "788 F. 2d 94 (2d Cir. 1986)"
+    },
+    {
+      "id": "s_479us_812",
+      "type": "order",
+      "citation": "479 U. S. 812 (1986)"
+    },
+    {
+      "id": "s_compl",
+      "type": "pleading",
+      "citation": "Am. Compl. (S.D.N.Y. Oct. 1984)"
+    }
+  ]
+}

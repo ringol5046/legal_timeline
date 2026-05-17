@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AB Stable VIII LLC v. MAPS Hotels and Resorts One LLC — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .leader { stroke: var(--rule); stroke-width: 0.6px; }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 9.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 8.5px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.2px; fill: none; stroke-dasharray: 3 2; opacity: 0.75; }
+  .dispute-marker { font-size: 14px; fill: var(--dispute); font-weight: 600; }
+  .dispute-label { font-size: 10px; fill: var(--dispute); font-style: italic; }
+  .cluster { cursor: pointer; }
+  .cluster:hover .cluster-bg { stroke-width: 3px; }
+  .cluster-bg { stroke: white; stroke-width: 2px; transition: stroke-width 120ms ease; }
+  .cluster-count { font-size: 11px; font-weight: 700; fill: white; pointer-events: none; }
+  .cluster-month { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+  .style-pill { display: inline-block; padding: 2px 8px; font-size: 10.5px; font-weight: 500; background: #edf2f7; color: #2d3748; border-radius: 10px; vertical-align: middle; margin-left: 8px; letter-spacing: 0.02em; }
+  .warnings { max-width: 1280px; margin-top: 12px; padding: 10px 14px; background: #fffaf0; border: 1px solid #f6e05e; border-left: 3px solid #d69e2e; border-radius: 4px; font-size: 12px; color: #744210; }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AB Stable VIII LLC v. MAPS Hotels and Resorts One LLC<span class="style-pill">Dual Track</span> <span style="color:var(--muted);font-weight:400">— Del. · No. 71, 2021 (on appeal from C.A. No. 2020-0310, Del. Ch.)</span></h1>
+  <p class="subtitle">AB Stable VIII LLC (Anbang-affiliated 'Seller') agreed to sell fifteen luxury U.S. hotels (the Strategic portfolio) to MAPS Hotels and Resorts One LLC (Mirae-affiliated 'Buyer') for $5.8 billion under a Sept. 10, 2019 Sale and Purchase Agreement. Closing was delayed by both fraudulent-deed problems on the underlying real estate and the COVID-19 pandemic. The Seller closed hotels, furloughed/laid off over 5,200 FTE employees, and made other drastic operational changes without Buyer consent. The Buyer terminated; the Seller sued in the Court of Chancery for specific performance. After an August 2020 expedited trial, the Court of Chancery (Laster, V.C., post-trial opinion Nov. 30, 2020) held the Seller breached the Ordinary Course Covenant and a title-insurance closing condition failed. The Delaware Supreme Court AFFIRMED on Dec. 8, 2021 (Seitz, C.J., en banc), resting on the Ordinary Course Covenant breach alone.</p>
+</header>
+
+
+
+<div class="controls" id="controls"></div>
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "abstable_v_maps_2021",
+    "caption": "AB Stable VIII LLC v. MAPS Hotels and Resorts One LLC",
+    "court": "Del.",
+    "docket": "No. 71, 2021 (on appeal from C.A. No. 2020-0310, Del. Ch.)",
+    "jurisdiction": "Delaware",
+    "date_range": [
+      "2018-06-01",
+      "2022-03-31"
+    ],
+    "cause_of_action": [
+      "specific performance of Sale and Purchase Agreement",
+      "breach of contract (Ordinary Course Covenant)",
+      "breach of contract (title insurance closing condition)",
+      "fraud / breach of express and implied obligations (counterclaim)"
+    ],
+    "status": "judgment",
+    "summary": "AB Stable VIII LLC (Anbang-affiliated 'Seller') agreed to sell fifteen luxury U.S. hotels (the Strategic portfolio) to MAPS Hotels and Resorts One LLC (Mirae-affiliated 'Buyer') for $5.8 billion under a Sept. 10, 2019 Sale and Purchase Agreement. Closing was delayed by both fraudulent-deed problems on the underlying real estate and the COVID-19 pandemic. The Seller closed hotels, furloughed/laid off over 5,200 FTE employees, and made other drastic operational changes without Buyer consent. The Buyer terminated; the Seller sued in the Court of Chancery for specific performance. After an August 2020 expedited trial, the Court of Chancery (Laster, V.C., post-trial opinion Nov. 30, 2020) held the Seller breached the Ordinary Course Covenant and a title-insurance closing condition failed. The Delaware Supreme Court AFFIRMED on Dec. 8, 2021 (Seitz, C.J., en banc), resting on the Ordinary Course Covenant breach alone."
+  },
+  "parties": [
+    {
+      "id": "ab_stable",
+      "name": "AB Stable VIII LLC (Anbang-affiliated Seller)",
+      "short_name": "AB Stable / Seller",
+      "role": [
+        "plaintiff",
+        "appellant"
+      ],
+      "type": "llc",
+      "representation": [
+        "Richards, Layton & Finger, P.A. (DiCamillo, Gallagher, Clark, O'Toole)",
+        "Wachtell, Lipton, Rosen & Katz (Mirvis, Savitt, Eddy, McLeod)",
+        "Gibson, Dunn & Crutcher LLP (Olson, Tayrani, Offenhartz, King)"
+      ]
+    },
+    {
+      "id": "anbang",
+      "name": "Anbang Insurance Group (Seller's parent)",
+      "short_name": "Anbang",
+      "role": [
+        "non_party"
+      ],
+      "type": "corporation"
+    },
+    {
+      "id": "maps_mirae",
+      "name": "MAPS Hotels and Resorts One LLC & Mirae Asset entities",
+      "short_name": "MAPS / Mirae / Buyer",
+      "role": [
+        "defendant",
+        "appellee",
+        "counterclaim_plaintiff"
+      ],
+      "type": "llc",
+      "representation": [
+        "Abrams & Bayliss LLP (Bayliss, Barlow, Kirby, Childs)",
+        "Quinn Emanuel Urquhart & Sullivan, LLP (Sullivan, Carlinsky, Adams, Kercher, Baker, Beattie, Feder)",
+        "Peter & Kim Attorneys at Law (Kap-You Kim, Seoul)"
+      ]
+    },
+    {
+      "id": "strategic",
+      "name": "Strategic Hotels & Resorts (target company)",
+      "short_name": "Strategic",
+      "role": [
+        "non_party"
+      ],
+      "type": "corporation"
+    },
+    {
+      "id": "court_chancery",
+      "name": "Delaware Court of Chancery (Laster, V.C.)",
+      "short_name": "Del. Ch.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "court_supreme",
+      "name": "Supreme Court of Delaware",
+      "short_name": "Del. Supreme Ct.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "zhou",
+      "name": "Hai Bin Zhou (perpetrator of fraudulent deeds)",
+      "short_name": "Zhou",
+      "role": [
+        "non_party"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "draa_petitioners",
+      "name": "DRAA Petitioners",
+      "short_name": "DRAA Petitioners",
+      "role": [
+        "third_party"
+      ],
+      "type": "unknown"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "facts",
+      "label": "Facts",
+      "sub": "What happened",
+      "color": "#2b6cb0",
+      "order": 0
+    },
+    {
+      "id": "procedure",
+      "label": "Procedure",
+      "sub": "What the court did",
+      "color": "#4a5568",
+      "order": 1
+    }
+  ],
+  "events": [
+    {
+      "id": "e_anbang_changes",
+      "label": "Anbang leadership changes & Chinese overseas-investment rules tighten",
+      "detail": "Following leadership changes in 2018 and new Chinese regulations restricting overseas investment, Anbang decided to divest its U.S. hotel holdings.",
+      "date_range": [
+        "2018-01-01",
+        "2018-12-31"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "anbang"
+      ],
+      "kind": "external",
+      "category": "regulation",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_anbang_knows_deeds",
+      "label": "Anbang aware of fraudulent deeds (Zhou)",
+      "detail": "By December 2018, Anbang knew about some of the fraudulent deeds purportedly transferring rights in the Strategic hotel properties to Zhou-affiliated entities. Anbang had been litigating with Zhou for over ten years in five countries.",
+      "date": "2018-12-15",
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "anbang",
+        "zhou"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Anbang's pre-deal knowledge of the fraudulent-deed problem is central to fraud counterclaim and to the title-insurance closing-condition analysis.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_bidding_opens",
+      "label": "Anbang opens bidding for Strategic portfolio",
+      "detail": "In April 2019 Anbang opened bidding for the Strategic Hotels & Resorts portfolio of fifteen luxury U.S. hotels.",
+      "date": "2019-04-15",
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "anbang",
+        "strategic"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_first_round_bids",
+      "label": "17 first-round bidders submit",
+      "detail": "By early May 2019, Anbang received first-round bids from seventeen potential bidders, including the Mirae Asset entities.",
+      "date": "2019-05-05",
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_greenberg_finds_deeds",
+      "label": "Greenberg Traurig identifies fraudulent deeds in title diligence",
+      "detail": "In July 2019, Mirae's counsel Greenberg Traurig identified the fraudulent deeds while reviewing title \u2014 but only nine months after Anbang itself had become aware of them in December 2018.",
+      "date": "2019-07-15",
+      "date_certainty": "approximate",
+      "lane_id": "procedure",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "discovery",
+      "category": "production",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_mirae_final_bid",
+      "label": "Mirae's final bid: $5.8B for 100% of Strategic",
+      "detail": "On August 5, 2019, Mirae made its final bid \u2014 $5.8 billion to acquire a 100% interest in Strategic Hotels & Resorts.",
+      "date": "2019-08-05",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_draa_filed",
+      "label": "DRAA Chancery Action filed against Anbang",
+      "detail": "On August 20, 2019, the DRAA Petitioners filed an action in the Delaware Court of Chancery against Anbang and affiliated entities concerning rights to the Strategic hotels claimed in the fraudulent deeds. Gibson Dunn learned of the action the day it was filed but did not disclose it to Mirae or Greenberg Traurig.",
+      "date": "2019-08-20",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "draa_petitioners",
+        "anbang"
+      ],
+      "kind": "external",
+      "category": "related_proceeding",
+      "jurisdictional_significance": "Non-disclosure of the DRAA Chancery Action by the Seller's counsel later figures in the Buyer's fraud counterclaim and in the failed title-insurance closing condition.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_sale_agreement",
+      "label": "Sale and Purchase Agreement executed",
+      "detail": "On September 10, 2019 the Seller and Buyer executed the Sale and Purchase Agreement covering all 15 Strategic hotels for $5.8 billion. Closing was pushed off to allow time to quiet title against the fraudulent deeds and to permit Buyer to firm up debt financing. Title insurance commitments without an exception for the fraudulent deeds were a closing condition.",
+      "date": "2019-09-10",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "ab_stable",
+        "maps_mirae"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Establishes the Ordinary Course Covenant (\u00a75.1) and the title-insurance closing condition; sets the Outside Date under the Temporal Termination Right.",
+      "source_ids": [
+        "s_opinion",
+        "s_sale_agreement"
+      ]
+    },
+    {
+      "id": "e_alameda_quiet_title",
+      "label": "Gibson Dunn files Alameda quiet-title actions",
+      "detail": "In September 2019, Gibson Dunn filed actions in Alameda County, California to quiet title to the Strategic hotels subject to the fraudulent deeds, hoping to resolve the issues in California.",
+      "date": "2019-09-25",
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "anbang"
+      ],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_draa_filings_oct_nov",
+      "label": "DRAA Petitioners file purported response documents",
+      "detail": "In October and November 2019, Delaware attorneys representing the DRAA Petitioners filed documents in the DRAA Chancery Action purporting to be responses concerning the contested deeds.",
+      "date_range": [
+        "2019-10-01",
+        "2019-11-30"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "draa_petitioners"
+      ],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_zhou_recognition",
+      "label": "Zhou attorney requests recognition of California judgment",
+      "detail": "On December 6, 2019, an attorney associated with Zhou requested recognition of a California Judgment; Gibson Dunn and Anbang became aware of it later that month.",
+      "date": "2019-12-06",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "zhou",
+        "anbang"
+      ],
+      "kind": "external",
+      "category": "related_proceeding",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_buyer_financing_ready",
+      "label": "Buyer ready to confirm debt financing",
+      "detail": "By mid-February 2020, after restarting its search for debt financing in December 2019, the Buyer was ready to confirm financing. On February 18, 2020, the Buyer received the final versions of the financing documents.",
+      "date": "2020-02-18",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_covid_hits",
+      "label": "COVID-19 disrupts hospitality industry",
+      "detail": "As the process stretched into March 2020, the novel coronavirus COVID-19 began to wreak havoc on the hospitality industry, with revenues and occupancy collapsing.",
+      "date_range": [
+        "2020-03-01",
+        "2020-05-31"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "strategic"
+      ],
+      "kind": "external",
+      "category": "media_event",
+      "jurisdictional_significance": "Pandemic risk allocation under the Material Adverse Effect provision is central to Seller's defense; Buyer alleges Seller's pandemic response breached the Ordinary Course Covenant.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_hotel_closures",
+      "label": "Strategic closes / 'closed but open' / mass furloughs",
+      "detail": "Starting March 24, 2020, Strategic temporarily closed two hotels; the other thirteen operated as 'closed but open'. Strategic laid off or furloughed over 5,200 full-time-equivalent employees, deferred raises, and made other drastic operational changes \u2014 without obtaining Buyer's consent. Occupancy fell to 33.1% (March), 76.4%-decline (April) and 69%-decline (May) 2020.",
+      "date_range": [
+        "2020-03-24",
+        "2020-05-31"
+      ],
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "ab_stable",
+        "strategic"
+      ],
+      "kind": "fact",
+      "category": "breach",
+      "jurisdictional_significance": "Core breach of the Ordinary Course Covenant (\u00a75.1) found by the Court of Chancery and affirmed by the Delaware Supreme Court.",
+      "source_ids": [
+        "s_opinion",
+        "s_chancery_opinion"
+      ]
+    },
+    {
+      "id": "e_buyer_notice_breach",
+      "label": "Buyer formal notice of breaches",
+      "detail": "On April 15, 2020, the Buyer gave formal notice that the Seller's drastic operational changes constituted breaches of the Sale Agreement.",
+      "date": "2020-04-15",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Triggers cure clock under the Sale Agreement's termination machinery.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_anbang_emergency_motion",
+      "label": "Anbang emergency motion for DRAA Agreement",
+      "detail": "On April 16, 2020, Anbang filed an emergency motion in the Court of Chancery to obtain a copy of the DRAA Agreement, attempting to clear title issues.",
+      "date": "2020-04-16",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "anbang"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_buyer_failure_to_close",
+      "label": "Scheduled closing fails; Buyer demands cure by May 2",
+      "detail": "April 17, 2020 was the scheduled closing date. The Buyer gave formal notice that the Seller had failed to close, identifying both the Ordinary Course Covenant breaches and the title-insurance condition failure. The Buyer warned that if the Seller did not cure by May 2, 2020, the Buyer could terminate the Sale Agreement.",
+      "date": "2020-04-17",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Starts the May 2, 2020 cure period that, when unfulfilled, ripens the Buyer's termination right.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_seller_chancery_action",
+      "label": "Seller files Chancery action for specific performance",
+      "detail": "On April 27, 2020, Anbang and the Seller filed this action in the Delaware Court of Chancery (C.A. No. 2020-0310) seeking specific performance to compel the Buyer to perform under the Sale Agreement.",
+      "date": "2020-04-27",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "ab_stable",
+        "anbang",
+        "maps_mirae"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_chancery_compl"
+      ]
+    },
+    {
+      "id": "e_buyer_termination",
+      "label": "Buyer gives notice of termination",
+      "detail": "On May 3, 2020 \u2014 the day after the cure deadline \u2014 the Buyer gave notice of termination of the Sale Agreement on the grounds that the Seller had failed to cure its breaches.",
+      "date": "2020-05-03",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "fact",
+      "category": "notice",
+      "jurisdictional_significance": "Formal exercise of contractual termination right that the courts ultimately upheld.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_buyer_counterclaims",
+      "label": "Buyer files counterclaims (fraud, breach, condition failure)",
+      "detail": "Soon after termination, the Buyer filed counterclaims asserting that the Seller had failed to satisfy closing conditions, breached express and implied contractual obligations, and committed fraud (in connection with concealment of the fraudulent-deed litigation).",
+      "date": "2020-05-15",
+      "date_certainty": "approximate",
+      "lane_id": "procedure",
+      "party_ids": [
+        "maps_mirae"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_chancery_trial",
+      "label": "Expedited Chancery trial",
+      "detail": "The Court of Chancery held an expedited trial in August 2020 on the Seller's specific-performance claims and the Buyer's counterclaims.",
+      "date_range": [
+        "2020-08-03",
+        "2020-08-21"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_chancery",
+        "ab_stable",
+        "maps_mirae"
+      ],
+      "kind": "discovery",
+      "category": "testimony",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_chancery_opinion",
+      "label": "Chancery post-trial opinion: Buyer wins",
+      "detail": "On November 30, 2020, the Court of Chancery (Laster, V.C.) issued its post-trial opinion holding that the Seller breached the Ordinary Course Covenant by making 'extraordinary changes to its business' that 'departed radically from the normal and routine operation of the Hotels' without Buyer consent, and that the title-insurance closing condition failed because the title commitments contained an exception for the fraudulent deeds. The Seller's request for specific performance was denied; the Buyer was entitled to terminate.",
+      "date": "2020-11-30",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_chancery"
+      ],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Trial-court judgment that the Buyer could terminate \u2014 supplies the 'first principles' M&A-litigation reading of an ordinary-course covenant during a pandemic.",
+      "source_ids": [
+        "s_chancery_opinion"
+      ]
+    },
+    {
+      "id": "e_oral_argument",
+      "label": "Oral argument at Delaware Supreme Court",
+      "detail": "September 15, 2021 \u2014 case Submitted to the en banc Delaware Supreme Court (Seitz, C.J., Valihura, Vaughn, Traynor, Montgomery-Reeves, JJ.). William Savitt argued for Appellant; Kathleen Sullivan argued for Appellees.",
+      "date": "2021-09-15",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_supreme",
+        "ab_stable",
+        "maps_mirae"
+      ],
+      "kind": "filing",
+      "category": "argument",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_supreme_affirms",
+      "label": "Delaware Supreme Court AFFIRMS",
+      "detail": "Decided December 8, 2021. Seitz, C.J., for an en banc Court: the Seller's drastic, unilateral pandemic response without Buyer consent breached the Ordinary Course Covenant. Because the Ordinary Course Covenant breach is dispositive, the Court did not reach the title-insurance closing condition. Judgment AFFIRMED; Buyer was entitled to terminate.",
+      "date": "2021-12-08",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_supreme"
+      ],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Authoritative Delaware appellate guidance on ordinary-course covenants in M&A \u2014 a 'flat ordinary course' covenant is not impliedly relaxed by a pandemic, and the buyer's consent right is enforceable.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_anbang_changes_to_bidding",
+      "from_event_id": "e_anbang_changes",
+      "to_event_id": "e_bidding_opens",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_bidding_to_first_round",
+      "from_event_id": "e_bidding_opens",
+      "to_event_id": "e_first_round_bids",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_first_round_to_final_bid",
+      "from_event_id": "e_first_round_bids",
+      "to_event_id": "e_mirae_final_bid",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_anbang_knows_to_draa",
+      "from_event_id": "e_anbang_knows_deeds",
+      "to_event_id": "e_draa_filed",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Anbang's long-running litigation with Zhou foreshadows the DRAA Chancery Action filed shortly before signing."
+    },
+    {
+      "id": "r_greenberg_to_sale",
+      "from_event_id": "e_greenberg_finds_deeds",
+      "to_event_id": "e_sale_agreement",
+      "type": "references",
+      "strength": "undisputed",
+      "detail": "Identification of the fraudulent deeds caused the parties to push closing out and to make title insurance free of the fraudulent-deed exception a closing condition."
+    },
+    {
+      "id": "r_mirae_bid_to_sale",
+      "from_event_id": "e_mirae_final_bid",
+      "to_event_id": "e_sale_agreement",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_draa_to_alameda",
+      "from_event_id": "e_draa_filed",
+      "to_event_id": "e_alameda_quiet_title",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Gibson Dunn pursued the Alameda quiet-title actions in part to short-circuit the DRAA Chancery Action."
+    },
+    {
+      "id": "r_alameda_to_draa_oct_nov",
+      "from_event_id": "e_alameda_quiet_title",
+      "to_event_id": "e_draa_filings_oct_nov",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_draa_oct_to_zhou",
+      "from_event_id": "e_draa_filings_oct_nov",
+      "to_event_id": "e_zhou_recognition",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_sale_to_financing",
+      "from_event_id": "e_sale_agreement",
+      "to_event_id": "e_buyer_financing_ready",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_covid_to_closures",
+      "from_event_id": "e_covid_hits",
+      "to_event_id": "e_hotel_closures",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Seller's drastic operational changes were ostensibly a response to the pandemic \u2014 the dispositive question on appeal."
+    },
+    {
+      "id": "r_sale_to_closures_breach",
+      "from_event_id": "e_sale_agreement",
+      "to_event_id": "e_hotel_closures",
+      "type": "contradicts",
+      "strength": "adjudicated",
+      "detail": "The hotel closures, mass furloughs, and operational changes were ultimately held to be inconsistent with the Ordinary Course Covenant (\u00a75.1)."
+    },
+    {
+      "id": "r_closures_to_notice",
+      "from_event_id": "e_hotel_closures",
+      "to_event_id": "e_buyer_notice_breach",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_notice_to_emergency",
+      "from_event_id": "e_buyer_notice_breach",
+      "to_event_id": "e_anbang_emergency_motion",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_notice_to_failure_close",
+      "from_event_id": "e_buyer_notice_breach",
+      "to_event_id": "e_buyer_failure_to_close",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_failure_to_cure_clock",
+      "from_event_id": "e_buyer_failure_to_close",
+      "to_event_id": "e_buyer_termination",
+      "type": "tolls",
+      "strength": "adjudicated",
+      "detail": "The April 17 notice started the May 2 cure clock; failure to cure ripened the Buyer's termination right exercised May 3.",
+      "clock_id": "cure_period_april17",
+      "clock_effect": "start"
+    },
+    {
+      "id": "r_failure_to_seller_action",
+      "from_event_id": "e_buyer_failure_to_close",
+      "to_event_id": "e_seller_chancery_action",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Seller responded to the threatened termination by suing for specific performance."
+    },
+    {
+      "id": "r_seller_action_to_termination",
+      "from_event_id": "e_seller_chancery_action",
+      "to_event_id": "e_buyer_termination",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_termination_to_counterclaims",
+      "from_event_id": "e_buyer_termination",
+      "to_event_id": "e_buyer_counterclaims",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_counterclaims_to_trial",
+      "from_event_id": "e_buyer_counterclaims",
+      "to_event_id": "e_chancery_trial",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_trial_to_opinion",
+      "from_event_id": "e_chancery_trial",
+      "to_event_id": "e_chancery_opinion",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_chancery_to_argument",
+      "from_event_id": "e_chancery_opinion",
+      "to_event_id": "e_oral_argument",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_argument_to_supreme",
+      "from_event_id": "e_oral_argument",
+      "to_event_id": "e_supreme_affirms",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_supreme_references_chancery",
+      "from_event_id": "e_chancery_opinion",
+      "to_event_id": "e_supreme_affirms",
+      "type": "references",
+      "strength": "adjudicated",
+      "detail": "Supreme Court affirmed Chancery's Ordinary Course Covenant ruling and did not reach the title-insurance ground."
+    }
+  ],
+  "disputes": [],
+  "sources": [
+    {
+      "id": "s_opinion",
+      "type": "opinion",
+      "citation": "AB Stable VIII LLC v. MAPS Hotels & Resorts One LLC, No. 71, 2021 (Del. Dec. 8, 2021) (en banc) (Seitz, C.J.)"
+    },
+    {
+      "id": "s_chancery_opinion",
+      "type": "opinion",
+      "citation": "AB Stable VIII LLC v. MAPS Hotels & Resorts One LLC, 2020 WL 7024929 (Del. Ch. Nov. 30, 2020) (Laster, V.C.)"
+    },
+    {
+      "id": "s_chancery_compl",
+      "type": "pleading",
+      "citation": "Verified Complaint, AB Stable VIII LLC v. MAPS Hotels & Resorts One LLC, C.A. No. 2020-0310 (Del. Ch. Apr. 27, 2020)"
+    },
+    {
+      "id": "s_sale_agreement",
+      "type": "contract",
+      "citation": "Sale and Purchase Agreement \u00a7 5.1 (Sept. 10, 2019)"
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+// ---- Fixed-width month-column grid (one column per calendar month) ----
+const COL_WIDTH = 28;       // pixels per month column
+const margin = { top: 95, right: 40, bottom: 40, left: 170 };
+const laneHeight = 340;     // tall enough for ±140 slot offset plus expanded clusters and labels
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+// Derive the inclusive month range from case.date_range
+const [start, end] = DATA.case.date_range;
+const startMonth = d3.timeMonth.floor(parseDate(start));
+const endMonth   = d3.timeMonth.offset(d3.timeMonth.floor(parseDate(end)), 1);
+const months     = d3.timeMonth.range(startMonth, endMonth);  // array of Date, one per month
+const monthIndex = new Map(months.map((m, i) => [+m, i]));
+
+// xScale: maps any date to the center of its month column
+function xScale(date) {
+  const t = +d3.timeMonth.floor(date);
+  let idx = monthIndex.get(t);
+  if (idx === undefined) {
+    idx = t < +months[0] ? 0 : months.length - 1;
+  }
+  return idx * COL_WIDTH + COL_WIDTH / 2;
+}
+
+const innerW = months.length * COL_WIDTH;
+const width  = innerW + margin.left + margin.right;
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width)
+  .attr("height", height);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Lanes
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+// ---- Column gridlines: light per-month, darker per-year ----
+g.selectAll(".grid-month").data(months)
+  .join("line").attr("class","grid-month")
+  .attr("x1", d => xScale(d) + COL_WIDTH/2).attr("x2", d => xScale(d) + COL_WIDTH/2)
+  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
+  .attr("stroke", "var(--rule)").attr("opacity", 0.18);
+
+const yearStarts = months.filter(m => m.getMonth() === 0);
+g.selectAll(".grid-year").data(yearStarts)
+  .join("line").attr("class","grid-year")
+  .attr("x1", d => xScale(d) - COL_WIDTH/2).attr("x2", d => xScale(d) - COL_WIDTH/2)
+  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
+  .attr("stroke", "var(--rule)").attr("opacity", 0.6);
+
+// ---- Axis: prominent year labels, quieter quarterly month labels ----
+const axisG = g.append("g").attr("class","axis");
+axisG.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", 0).attr("y2", 0)
+  .attr("stroke", "var(--rule)");
+
+yearStarts.forEach(d => {
+  axisG.append("text").attr("class","year-label")
+    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
+    .style("font-size","12px").style("font-weight","600").style("fill","var(--ink)")
+    .text(d.getFullYear());
+});
+
+months.filter(m => m.getMonth() % 3 === 0 && m.getMonth() !== 0).forEach(d => {
+  axisG.append("text").attr("class","quarter-label")
+    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
+    .style("font-size","9.5px").style("fill","var(--muted)")
+    .text(d3.timeFormat("%b")(d));
+});
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    if (!isEventVisible(a) || !isEventVisible(b)) return;  // only draw between visible events
+    const x1=xScale(a._d);
+    const x2=xScale(b._d);
+    const y1=laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2=laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
+  });
+}
+
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  // Arc top sits in the top margin, above the time axis (which is at y=0 within g)
+  const arcTopY = -32;
+  (DATA.disputes || []).forEach((d, i) => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    if (!evs.every(isEventVisible)) return;  // only draw arc when both versions are visible
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1 = xScale(a._d);
+    const x2 = xScale(b._d);
+    const y1 = laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2 = laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const midX = (x1 + x2) / 2;
+    // Stack multiple disputes so their arc labels don't collide
+    const tierTop = arcTopY - i * 22;
+    // Smooth arch: cubic Bezier from each dot up into the margin, peaking near tierTop
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1 - 10} C${x1},${tierTop} ${x2},${tierTop} ${x2},${y2 - 10}`);
+    // Diamond marker at the arc peak
+    disputeG.append("text").attr("class","dispute-marker")
+      .attr("x", midX).attr("y", tierTop - 6).attr("text-anchor","middle")
+      .text("◆");
+    // Label sits above the marker, wraps to two lines if long
+    const subject = d.subject || "disputed";
+    const labelText = `disputed: ${subject}`;
+    const maxLen = 70;
+    const label = disputeG.append("text").attr("class","dispute-label")
+      .attr("x", midX).attr("y", tierTop - 18).attr("text-anchor","middle");
+    if (labelText.length <= maxLen) {
+      label.text(labelText);
+    } else {
+      const cut = labelText.lastIndexOf(" ", maxLen);
+      const split = cut > maxLen / 2 ? cut : maxLen;
+      label.append("tspan").attr("x", midX).attr("dy", 0).text(labelText.slice(0, split));
+      label.append("tspan").attr("x", midX).attr("dy", 12).text(labelText.slice(split).trim());
+      // Push the marker down a bit when there are two lines so it doesn't crash into them
+      disputeG.selectAll(".dispute-marker").filter((_, idx, nodes) => nodes[idx].previousSibling === label.node().previousSibling)
+        .attr("y", tierTop - 4);
+    }
+  });
+}
+
+// ---- Dot-position staggering: each dot offset vertically so labels don't overlap horizontally ----
+const DOT_SLOTS_Y = [0, 80, -80, 140, -140]; // y-offsets from lane centerline (leaves room for expanded clusters)
+// Labels are always rendered directly below each dot at a fixed offset
+const LABEL_SLOTS = [
+  { y_label: 22,  y_date: 32, dir: 1 },   // fixed: 22px below dot
+];
+const MIN_X_GAP = 150;
+const MAX_LABEL_CHARS = 22;
+const STACK_STEP = 52;       // px between stacked event rows in an expanded cluster (dot + label + date + buffer)
+let slotIdx  = new Map();    // event.id -> slot index (or -1 to suppress label)
+let xOff     = new Map();    // (unused, kept for compat)
+let yJit     = new Map();    // event.id -> y pixel offset for stacking
+let forceSlot = new Map();   // event.id -> override slot index
+let clusters = [];           // array of {id, key, events, lane_id, x, size}
+let eventToCluster = new Map();  // event.id -> {cluster, index}
+let expandedSet = new Set(); // ids of currently expanded multi-event clusters
+
+function monthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
+}
+
+function buildClusters(visible) {
+  clusters = [];
+  eventToCluster = new Map();
+  const groups = d3.group(visible, e => `${e.lane_id}|${monthKey(e._d)}`);
+  let cid = 0;
+  groups.forEach((evs, key) => {
+    const sortedEvs = evs.slice().sort((a,b) => a._d - b._d);
+    const meanX = d3.mean(sortedEvs, e => xScale(e._d));
+    const cluster = {
+      id: `cluster_${cid++}`,
+      key,
+      events: sortedEvs,
+      lane_id: sortedEvs[0].lane_id,
+      x: meanX,
+      size: sortedEvs.length,
+      month: monthKey(sortedEvs[0]._d),
+    };
+    clusters.push(cluster);
+    sortedEvs.forEach((e, i) => eventToCluster.set(e.id, { cluster, index: i }));
+  });
+}
+
+function isEventVisible(ev) {
+  const info = eventToCluster.get(ev.id);
+  if (!info) return true;
+  if (info.cluster.size === 1) return true;
+  return expandedSet.has(info.cluster.id);
+}
+
+function isClusterCollapsed(c) {
+  return c.size > 1 && !expandedSet.has(c.id);
+}
+
+function recomputeLayout(visible) {
+  slotIdx   = new Map();
+  xOff      = new Map();
+  yJit      = new Map();
+  forceSlot = new Map();
+
+  buildClusters(visible);
+
+  // ---- Per-lane chronological dot-slot assignment ----
+  // Each cluster gets a y-offset based on x-proximity to neighbors in the same lane.
+  // Adjacent columns are assigned different slots so labels (always below dot) don't overlap.
+  const clustersByLane = d3.group(clusters, c => c.lane_id);
+  clustersByLane.forEach(laneClusters => {
+    const sorted = laneClusters.slice().sort((a,b) => a.x - b.x);
+    const lastX = DOT_SLOTS_Y.map(() => -Infinity);
+    sorted.forEach(cluster => {
+      const x = cluster.x;
+      let chosen = 0;
+      for (let i = 0; i < DOT_SLOTS_Y.length; i++) {
+        if (x - lastX[i] > MIN_X_GAP) { chosen = i; break; }
+      }
+      lastX[chosen] = x;
+      const baseY = DOT_SLOTS_Y[chosen];
+      cluster.dotSlotY = baseY;     // remember for cluster-marker positioning
+      if (cluster.size === 1) {
+        yJit.set(cluster.events[0].id, baseY);
+      } else {
+        // Multi-event clusters: stack vertically around their slot's base y
+        const center = (cluster.size - 1) / 2;
+        cluster.events.forEach((ev, i) => yJit.set(ev.id, baseY + (i - center) * STACK_STEP));
+      }
+    });
+  });
+
+  // Labels always render at LABEL_SLOTS[0] (fixed offset below each dot). Force every event to slot 0,
+  // except for expanded multi-event clusters where middle events have no inline label.
+  const visibleEvts = visible.filter(isEventVisible);
+  visibleEvts.forEach(ev => {
+    const info = eventToCluster.get(ev.id);
+    if (info && info.cluster.size > 1) {
+      const i = info.index, n = info.cluster.size;
+      if (i === 0)            slotIdx.set(ev.id, 0);   // top of stack: label below
+      else if (i === n - 1)   slotIdx.set(ev.id, 0);   // bottom of stack: label below
+      else                    slotIdx.set(ev.id, -1);  // middle of stack: hover for info
+    } else {
+      slotIdx.set(ev.id, 0);
+    }
+  });
+}
+
+// ---- Cluster expansion logic ----
+function neighborsOf(clusterId) {
+  // Return set of cluster IDs connected to this cluster via relationships or disputes (1 hop)
+  const result = new Set([clusterId]);
+  const cluster = clusters.find(c => c.id === clusterId);
+  if (!cluster) return result;
+  const evIds = new Set(cluster.events.map(e => e.id));
+  (DATA.relationships || []).forEach(r => {
+    let otherEvId = null;
+    if (evIds.has(r.from_event_id)) otherEvId = r.to_event_id;
+    else if (evIds.has(r.to_event_id)) otherEvId = r.from_event_id;
+    if (otherEvId) {
+      const info = eventToCluster.get(otherEvId);
+      if (info && info.cluster.size > 1) result.add(info.cluster.id);
+    }
+  });
+  (DATA.disputes || []).forEach(d => {
+    const versionIds = d.versions.map(v => v.event_id);
+    if (versionIds.some(id => evIds.has(id))) {
+      versionIds.forEach(id => {
+        const info = eventToCluster.get(id);
+        if (info && info.cluster.size > 1) result.add(info.cluster.id);
+      });
+    }
+  });
+  return result;
+}
+
+let collapseTimer = null;
+function scheduleCollapse() {
+  if (collapseTimer) clearTimeout(collapseTimer);
+  collapseTimer = setTimeout(() => {
+    expandedSet = new Set();
+    rerenderAll();
+    collapseTimer = null;
+  }, 280);
+}
+function cancelCollapse() {
+  if (collapseTimer) { clearTimeout(collapseTimer); collapseTimer = null; }
+}
+function expandCluster(clusterId) {
+  cancelCollapse();
+  expandedSet = neighborsOf(clusterId);
+  rerenderAll();
+}
+function rerenderAll() {
+  renderEvents();
+  renderDisputes();
+  renderConnectors();
+}
+
+function truncateLabel(s) {
+  if (!s) return "";
+  return s.length > MAX_LABEL_CHARS ? s.slice(0, MAX_LABEL_CHARS - 1) + "…" : s;
+}
+
+const tooltip = d3.select("#tooltip");
+const leaderG = g.append("g").attr("class","leaders");
+const eventG = g.append("g").attr("class","events");
+const clusterG = g.append("g").attr("class","clusters");
+
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  recomputeLayout(visible);
+
+  // ---- Render cluster markers for collapsed multi-event clusters ----
+  const collapsedClusters = clusters.filter(isClusterCollapsed);
+  const clSel = clusterG.selectAll(".cluster").data(collapsedClusters, c => c.id);
+  clSel.exit().remove();
+  const clEnter = clSel.enter().append("g").attr("class","cluster");
+  clEnter.append("circle").attr("class","cluster-bg");
+  clEnter.append("text").attr("class","cluster-count");
+  clEnter.append("text").attr("class","cluster-month");
+  const clAll = clEnter.merge(clSel)
+    .attr("transform", c => `translate(${c.x}, ${laneY(c.lane_id) + (c.dotSlotY || 0)})`)
+    .on("mouseenter", function(_, c) { expandCluster(c.id); })
+    .on("mouseleave", function() { scheduleCollapse(); })
+    .on("click", function(_, c) { expandCluster(c.id); });
+  clAll.select(".cluster-bg")
+    .attr("r", 12)
+    .attr("fill", c => lanes.find(l => l.id === c.lane_id)?.color || "#999");
+  clAll.select(".cluster-count")
+    .attr("y", 4).attr("text-anchor","middle")
+    .text(c => c.size);
+  clAll.select(".cluster-month")
+    .attr("y", 28).attr("text-anchor","middle")
+    .text(c => {
+      const d = c.events[0]._d;
+      return d3.timeFormat("%b %Y")(d);
+    });
+
+  // ---- Render individual events: single-event clusters + members of expanded multi-event clusters ----
+  const visibleIndividuals = visible.filter(isEventVisible);
+
+  // Helper: an event is "labeled" only when it got a real slot (>=0)
+  const hasLabel = d => slotIdx.get(d.id) >= 0;
+  const slotOf = d => LABEL_SLOTS[slotIdx.get(d.id)];
+
+  // Leader lines (drawn first so they sit below dots). Only for far-positioned labels.
+  const dotY = d => laneY(d.lane_id) + (yJit.get(d.id) || 0);
+  const leaders = leaderG.selectAll(".leader").data(visibleIndividuals.filter(hasLabel), d => d.id);
+  leaders.exit().remove();
+  leaders.enter().append("line").attr("class","leader").merge(leaders)
+    .attr("x1", d => xScale(d._d))
+    .attr("x2", d => xScale(d._d))
+    .attr("y1", d => dotY(d) + (slotOf(d).dir > 0 ? 6 : -6))
+    .attr("y2", d => dotY(d) + slotOf(d).y_label - (slotOf(d).dir > 0 ? 6 : -6))
+    .attr("opacity", d => Math.abs(slotOf(d).y_label) > 30 ? 0.65 : 0);
+
+  const sel = eventG.selectAll(".event").data(visibleIndividuals, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${dotY(d)})`);
+  all.select("circle").attr("r", 5)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+
+  all.select(".event-label").attr("x",0)
+    .attr("y", d => hasLabel(d) ? slotOf(d).y_label : 0)
+    .attr("text-anchor","middle")
+    .style("display", d => hasLabel(d) ? null : "none")
+    .text(d => truncateLabel(d.label));
+
+  all.select(".event-date").attr("x",0)
+    .attr("y", d => hasLabel(d) ? slotOf(d).y_date : 0)
+    .attr("text-anchor","middle")
+    .style("display", d => hasLabel(d) ? null : "none")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? " (~)" : ""));
+  all.on("mouseenter", function(event, d) {
+    // Keep expansion alive while hovering an event inside an expanded cluster
+    const info = eventToCluster.get(d.id);
+    if (info && info.cluster.size > 1) cancelCollapse();
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function(_, d) {
+    tooltip.style("opacity",0);
+    const info = eventToCluster.get(d.id);
+    if (info && info.cluster.size > 1) scheduleCollapse();
+  });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+</script>
+</body>
+</html>

@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>The Williams Companies, Inc. v. Energy Transfer Equity, L.P. (coordinated with C.A. No. 12337-VCG) — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7; --ink: #1a1a1a; --muted: #6b6b6b; --rule: #d8d4cc;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif; background: var(--bg); color: var(--ink); padding: 24px 32px; }
+  header { max-width: 1280px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin: 0 0 16px 0; }
+  .controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 14px; background: white; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .controls .divider { width: 1px; height: 18px; background: var(--rule); }
+  .controls .legend-swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  #chart-wrap { max-width: 1280px; background: white; border: 1px solid var(--rule); border-radius: 6px; overflow: auto; margin-top: 12px; }
+  svg { display: block; }
+  .axis text { font-size: 11px; fill: var(--muted); }
+  .leader { stroke: var(--rule); stroke-width: 0.6px; }
+  .axis path, .axis line { stroke: var(--rule); }
+  .lane-bg { fill: white; }
+  .lane-bg.alt { fill: #f5f3ee; }
+  .lane-label { font-size: 12px; font-weight: 600; fill: var(--ink); }
+  .lane-sub { font-size: 10px; fill: var(--muted); }
+  .event circle { stroke-width: 2px; transition: r 120ms ease, stroke-width 120ms ease; cursor: pointer; }
+  .event:hover circle { r: 9; stroke-width: 3px; }
+  .event-label { font-size: 9.5px; fill: var(--ink); pointer-events: none; }
+  .event-date { font-size: 8.5px; fill: var(--muted); pointer-events: none; }
+  .connector { fill: none; stroke: var(--muted); stroke-width: 1.2px; stroke-dasharray: 3 3; opacity: 0.55; }
+  .connector.causal { stroke-dasharray: none; opacity: 0.75; }
+  .connector.tolls { stroke: #d69e2e; stroke-dasharray: 6 2; opacity: 0.85; stroke-width: 1.5px; }
+  .connector.supersedes { stroke: #718096; stroke-dasharray: 1 4; opacity: 0.7; }
+  .dispute-bracket { stroke: var(--dispute); stroke-width: 1.2px; fill: none; stroke-dasharray: 3 2; opacity: 0.75; }
+  .dispute-marker { font-size: 14px; fill: var(--dispute); font-weight: 600; }
+  .dispute-label { font-size: 10px; fill: var(--dispute); font-style: italic; }
+  .cluster { cursor: pointer; }
+  .cluster:hover .cluster-bg { stroke-width: 3px; }
+  .cluster-bg { stroke: white; stroke-width: 2px; transition: stroke-width 120ms ease; }
+  .cluster-count { font-size: 11px; font-weight: 700; fill: white; pointer-events: none; }
+  .cluster-month { font-size: 9px; fill: var(--muted); pointer-events: none; }
+  .tooltip { position: absolute; pointer-events: none; background: #1a1a1a; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4; max-width: 320px; opacity: 0; transition: opacity 120ms ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10; }
+  .tooltip strong { color: #ffe066; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  footer { max-width: 1280px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+  .style-pill { display: inline-block; padding: 2px 8px; font-size: 10.5px; font-weight: 500; background: #edf2f7; color: #2d3748; border-radius: 10px; vertical-align: middle; margin-left: 8px; letter-spacing: 0.02em; }
+  .warnings { max-width: 1280px; margin-top: 12px; padding: 10px 14px; background: #fffaf0; border: 1px solid #f6e05e; border-left: 3px solid #d69e2e; border-radius: 4px; font-size: 12px; color: #744210; }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
+</style>
+</head>
+<body>
+<header>
+  <h1>The Williams Companies, Inc. v. Energy Transfer Equity, L.P. (coordinated with C.A. No. 12337-VCG)<span class="style-pill">Dual Track</span> <span style="color:var(--muted);font-weight:400">— Del. Ch. · C.A. Nos. 12168-VCG &amp; 12337-VCG</span></h1>
+  <p class="subtitle">After signing a Sep. 28, 2015 Merger Agreement worth tens of billions, energy markets collapsed and Energy Transfer Equity (ETE) soured on the deal. ETE's tax counsel Latham &amp; Watkins concluded in April 2016 that it could no longer deliver the §721 tax opinion that was a closing condition. Williams sued in Chancery on two coordinated tracks: a First Action challenging ETE's defensive March 2016 'Special Issuance' of Series A Convertible Preferred Units, and a Second Action challenging Latham's inability to issue the 721 Opinion. After a two-day trial June 20–21, 2016, Vice Chancellor Glasscock ruled June 24, 2016 (the eve of the Outside Date) that Latham acted in good faith, ETE used commercially reasonable efforts, and ETE was contractually entitled to terminate the Merger Agreement on the failed closing condition.</p>
+</header>
+
+
+
+<div class="controls" id="controls"></div>
+<div id="chart-wrap"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<footer>Solid dots = undisputed. Hollow with red bracket = disputed. Gray dashed arrow = response. Gray solid = causal. Gold dashed = tolling. Hover events for citations.</footer>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "williams_v_ete_2016",
+    "caption": "The Williams Companies, Inc. v. Energy Transfer Equity, L.P. (coordinated with C.A. No. 12337-VCG)",
+    "court": "Del. Ch.",
+    "docket": "C.A. Nos. 12168-VCG & 12337-VCG",
+    "jurisdiction": "Delaware",
+    "date_range": [
+      "2015-07-01",
+      "2016-09-30"
+    ],
+    "cause_of_action": [
+      "breach of the Merger Agreement",
+      "breach of covenant of commercially reasonable efforts",
+      "breach of fiduciary duty / partnership duty (Special Issuance)",
+      "declaratory judgment (right to terminate Merger Agreement)"
+    ],
+    "status": "judgment",
+    "summary": "After signing a Sep. 28, 2015 Merger Agreement worth tens of billions, energy markets collapsed and Energy Transfer Equity (ETE) soured on the deal. ETE's tax counsel Latham & Watkins concluded in April 2016 that it could no longer deliver the \u00a7721 tax opinion that was a closing condition. Williams sued in Chancery on two coordinated tracks: a First Action challenging ETE's defensive March 2016 'Special Issuance' of Series A Convertible Preferred Units, and a Second Action challenging Latham's inability to issue the 721 Opinion. After a two-day trial June 20\u201321, 2016, Vice Chancellor Glasscock ruled June 24, 2016 (the eve of the Outside Date) that Latham acted in good faith, ETE used commercially reasonable efforts, and ETE was contractually entitled to terminate the Merger Agreement on the failed closing condition."
+  },
+  "parties": [
+    {
+      "id": "williams",
+      "name": "The Williams Companies, Inc.",
+      "short_name": "Williams",
+      "role": [
+        "plaintiff",
+        "counterclaim_defendant"
+      ],
+      "type": "corporation",
+      "representation": [
+        "Kenneth J. Nachbar / Zi-Xiang Shen (Morris, Nichols, Arsht & Tunnell LLP)",
+        "Sandra C. Goldstein / Antony L. Ryan / Kevin J. Orsini (Cravath, Swaine & Moore LLP)"
+      ]
+    },
+    {
+      "id": "ete",
+      "name": "Energy Transfer Equity, L.P.",
+      "short_name": "ETE / Partnership",
+      "role": [
+        "defendant",
+        "counterclaim_plaintiff"
+      ],
+      "type": "partnership",
+      "representation": [
+        "Rolin P. Bissell / Tammy L. Mercer / James M. Yoch, Jr. (Young Conaway Stargatt & Taylor LLP)",
+        "Michael C. Holmes / John C. Wander / Michael L. Charlson / Craig E. Zieminski (Vinson & Elkins LLP)"
+      ]
+    },
+    {
+      "id": "le_gp",
+      "name": "LE GP, LLC",
+      "short_name": "LE GP",
+      "role": [
+        "defendant",
+        "counterclaim_plaintiff"
+      ],
+      "type": "llc"
+    },
+    {
+      "id": "etc_etegp",
+      "name": "Energy Transfer Corp LP, ETE Corp GP, LLC & Energy Transfer Equity GP, LLC",
+      "short_name": "ETC entities",
+      "role": [
+        "defendant"
+      ],
+      "type": "llc"
+    },
+    {
+      "id": "court_chancery",
+      "name": "Delaware Court of Chancery (Glasscock, V.C.)",
+      "short_name": "Del. Ch.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "latham",
+      "name": "Latham & Watkins LLP (ETE tax counsel)",
+      "short_name": "Latham",
+      "role": [
+        "non_party"
+      ],
+      "type": "partnership"
+    },
+    {
+      "id": "warren",
+      "name": "Kelcy Warren (ETE CEO/Chairman)",
+      "short_name": "Warren",
+      "role": [
+        "witness",
+        "non_party"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "welch",
+      "name": "Jamie Welch (former ETE CFO)",
+      "short_name": "Welch",
+      "role": [
+        "witness"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "fenn",
+      "name": "Timothy Fenn (Latham tax partner)",
+      "short_name": "Fenn",
+      "role": [
+        "witness"
+      ],
+      "type": "individual"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "facts",
+      "label": "Facts",
+      "sub": "What happened",
+      "color": "#2b6cb0",
+      "order": 0
+    },
+    {
+      "id": "procedure",
+      "label": "Procedure",
+      "sub": "What the court did",
+      "color": "#4a5568",
+      "order": 1
+    }
+  ],
+  "events": [
+    {
+      "id": "e_merger_agreement",
+      "label": "Merger Agreement executed",
+      "detail": "Williams and ETE executed the Agreement and Plan of Merger on September 28, 2015. The deal contemplates Williams merging into ETC (newly formed), plus a Cash Transaction leg and a Contribution Transaction leg structured to qualify for tax-free contribution under \u00a7721(a) of the Internal Revenue Code. The \u00a7721 tax opinion from Latham is a condition precedent to closing.",
+      "date": "2015-09-28",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "williams",
+        "ete"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Sets Outside Date of June 28, 2016 and establishes \u00a7721 Opinion as a condition to closing; governs the parties' termination rights.",
+      "source_ids": [
+        "s_jx52"
+      ]
+    },
+    {
+      "id": "e_market_decline",
+      "label": "Energy market decline reduces deal value",
+      "detail": "After the Merger Agreement was entered, the energy market and the Partnership's unit price declined substantially, making the cash payment and assumed debt onerous and the Proposed Transaction undesirable to ETE.",
+      "date_range": [
+        "2015-10-01",
+        "2016-03-31"
+      ],
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "ete"
+      ],
+      "kind": "external",
+      "category": "media_event",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_warren_renegotiate",
+      "label": "Warren pushes to renegotiate the deal",
+      "detail": "In December 2015, Warren led discussions within ETE that highlighted problems with the Proposed Transaction and suggested ETE seek to renegotiate the terms of the Merger Agreement.",
+      "date": "2015-12-15",
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "ete",
+        "warren"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_warren_terminate_pref",
+      "label": "Warren prefers terminating over restructuring",
+      "detail": "By January 2016, according to former CFO Jamie Welch's testimony, Warren would have preferred terminating the Merger Agreement to restructuring it.",
+      "date": "2016-01-15",
+      "date_certainty": "approximate",
+      "lane_id": "facts",
+      "party_ids": [
+        "ete",
+        "warren"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_welch_test"
+      ]
+    },
+    {
+      "id": "e_special_issuance",
+      "label": "ETE announces Special Issuance of Series A Preferred Units",
+      "detail": "On March 8, 2016 the Partnership announced it had completed a private offering (the 'Special Issuance') of Series A Convertible Preferred Units to a subset of holders (including Warren) with distribution and conversion terms running through the proposed transaction's consummation or termination. Williams contends it was a defensive measure intended to discourage the merger.",
+      "date": "2016-03-08",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "ete",
+        "warren"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "jurisdictional_significance": "Subject of the First Action; Williams alleges it breached the Merger Agreement's non-discrimination and conduct-of-business covenants.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_whitehurst_fenn",
+      "label": "Whitehurst contacts Fenn about Cash Transaction structure",
+      "detail": "On March 29, 2016, ETE in-house tax lawyer Whitehurst contacted Timothy Fenn of Latham to confirm his understanding of the Cash Transaction structure. He had recently realized that the deal called for an exchange of a fixed number of ETC shares for the cash payment \u2014 potentially driving excess cash to the Contribution leg and creating \u00a7721 problems.",
+      "date": "2016-03-29",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "ete",
+        "fenn"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_whitehurst_mckee",
+      "label": "Whitehurst contacts Morgan Lewis (Bill McKee)",
+      "detail": "On April 7, 2016, Whitehurst contacted Bill McKee of Morgan Lewis to discuss the \u00a7721 issue \u2014 part of ETE's efforts to understand whether the Contribution Transaction would still qualify for tax-free treatment given the unit-price decline.",
+      "date": "2016-04-07",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "ete"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_first_action",
+      "label": "Williams files First Action (Special Issuance)",
+      "detail": "Williams filed its first Verified Complaint in the Delaware Court of Chancery on April 6, 2016 against ETE and LE GP, challenging the Special Issuance as a breach of the Merger Agreement.",
+      "date": "2016-04-06",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "williams",
+        "ete",
+        "le_gp"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_first_compl"
+      ]
+    },
+    {
+      "id": "e_latham_cannot_issue",
+      "label": "Latham conclusively determines it cannot issue 721 Opinion",
+      "detail": "On April 11, 2016, Latham informed the Partnership that it had conclusively determined it could not provide the 721 Opinion if required to opine as of the trial-date understanding of the transaction. This determination triggered the closing-condition issue at the heart of the Second Action.",
+      "date": "2016-04-11",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "latham",
+        "ete"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "jurisdictional_significance": "Failure of \u00a7721 Opinion is a closing-condition failure giving ETE a contractual right to terminate the Merger Agreement under \u00a77.01(b)(1).",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_motion_expedite_1",
+      "label": "Court grants Motion to Expedite (First Action)",
+      "detail": "The Court of Chancery granted Williams' motion for expedited proceedings in the First Action on April 14, 2016.",
+      "date": "2016-04-14",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_chancery"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_no_distributions",
+      "label": "ETE announces no cash distributions through 1Q 2018",
+      "detail": "On April 18, 2016, ETE announced it 'does not expect to make any cash distributions' through the fiscal quarter ending March 31, 2018; available cash will instead be used to make Series A in-kind distributions to Special Issuance holders.",
+      "date": "2016-04-18",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "ete"
+      ],
+      "kind": "fact",
+      "category": "communication",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_amended_complaint_1",
+      "label": "Williams files Verified Amended Complaint (First Action)",
+      "detail": "Williams filed its Verified Amended Complaint in the First Action on April 19, 2016.",
+      "date": "2016-04-19",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "williams"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_first_compl"
+      ]
+    },
+    {
+      "id": "e_def_answer_cc_1",
+      "label": "Defendants file Answer + Counterclaim (First Action)",
+      "detail": "On May 3, 2016, ETE and LE GP filed their Answer, Affirmative Defenses, and Verified Counterclaim in the First Action.",
+      "date": "2016-05-03",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "ete",
+        "le_gp"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_second_action",
+      "label": "Williams files Second Action (721 Opinion)",
+      "detail": "Williams filed a second Verified Complaint on May 13, 2016 against ETE, LE GP, and additional defendants ETC, ETE Corp, and ETE GP, challenging ETE's conduct concerning Latham's inability to issue the 721 Opinion.",
+      "date": "2016-05-13",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "williams",
+        "ete",
+        "le_gp",
+        "etc_etegp"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_second_compl"
+      ]
+    },
+    {
+      "id": "e_motion_expedite_2",
+      "label": "Court grants Expedite + coordinates briefing (Second Action)",
+      "detail": "On May 20, 2016 the Court granted Williams' Motion to Expedite the Second Action and ordered the parties to coordinate briefing of the First and Second Actions for concurrent litigation.",
+      "date": "2016-05-20",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_chancery"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_def_amended_defenses",
+      "label": "Defendants file Amended Defenses + Counterclaims",
+      "detail": "On May 24, 2016, Defendants filed their Amended Affirmative Defenses and Verified Counterclaims addressing their position in both the First and Second Actions, including a request for a declaration of the right to terminate.",
+      "date": "2016-05-24",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "ete",
+        "le_gp",
+        "etc_etegp"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_trial",
+      "label": "Two-day trial in Georgetown",
+      "detail": "Trial of both coordinated actions was held in Georgetown, Delaware on June 20\u201321, 2016. The Court heard testimony from Fenn, Welch, Whitehurst, and others on Latham's good-faith determination and ETE's commercially reasonable efforts.",
+      "date_range": [
+        "2016-06-20",
+        "2016-06-21"
+      ],
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_chancery",
+        "williams",
+        "ete"
+      ],
+      "kind": "discovery",
+      "category": "testimony",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_supplemental_briefs",
+      "label": "Supplemental briefs completed (Date Submitted)",
+      "detail": "At the conclusion of trial, the Vice Chancellor requested supplemental briefs on certain issues; briefing was completed on June 23, 2016 \u2014 the opinion's 'Date Submitted'.",
+      "date": "2016-06-23",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "williams",
+        "ete"
+      ],
+      "kind": "filing",
+      "category": "reply",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_memo_opinion",
+      "label": "Memorandum Opinion: ETE may terminate",
+      "detail": "Decided June 24, 2016. Glasscock, V.C. holds: (1) Latham acted in good faith in concluding it could not issue the 721 Opinion; (2) ETE did not breach the Merger Agreement's commercially-reasonable-efforts covenant; (3) accordingly ETE is contractually entitled to terminate the Merger Agreement under \u00a77.01(b)(1) when the \u00a7721 closing condition fails, assuming Latham's opinion does not change before the June 28, 2016 Outside Date. Estoppel arguments rejected; Williams loses on both the First Action (Special Issuance) and the Second Action (721 Opinion).",
+      "date": "2016-06-24",
+      "date_certainty": "exact",
+      "lane_id": "procedure",
+      "party_ids": [
+        "court_chancery"
+      ],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Frees ETE to terminate the merger on the Outside Date and is a leading Delaware decision on conditions precedent, tax-opinion covenants, and commercially-reasonable-efforts standards.",
+      "source_ids": [
+        "s_opinion"
+      ]
+    },
+    {
+      "id": "e_outside_date",
+      "label": "Outside Date (merger expires)",
+      "detail": "June 28, 2016 \u2014 the contractual Outside Date under the Merger Agreement. After this date, with the \u00a7721 closing condition unmet, ETE could terminate the Merger Agreement under \u00a77.01(b)(1).",
+      "date": "2016-06-28",
+      "date_certainty": "exact",
+      "lane_id": "facts",
+      "party_ids": [
+        "williams",
+        "ete"
+      ],
+      "kind": "fact",
+      "category": "contract",
+      "jurisdictional_significance": "Contractual outside date; passage permits termination under \u00a77.01(b)(1).",
+      "source_ids": [
+        "s_merger_agreement_701"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_agreement_to_market_decline",
+      "from_event_id": "e_merger_agreement",
+      "to_event_id": "e_market_decline",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "The post-signing market decline is the economic backdrop that motivated ETE's reluctance to close."
+    },
+    {
+      "id": "r_market_to_warren_reneg",
+      "from_event_id": "e_market_decline",
+      "to_event_id": "e_warren_renegotiate",
+      "type": "causal",
+      "strength": "alleged"
+    },
+    {
+      "id": "r_reneg_to_terminate_pref",
+      "from_event_id": "e_warren_renegotiate",
+      "to_event_id": "e_warren_terminate_pref",
+      "type": "causal",
+      "strength": "alleged"
+    },
+    {
+      "id": "r_terminate_pref_to_special",
+      "from_event_id": "e_warren_terminate_pref",
+      "to_event_id": "e_special_issuance",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Williams alleges the Special Issuance was a defensive step by Warren to discourage closing."
+    },
+    {
+      "id": "r_special_to_first_action",
+      "from_event_id": "e_special_issuance",
+      "to_event_id": "e_first_action",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Williams sued in response to the Special Issuance."
+    },
+    {
+      "id": "r_first_action_to_expedite",
+      "from_event_id": "e_first_action",
+      "to_event_id": "e_motion_expedite_1",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_first_action_to_amended",
+      "from_event_id": "e_first_action",
+      "to_event_id": "e_amended_complaint_1",
+      "type": "supersedes",
+      "strength": "undisputed",
+      "detail": "Amended Complaint supersedes the original Verified Complaint."
+    },
+    {
+      "id": "r_amended_to_answer",
+      "from_event_id": "e_amended_complaint_1",
+      "to_event_id": "e_def_answer_cc_1",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_whitehurst_fenn_to_mckee",
+      "from_event_id": "e_whitehurst_fenn",
+      "to_event_id": "e_whitehurst_mckee",
+      "type": "causal",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_whitehurst_to_latham_cannot",
+      "from_event_id": "e_whitehurst_fenn",
+      "to_event_id": "e_latham_cannot_issue",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "Whitehurst's March 29 inquiry triggered the Latham re-analysis that culminated in the April 11 inability determination."
+    },
+    {
+      "id": "r_latham_to_second_action",
+      "from_event_id": "e_latham_cannot_issue",
+      "to_event_id": "e_second_action",
+      "type": "causal",
+      "strength": "undisputed",
+      "detail": "The Second Action directly challenges ETE's actions concerning Latham's \u00a7721 Opinion determination."
+    },
+    {
+      "id": "r_second_to_expedite_2",
+      "from_event_id": "e_second_action",
+      "to_event_id": "e_motion_expedite_2",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_expedite_to_def_amended",
+      "from_event_id": "e_motion_expedite_2",
+      "to_event_id": "e_def_amended_defenses",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_def_amended_to_trial",
+      "from_event_id": "e_def_amended_defenses",
+      "to_event_id": "e_trial",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_trial_to_supp",
+      "from_event_id": "e_trial",
+      "to_event_id": "e_supplemental_briefs",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_supp_to_opinion",
+      "from_event_id": "e_supplemental_briefs",
+      "to_event_id": "e_memo_opinion",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_opinion_to_outside",
+      "from_event_id": "e_memo_opinion",
+      "to_event_id": "e_outside_date",
+      "type": "tolls",
+      "strength": "adjudicated",
+      "detail": "The opinion held the \u00a7721 closing condition would fail and ETE could terminate when the Outside Date passed.",
+      "clock_id": "outside_date_701b1",
+      "clock_effect": "expire"
+    },
+    {
+      "id": "r_agreement_to_outside",
+      "from_event_id": "e_merger_agreement",
+      "to_event_id": "e_outside_date",
+      "type": "tolls",
+      "strength": "undisputed",
+      "detail": "The Merger Agreement sets the June 28, 2016 Outside Date as the contractual termination trigger under \u00a77.01(b)(1).",
+      "clock_id": "outside_date_701b1",
+      "clock_effect": "start"
+    }
+  ],
+  "disputes": [],
+  "sources": [
+    {
+      "id": "s_opinion",
+      "type": "opinion",
+      "citation": "Williams Cos. v. Energy Transfer Equity, L.P., C.A. Nos. 12168-VCG & 12337-VCG (Del. Ch. June 24, 2016) (Glasscock, V.C.) (Memorandum Opinion)"
+    },
+    {
+      "id": "s_jx52",
+      "type": "contract",
+      "citation": "JX 52 (Merger Agreement, Sep. 28, 2015)"
+    },
+    {
+      "id": "s_merger_agreement_701",
+      "type": "contract",
+      "citation": "Merger Agreement \u00a7 7.01(b)(1)"
+    },
+    {
+      "id": "s_first_compl",
+      "type": "pleading",
+      "citation": "Verified Complaint, Williams Cos. v. Energy Transfer Equity, L.P., C.A. No. 12168-VCG (Del. Ch. Apr. 6, 2016)"
+    },
+    {
+      "id": "s_second_compl",
+      "type": "pleading",
+      "citation": "Verified Complaint, Williams Cos. v. Energy Transfer Equity, L.P., C.A. No. 12337-VCG (Del. Ch. May 13, 2016)"
+    },
+    {
+      "id": "s_welch_test",
+      "type": "transcript",
+      "citation": "Trial Tr. (Welch testimony, June 2016)"
+    }
+  ]
+};
+
+// Build legend dynamically based on data
+const controls = document.getElementById("controls");
+function legendHTML() {
+  const swatches = DATA.lanes.map(l => `<span><span class="legend-swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}</span>`).join("");
+  return `
+    <label><input type="checkbox" id="show-disputed" checked /> Show disputed events</label>
+    <label><input type="checkbox" id="show-response" checked /> Response arrows</label>
+    <label><input type="checkbox" id="show-causal" checked /> Causal arrows</label>
+    <label><input type="checkbox" id="show-tolls" checked /> Tolling arrows</label>
+    <div class="divider"></div>
+    ${swatches}
+    <div class="divider"></div>
+    <span><span class="legend-swatch" style="background:white;border:2px solid var(--dispute)"></span> Disputed</span>
+  `;
+}
+controls.innerHTML = legendHTML();
+
+// ---- Fixed-width month-column grid (one column per calendar month) ----
+const COL_WIDTH = 28;       // pixels per month column
+const margin = { top: 95, right: 40, bottom: 40, left: 170 };
+const laneHeight = 340;     // tall enough for ±140 slot offset plus expanded clusters and labels
+const lanes = DATA.lanes.slice().sort((a,b) => (a.order||0) - (b.order||0));
+
+const parseDate = d3.timeParse("%Y-%m-%d");
+const events = DATA.events.map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d);
+
+// Derive the inclusive month range from case.date_range
+const [start, end] = DATA.case.date_range;
+const startMonth = d3.timeMonth.floor(parseDate(start));
+const endMonth   = d3.timeMonth.offset(d3.timeMonth.floor(parseDate(end)), 1);
+const months     = d3.timeMonth.range(startMonth, endMonth);  // array of Date, one per month
+const monthIndex = new Map(months.map((m, i) => [+m, i]));
+
+// xScale: maps any date to the center of its month column
+function xScale(date) {
+  const t = +d3.timeMonth.floor(date);
+  let idx = monthIndex.get(t);
+  if (idx === undefined) {
+    idx = t < +months[0] ? 0 : months.length - 1;
+  }
+  return idx * COL_WIDTH + COL_WIDTH / 2;
+}
+
+const innerW = months.length * COL_WIDTH;
+const width  = innerW + margin.left + margin.right;
+const height = lanes.length * laneHeight + margin.top + margin.bottom;
+
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", width)
+  .attr("height", height);
+
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Lanes
+const laneG = g.selectAll(".lane").data(lanes).join("g")
+  .attr("class", "lane")
+  .attr("transform", (d, i) => `translate(0, ${i * laneHeight})`);
+laneG.append("rect").attr("class", (d,i) => "lane-bg" + (i%2===1 ? " alt" : ""))
+  .attr("x", -margin.left + 10).attr("width", innerW + margin.left + margin.right - 20).attr("height", laneHeight - 4);
+laneG.append("text").attr("class","lane-label").attr("x", -margin.left + 22).attr("y", laneHeight/2 - 4).text(d => d.label);
+laneG.append("text").attr("class","lane-sub").attr("x", -margin.left + 22).attr("y", laneHeight/2 + 12).text(d => d.sub || "");
+laneG.append("rect").attr("x", -margin.left + 14).attr("y", laneHeight/2 - 14).attr("width", 3).attr("height", 28).attr("fill", d => d.color || "#999");
+
+// ---- Column gridlines: light per-month, darker per-year ----
+g.selectAll(".grid-month").data(months)
+  .join("line").attr("class","grid-month")
+  .attr("x1", d => xScale(d) + COL_WIDTH/2).attr("x2", d => xScale(d) + COL_WIDTH/2)
+  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
+  .attr("stroke", "var(--rule)").attr("opacity", 0.18);
+
+const yearStarts = months.filter(m => m.getMonth() === 0);
+g.selectAll(".grid-year").data(yearStarts)
+  .join("line").attr("class","grid-year")
+  .attr("x1", d => xScale(d) - COL_WIDTH/2).attr("x2", d => xScale(d) - COL_WIDTH/2)
+  .attr("y1", 0).attr("y2", lanes.length * laneHeight)
+  .attr("stroke", "var(--rule)").attr("opacity", 0.6);
+
+// ---- Axis: prominent year labels, quieter quarterly month labels ----
+const axisG = g.append("g").attr("class","axis");
+axisG.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", 0).attr("y2", 0)
+  .attr("stroke", "var(--rule)");
+
+yearStarts.forEach(d => {
+  axisG.append("text").attr("class","year-label")
+    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
+    .style("font-size","12px").style("font-weight","600").style("fill","var(--ink)")
+    .text(d.getFullYear());
+});
+
+months.filter(m => m.getMonth() % 3 === 0 && m.getMonth() !== 0).forEach(d => {
+  axisG.append("text").attr("class","quarter-label")
+    .attr("x", xScale(d)).attr("y", -10).attr("text-anchor","middle")
+    .style("font-size","9.5px").style("fill","var(--muted)")
+    .text(d3.timeFormat("%b")(d));
+});
+
+svg.append("defs").selectAll("marker")
+  .data(["response","causal","tolls","supersedes"]).join("marker")
+  .attr("id", d => `arrow-${d}`).attr("viewBox","0 -5 10 10").attr("refX", 8).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient","auto")
+  .append("path").attr("d","M0,-4L8,0L0,4")
+  .attr("fill", d => d === "tolls" ? "#d69e2e" : (d === "causal" ? "#6b6b6b" : "#888"));
+
+function laneY(id) { const i = lanes.findIndex(l => l.id === id); return i * laneHeight + laneHeight/2; }
+function eventById(id) { return events.find(e => e.id === id); }
+function sourceById(id) { return (DATA.sources || []).find(s => s.id === id); }
+
+const connectorG = g.append("g").attr("class","connectors");
+function renderConnectors() {
+  const flags = { response: document.getElementById("show-response").checked,
+                  causal: document.getElementById("show-causal").checked,
+                  tolls: document.getElementById("show-tolls").checked,
+                  supersedes: true, contradicts: true, references: true };
+  connectorG.selectAll("*").remove();
+  (DATA.relationships || []).forEach(c => {
+    if (!flags[c.type]) return;
+    const a = eventById(c.from_event_id), b = eventById(c.to_event_id);
+    if (!a || !b) return;
+    if (!isEventVisible(a) || !isEventVisible(b)) return;  // only draw between visible events
+    const x1=xScale(a._d);
+    const x2=xScale(b._d);
+    const y1=laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2=laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const mx=(x1+x2)/2;
+    connectorG.append("path").attr("d", `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`)
+      .attr("class", `connector ${c.type}`).attr("marker-end", `url(#arrow-${c.type === 'tolls' ? 'tolls' : (c.type === 'causal' ? 'causal' : 'response')})`);
+  });
+}
+
+const disputeG = g.append("g").attr("class","disputes");
+function renderDisputes() {
+  const show = document.getElementById("show-disputed").checked;
+  disputeG.selectAll("*").remove();
+  if (!show) return;
+  // Arc top sits in the top margin, above the time axis (which is at y=0 within g)
+  const arcTopY = -32;
+  (DATA.disputes || []).forEach((d, i) => {
+    const evs = d.versions.map(v => eventById(v.event_id)).filter(Boolean);
+    if (evs.length < 2) return;
+    if (!evs.every(isEventVisible)) return;  // only draw arc when both versions are visible
+    evs.sort((a,b) => a._d - b._d);
+    const [a, b] = evs;
+    const x1 = xScale(a._d);
+    const x2 = xScale(b._d);
+    const y1 = laneY(a.lane_id) + (yJit.get(a.id) || 0);
+    const y2 = laneY(b.lane_id) + (yJit.get(b.id) || 0);
+    const midX = (x1 + x2) / 2;
+    // Stack multiple disputes so their arc labels don't collide
+    const tierTop = arcTopY - i * 22;
+    // Smooth arch: cubic Bezier from each dot up into the margin, peaking near tierTop
+    disputeG.append("path").attr("class","dispute-bracket")
+      .attr("d", `M${x1},${y1 - 10} C${x1},${tierTop} ${x2},${tierTop} ${x2},${y2 - 10}`);
+    // Diamond marker at the arc peak
+    disputeG.append("text").attr("class","dispute-marker")
+      .attr("x", midX).attr("y", tierTop - 6).attr("text-anchor","middle")
+      .text("◆");
+    // Label sits above the marker, wraps to two lines if long
+    const subject = d.subject || "disputed";
+    const labelText = `disputed: ${subject}`;
+    const maxLen = 70;
+    const label = disputeG.append("text").attr("class","dispute-label")
+      .attr("x", midX).attr("y", tierTop - 18).attr("text-anchor","middle");
+    if (labelText.length <= maxLen) {
+      label.text(labelText);
+    } else {
+      const cut = labelText.lastIndexOf(" ", maxLen);
+      const split = cut > maxLen / 2 ? cut : maxLen;
+      label.append("tspan").attr("x", midX).attr("dy", 0).text(labelText.slice(0, split));
+      label.append("tspan").attr("x", midX).attr("dy", 12).text(labelText.slice(split).trim());
+      // Push the marker down a bit when there are two lines so it doesn't crash into them
+      disputeG.selectAll(".dispute-marker").filter((_, idx, nodes) => nodes[idx].previousSibling === label.node().previousSibling)
+        .attr("y", tierTop - 4);
+    }
+  });
+}
+
+// ---- Dot-position staggering: each dot offset vertically so labels don't overlap horizontally ----
+const DOT_SLOTS_Y = [0, 80, -80, 140, -140]; // y-offsets from lane centerline (leaves room for expanded clusters)
+// Labels are always rendered directly below each dot at a fixed offset
+const LABEL_SLOTS = [
+  { y_label: 22,  y_date: 32, dir: 1 },   // fixed: 22px below dot
+];
+const MIN_X_GAP = 150;
+const MAX_LABEL_CHARS = 22;
+const STACK_STEP = 52;       // px between stacked event rows in an expanded cluster (dot + label + date + buffer)
+let slotIdx  = new Map();    // event.id -> slot index (or -1 to suppress label)
+let xOff     = new Map();    // (unused, kept for compat)
+let yJit     = new Map();    // event.id -> y pixel offset for stacking
+let forceSlot = new Map();   // event.id -> override slot index
+let clusters = [];           // array of {id, key, events, lane_id, x, size}
+let eventToCluster = new Map();  // event.id -> {cluster, index}
+let expandedSet = new Set(); // ids of currently expanded multi-event clusters
+
+function monthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
+}
+
+function buildClusters(visible) {
+  clusters = [];
+  eventToCluster = new Map();
+  const groups = d3.group(visible, e => `${e.lane_id}|${monthKey(e._d)}`);
+  let cid = 0;
+  groups.forEach((evs, key) => {
+    const sortedEvs = evs.slice().sort((a,b) => a._d - b._d);
+    const meanX = d3.mean(sortedEvs, e => xScale(e._d));
+    const cluster = {
+      id: `cluster_${cid++}`,
+      key,
+      events: sortedEvs,
+      lane_id: sortedEvs[0].lane_id,
+      x: meanX,
+      size: sortedEvs.length,
+      month: monthKey(sortedEvs[0]._d),
+    };
+    clusters.push(cluster);
+    sortedEvs.forEach((e, i) => eventToCluster.set(e.id, { cluster, index: i }));
+  });
+}
+
+function isEventVisible(ev) {
+  const info = eventToCluster.get(ev.id);
+  if (!info) return true;
+  if (info.cluster.size === 1) return true;
+  return expandedSet.has(info.cluster.id);
+}
+
+function isClusterCollapsed(c) {
+  return c.size > 1 && !expandedSet.has(c.id);
+}
+
+function recomputeLayout(visible) {
+  slotIdx   = new Map();
+  xOff      = new Map();
+  yJit      = new Map();
+  forceSlot = new Map();
+
+  buildClusters(visible);
+
+  // ---- Per-lane chronological dot-slot assignment ----
+  // Each cluster gets a y-offset based on x-proximity to neighbors in the same lane.
+  // Adjacent columns are assigned different slots so labels (always below dot) don't overlap.
+  const clustersByLane = d3.group(clusters, c => c.lane_id);
+  clustersByLane.forEach(laneClusters => {
+    const sorted = laneClusters.slice().sort((a,b) => a.x - b.x);
+    const lastX = DOT_SLOTS_Y.map(() => -Infinity);
+    sorted.forEach(cluster => {
+      const x = cluster.x;
+      let chosen = 0;
+      for (let i = 0; i < DOT_SLOTS_Y.length; i++) {
+        if (x - lastX[i] > MIN_X_GAP) { chosen = i; break; }
+      }
+      lastX[chosen] = x;
+      const baseY = DOT_SLOTS_Y[chosen];
+      cluster.dotSlotY = baseY;     // remember for cluster-marker positioning
+      if (cluster.size === 1) {
+        yJit.set(cluster.events[0].id, baseY);
+      } else {
+        // Multi-event clusters: stack vertically around their slot's base y
+        const center = (cluster.size - 1) / 2;
+        cluster.events.forEach((ev, i) => yJit.set(ev.id, baseY + (i - center) * STACK_STEP));
+      }
+    });
+  });
+
+  // Labels always render at LABEL_SLOTS[0] (fixed offset below each dot). Force every event to slot 0,
+  // except for expanded multi-event clusters where middle events have no inline label.
+  const visibleEvts = visible.filter(isEventVisible);
+  visibleEvts.forEach(ev => {
+    const info = eventToCluster.get(ev.id);
+    if (info && info.cluster.size > 1) {
+      const i = info.index, n = info.cluster.size;
+      if (i === 0)            slotIdx.set(ev.id, 0);   // top of stack: label below
+      else if (i === n - 1)   slotIdx.set(ev.id, 0);   // bottom of stack: label below
+      else                    slotIdx.set(ev.id, -1);  // middle of stack: hover for info
+    } else {
+      slotIdx.set(ev.id, 0);
+    }
+  });
+}
+
+// ---- Cluster expansion logic ----
+function neighborsOf(clusterId) {
+  // Return set of cluster IDs connected to this cluster via relationships or disputes (1 hop)
+  const result = new Set([clusterId]);
+  const cluster = clusters.find(c => c.id === clusterId);
+  if (!cluster) return result;
+  const evIds = new Set(cluster.events.map(e => e.id));
+  (DATA.relationships || []).forEach(r => {
+    let otherEvId = null;
+    if (evIds.has(r.from_event_id)) otherEvId = r.to_event_id;
+    else if (evIds.has(r.to_event_id)) otherEvId = r.from_event_id;
+    if (otherEvId) {
+      const info = eventToCluster.get(otherEvId);
+      if (info && info.cluster.size > 1) result.add(info.cluster.id);
+    }
+  });
+  (DATA.disputes || []).forEach(d => {
+    const versionIds = d.versions.map(v => v.event_id);
+    if (versionIds.some(id => evIds.has(id))) {
+      versionIds.forEach(id => {
+        const info = eventToCluster.get(id);
+        if (info && info.cluster.size > 1) result.add(info.cluster.id);
+      });
+    }
+  });
+  return result;
+}
+
+let collapseTimer = null;
+function scheduleCollapse() {
+  if (collapseTimer) clearTimeout(collapseTimer);
+  collapseTimer = setTimeout(() => {
+    expandedSet = new Set();
+    rerenderAll();
+    collapseTimer = null;
+  }, 280);
+}
+function cancelCollapse() {
+  if (collapseTimer) { clearTimeout(collapseTimer); collapseTimer = null; }
+}
+function expandCluster(clusterId) {
+  cancelCollapse();
+  expandedSet = neighborsOf(clusterId);
+  rerenderAll();
+}
+function rerenderAll() {
+  renderEvents();
+  renderDisputes();
+  renderConnectors();
+}
+
+function truncateLabel(s) {
+  if (!s) return "";
+  return s.length > MAX_LABEL_CHARS ? s.slice(0, MAX_LABEL_CHARS - 1) + "…" : s;
+}
+
+const tooltip = d3.select("#tooltip");
+const leaderG = g.append("g").attr("class","leaders");
+const eventG = g.append("g").attr("class","events");
+const clusterG = g.append("g").attr("class","clusters");
+
+function renderEvents() {
+  const showD = document.getElementById("show-disputed").checked;
+  const visible = events.filter(e => showD || !e.disputed);
+  recomputeLayout(visible);
+
+  // ---- Render cluster markers for collapsed multi-event clusters ----
+  const collapsedClusters = clusters.filter(isClusterCollapsed);
+  const clSel = clusterG.selectAll(".cluster").data(collapsedClusters, c => c.id);
+  clSel.exit().remove();
+  const clEnter = clSel.enter().append("g").attr("class","cluster");
+  clEnter.append("circle").attr("class","cluster-bg");
+  clEnter.append("text").attr("class","cluster-count");
+  clEnter.append("text").attr("class","cluster-month");
+  const clAll = clEnter.merge(clSel)
+    .attr("transform", c => `translate(${c.x}, ${laneY(c.lane_id) + (c.dotSlotY || 0)})`)
+    .on("mouseenter", function(_, c) { expandCluster(c.id); })
+    .on("mouseleave", function() { scheduleCollapse(); })
+    .on("click", function(_, c) { expandCluster(c.id); });
+  clAll.select(".cluster-bg")
+    .attr("r", 12)
+    .attr("fill", c => lanes.find(l => l.id === c.lane_id)?.color || "#999");
+  clAll.select(".cluster-count")
+    .attr("y", 4).attr("text-anchor","middle")
+    .text(c => c.size);
+  clAll.select(".cluster-month")
+    .attr("y", 28).attr("text-anchor","middle")
+    .text(c => {
+      const d = c.events[0]._d;
+      return d3.timeFormat("%b %Y")(d);
+    });
+
+  // ---- Render individual events: single-event clusters + members of expanded multi-event clusters ----
+  const visibleIndividuals = visible.filter(isEventVisible);
+
+  // Helper: an event is "labeled" only when it got a real slot (>=0)
+  const hasLabel = d => slotIdx.get(d.id) >= 0;
+  const slotOf = d => LABEL_SLOTS[slotIdx.get(d.id)];
+
+  // Leader lines (drawn first so they sit below dots). Only for far-positioned labels.
+  const dotY = d => laneY(d.lane_id) + (yJit.get(d.id) || 0);
+  const leaders = leaderG.selectAll(".leader").data(visibleIndividuals.filter(hasLabel), d => d.id);
+  leaders.exit().remove();
+  leaders.enter().append("line").attr("class","leader").merge(leaders)
+    .attr("x1", d => xScale(d._d))
+    .attr("x2", d => xScale(d._d))
+    .attr("y1", d => dotY(d) + (slotOf(d).dir > 0 ? 6 : -6))
+    .attr("y2", d => dotY(d) + slotOf(d).y_label - (slotOf(d).dir > 0 ? 6 : -6))
+    .attr("opacity", d => Math.abs(slotOf(d).y_label) > 30 ? 0.65 : 0);
+
+  const sel = eventG.selectAll(".event").data(visibleIndividuals, d => d.id);
+  sel.exit().remove();
+  const enter = sel.enter().append("g").attr("class","event");
+  enter.append("circle"); enter.append("text").attr("class","event-label"); enter.append("text").attr("class","event-date");
+  const all = enter.merge(sel);
+  all.attr("transform", d => `translate(${xScale(d._d)}, ${dotY(d)})`);
+  all.select("circle").attr("r", 5)
+    .attr("fill", d => d.disputed ? "white" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke", d => d.disputed ? "var(--dispute)" : (lanes.find(l=>l.id===d.lane_id)?.color || "#999"))
+    .attr("stroke-dasharray", d => d.disputed ? "2 2" : null);
+
+  all.select(".event-label").attr("x",0)
+    .attr("y", d => hasLabel(d) ? slotOf(d).y_label : 0)
+    .attr("text-anchor","middle")
+    .style("display", d => hasLabel(d) ? null : "none")
+    .text(d => truncateLabel(d.label));
+
+  all.select(".event-date").attr("x",0)
+    .attr("y", d => hasLabel(d) ? slotOf(d).y_date : 0)
+    .attr("text-anchor","middle")
+    .style("display", d => hasLabel(d) ? null : "none")
+    .text(d => d3.timeFormat("%b %d, %Y")(d._d) + (d.date_certainty && d.date_certainty !== "exact" ? " (~)" : ""));
+  all.on("mouseenter", function(event, d) {
+    // Keep expansion alive while hovering an event inside an expanded cluster
+    const info = eventToCluster.get(d.id);
+    if (info && info.cluster.size > 1) cancelCollapse();
+    const lane = lanes.find(l => l.id === d.lane_id);
+    const srcs = (d.source_ids || []).map(sid => sourceById(sid)).filter(Boolean);
+    const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+    const sig = d.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${d.jurisdictional_significance}</div>` : "";
+    tooltip.style("opacity",1).html(`<strong>${d.label}</strong>
+      <div>${d.detail || ""}</div>
+      <div class="meta">${lane?.label || d.lane_id} · ${d3.timeFormat("%B %d, %Y")(d._d)}${d.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>
+      ${sig}${srcHTML}`);
+  }).on("mousemove", function(event) {
+    tooltip.style("left",(event.pageX+14)+"px").style("top",(event.pageY+14)+"px");
+  }).on("mouseleave", function(_, d) {
+    tooltip.style("opacity",0);
+    const info = eventToCluster.get(d.id);
+    if (info && info.cluster.size > 1) scheduleCollapse();
+  });
+}
+
+["show-disputed","show-response","show-causal","show-tolls"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => { renderEvents(); renderDisputes(); renderConnectors(); });
+});
+renderEvents(); renderDisputes(); renderConnectors();
+</script>
+</body>
+</html>
