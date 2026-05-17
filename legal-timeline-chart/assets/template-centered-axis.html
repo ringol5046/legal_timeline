@@ -86,6 +86,14 @@
     text-transform: uppercase;
   }
   .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  .track-label {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    dominant-baseline: middle;
+  }
   .event-dot { stroke: white; stroke-width: 2px; }
   .event-stem { stroke: var(--stem); stroke-width: 1px; }
   .event-date {
@@ -179,7 +187,7 @@ __WARNINGS_HTML__
 
 <div class="legend" id="legend"></div>
 
-<footer>Centered-axis zigzag · Each colored dot is one event, color = party; stem and label alternate above and below the date axis. Hover for source citations.</footer>
+<footer>Centered-axis · Events above the date bar are <strong>facts</strong> (kind: fact / external); events below are <strong>procedure</strong> (filings, rulings, discovery, settlement). Dot color = party. Hover for source citations.</footer>
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -259,34 +267,35 @@ events.forEach(e => {
   e._labelW = estimateLabelWidth(e);
 });
 
-// Smart side assignment: instead of strict alternation, on each placement choose
-// whichever side currently has fewer rows (ties broken by alternation). This
-// balances load and minimizes total chart height.
+// Smart placement:
+//   Side is FIXED by event.kind — facts/external go above, filings/rulings/
+//   discovery/settlement go below. Within each side, the width-aware packer
+//   finds the lowest-index row whose previous label clears the new event's
+//   left edge, opening a new row only when nothing fits.
+const FACTUAL_KINDS = new Set(["fact", "external"]);
+function sideForEvent(e) {
+  return FACTUAL_KINDS.has(e.kind) ? "above" : "below";
+}
+
 function packEvents() {
-  const sideRowRightX = { above: [], below: [] };  // rowIdx → last right-edge x
-  let altIndex = 0;
+  const sideRowRightX = { above: [], below: [] };
   events.forEach(e => {
     const leftX = e._x - e._labelW / 2;
     const rightX = e._x + e._labelW / 2;
-    // For each side, find the lowest row where this event fits, or one past the end.
-    function bestRowFor(side) {
-      const rows = sideRowRightX[side];
-      for (let r = 0; r < rows.length; r++) {
-        if (leftX >= rows[r] + MIN_LABEL_GAP_PX) return r;
-      }
-      return rows.length;
+    const chosenSide = sideForEvent(e);
+    const rows = sideRowRightX[chosenSide];
+    let chosenRow = -1;
+    for (let r = 0; r < rows.length; r++) {
+      if (leftX >= rows[r] + MIN_LABEL_GAP_PX) { chosenRow = r; break; }
     }
-    const aboveRow = bestRowFor("above");
-    const belowRow = bestRowFor("below");
-    // Pick side with the LOWER row index (= shorter stem). Ties: alternate.
-    let chosenSide;
-    if (aboveRow < belowRow) chosenSide = "above";
-    else if (belowRow < aboveRow) chosenSide = "below";
-    else { chosenSide = (altIndex % 2 === 0) ? "above" : "below"; altIndex++; }
-    const chosenRow = chosenSide === "above" ? aboveRow : belowRow;
+    if (chosenRow === -1) {
+      chosenRow = rows.length;
+      rows.push(rightX);
+    } else {
+      rows[chosenRow] = rightX;
+    }
     e._side = chosenSide;
     e._row = chosenRow;
-    sideRowRightX[chosenSide][chosenRow] = rightX;
   });
   return {
     rowsAbove: sideRowRightX.above.length,
@@ -337,6 +346,18 @@ svg.append("text").attr("class", "year-label")
 svg.append("text").attr("class", "year-label")
   .attr("x", axisX1 + 16).attr("y", axisY)
   .attr("text-anchor", "start").text(d3.timeFormat("%Y")(maxDate));
+
+// Track labels: "FACTS" above the axis, "PROCEDURE" below — only show if that side has events
+if (rowsAbove > 0) {
+  svg.append("text").attr("class", "track-label")
+    .attr("x", margin.left - 20).attr("y", axisY - 22)
+    .attr("text-anchor", "end").text("FACTS");
+}
+if (rowsBelow > 0) {
+  svg.append("text").attr("class", "track-label")
+    .attr("x", margin.left - 20).attr("y", axisY + 32)
+    .attr("text-anchor", "end").text("PROCEDURE");
+}
 
 const months = d3.timeMonths(d3.timeMonth.floor(minDate), d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1));
 months.forEach(m => {

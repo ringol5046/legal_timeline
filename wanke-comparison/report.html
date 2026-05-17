@@ -590,6 +590,14 @@ timeline
     text-transform: uppercase;
   }
   .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  .track-label {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    dominant-baseline: middle;
+  }
   .event-dot { stroke: white; stroke-width: 2px; }
   .event-stem { stroke: var(--stem); stroke-width: 1px; }
   .event-date {
@@ -683,7 +691,7 @@ timeline
 
 &lt;div class=&quot;legend&quot; id=&quot;legend&quot;&gt;&lt;/div&gt;
 
-&lt;footer&gt;Centered-axis zigzag · Each colored dot is one event, color = party; stem and label alternate above and below the date axis. Hover for source citations.&lt;/footer&gt;
+&lt;footer&gt;Centered-axis · Events above the date bar are &lt;strong&gt;facts&lt;/strong&gt; (kind: fact / external); events below are &lt;strong&gt;procedure&lt;/strong&gt; (filings, rulings, discovery, settlement). Dot color = party. Hover for source citations.&lt;/footer&gt;
 
 &lt;div class=&quot;tooltip&quot; id=&quot;tooltip&quot;&gt;&lt;/div&gt;
 
@@ -1478,34 +1486,35 @@ events.forEach(e =&gt; {
   e._labelW = estimateLabelWidth(e);
 });
 
-// Smart side assignment: instead of strict alternation, on each placement choose
-// whichever side currently has fewer rows (ties broken by alternation). This
-// balances load and minimizes total chart height.
+// Smart placement:
+//   Side is FIXED by event.kind — facts/external go above, filings/rulings/
+//   discovery/settlement go below. Within each side, the width-aware packer
+//   finds the lowest-index row whose previous label clears the new event&#x27;s
+//   left edge, opening a new row only when nothing fits.
+const FACTUAL_KINDS = new Set([&quot;fact&quot;, &quot;external&quot;]);
+function sideForEvent(e) {
+  return FACTUAL_KINDS.has(e.kind) ? &quot;above&quot; : &quot;below&quot;;
+}
+
 function packEvents() {
-  const sideRowRightX = { above: [], below: [] };  // rowIdx → last right-edge x
-  let altIndex = 0;
+  const sideRowRightX = { above: [], below: [] };
   events.forEach(e =&gt; {
     const leftX = e._x - e._labelW / 2;
     const rightX = e._x + e._labelW / 2;
-    // For each side, find the lowest row where this event fits, or one past the end.
-    function bestRowFor(side) {
-      const rows = sideRowRightX[side];
-      for (let r = 0; r &lt; rows.length; r++) {
-        if (leftX &gt;= rows[r] + MIN_LABEL_GAP_PX) return r;
-      }
-      return rows.length;
+    const chosenSide = sideForEvent(e);
+    const rows = sideRowRightX[chosenSide];
+    let chosenRow = -1;
+    for (let r = 0; r &lt; rows.length; r++) {
+      if (leftX &gt;= rows[r] + MIN_LABEL_GAP_PX) { chosenRow = r; break; }
     }
-    const aboveRow = bestRowFor(&quot;above&quot;);
-    const belowRow = bestRowFor(&quot;below&quot;);
-    // Pick side with the LOWER row index (= shorter stem). Ties: alternate.
-    let chosenSide;
-    if (aboveRow &lt; belowRow) chosenSide = &quot;above&quot;;
-    else if (belowRow &lt; aboveRow) chosenSide = &quot;below&quot;;
-    else { chosenSide = (altIndex % 2 === 0) ? &quot;above&quot; : &quot;below&quot;; altIndex++; }
-    const chosenRow = chosenSide === &quot;above&quot; ? aboveRow : belowRow;
+    if (chosenRow === -1) {
+      chosenRow = rows.length;
+      rows.push(rightX);
+    } else {
+      rows[chosenRow] = rightX;
+    }
     e._side = chosenSide;
     e._row = chosenRow;
-    sideRowRightX[chosenSide][chosenRow] = rightX;
   });
   return {
     rowsAbove: sideRowRightX.above.length,
@@ -1556,6 +1565,18 @@ svg.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;year-label&quot;)
 svg.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;year-label&quot;)
   .attr(&quot;x&quot;, axisX1 + 16).attr(&quot;y&quot;, axisY)
   .attr(&quot;text-anchor&quot;, &quot;start&quot;).text(d3.timeFormat(&quot;%Y&quot;)(maxDate));
+
+// Track labels: &quot;FACTS&quot; above the axis, &quot;PROCEDURE&quot; below — only show if that side has events
+if (rowsAbove &gt; 0) {
+  svg.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;track-label&quot;)
+    .attr(&quot;x&quot;, margin.left - 20).attr(&quot;y&quot;, axisY - 22)
+    .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(&quot;FACTS&quot;);
+}
+if (rowsBelow &gt; 0) {
+  svg.append(&quot;text&quot;).attr(&quot;class&quot;, &quot;track-label&quot;)
+    .attr(&quot;x&quot;, margin.left - 20).attr(&quot;y&quot;, axisY + 32)
+    .attr(&quot;text-anchor&quot;, &quot;end&quot;).text(&quot;PROCEDURE&quot;);
+}
 
 const months = d3.timeMonths(d3.timeMonth.floor(minDate), d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1));
 months.forEach(m =&gt; {
