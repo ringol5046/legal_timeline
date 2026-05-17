@@ -289,19 +289,32 @@ function drawShape(g, e, s = 10) {
   }
 }
 
-// -------------------- ROW ASSIGNMENT --------------------
-// One row per event: assign each side's events to its own row (no sharing)
-// so labels NEVER overlap, even at the cost of more vertical space.
+// -------------------- ROW ASSIGNMENT (zigzag) --------------------
+// Events on the same side alternate between TWO row heights (short stem and
+// long stem), producing an up-and-down rhythm instead of a fan/cone.
+// If two adjacent events end up too close horizontally, bump the later one
+// to a third row so labels never overlap.
 function assignRows(side) {
   const list = events.filter(e => e.side === side).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const lastXByRow = [-Infinity, -Infinity, -Infinity]; // up to 3 rows available per side
+  const minGap = 150; // px of horizontal clearance required between events in the same row
   list.forEach((e, i) => {
     e._x = x(new Date(e.date));
-    e._row = i; // every event gets its own row
+    // First try the zigzag preference: row = i % 2
+    let preferred = i % 2;
+    if (e._x - lastXByRow[preferred] >= minGap) {
+      e._row = preferred;
+    } else {
+      // Try the other zigzag row, then fallback row 2
+      const other = preferred === 0 ? 1 : 0;
+      if (e._x - lastXByRow[other] >= minGap) e._row = other;
+      else e._row = 2;
+    }
+    lastXByRow[e._row] = e._x;
   });
-  return list.length;
 }
-const rowsAbove = assignRows("above");
-const rowsBelow = assignRows("below");
+assignRows("above");
+assignRows("below");
 
 // -------------------- DOTS ON AXIS --------------------
 // Draw a small dot at each event's x position on the axis
@@ -315,10 +328,8 @@ events.forEach(e => {
 });
 
 // -------------------- EVENTS --------------------
-const firstRowGap = 28;
-const rowSpacing  = 36;       // controls vertical step between successive rows on same side
-const labelBlockH = 60;       // approximate height of a label group (date + 2-line label)
-const blockStep   = labelBlockH + 12; // total vertical step per row
+// Stem distances per row index (used in zigzag): row 0 = short, row 1 = long, row 2 = fallback longer
+const rowStemDist = [55, 165, 270];
 
 function wrap(text, maxLen) {
   const words = text.split(" ");
@@ -338,10 +349,9 @@ events.forEach(e => {
   const dir = isAbove ? -1 : 1;
 
   // Stem goes from axis line out to the label block.
-  // Row index determines how far out: row 0 is closest, row N is farthest.
-  // To avoid stems overlapping when events are close horizontally, we step rows
-  // sequentially: every event gets a distinct stem length.
-  const stemLen = firstRowGap + e._row * rowSpacing;
+  // Row 0 = short stem (close to axis); row 1 = long stem (far from axis);
+  // row 2 = fallback even farther. This creates the up-and-down zigzag rhythm.
+  const stemLen = rowStemDist[e._row] || rowStemDist[rowStemDist.length - 1];
   const stemEndY = axisY + dir * stemLen;
 
   // Shape (marker) is drawn at the END of the stem (away from axis),
