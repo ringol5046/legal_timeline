@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Wanke, Industrial, Commercial, Residential, Inc. v. Keck — Timeline</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --rule: #d8d4cc;
+    --axis: #c98826;
+    --year-fill: #c98826;
+    --month-fill: #8a6420;
+    --stem: #b3a99a;
+    --dispute: #c53030;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, "SF Pro Text", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 24px 32px;
+  }
+  header { max-width: 1800px; margin: 0 auto 12px auto; }
+  h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+  .case-meta {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 auto 8px auto;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 auto 14px auto;
+    text-align: center;
+    max-width: 1000px;
+    line-height: 1.45;
+  }
+  .style-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10.5px;
+    font-weight: 500;
+    background: #fdf2dc;
+    color: #8a6420;
+    border-radius: 10px;
+    vertical-align: middle;
+    margin-left: 8px;
+    letter-spacing: 0.02em;
+  }
+  #chart-wrap {
+    max-width: 1800px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: auto;
+    padding: 8px;
+  }
+  svg { display: block; margin: 0 auto; }
+
+  .axis-line { stroke: var(--axis); stroke-width: 2.5px; }
+  .year-label {
+    font-size: 22px;
+    font-weight: 700;
+    fill: var(--year-fill);
+    dominant-baseline: middle;
+    letter-spacing: 0.04em;
+  }
+  .month-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--month-fill);
+    text-anchor: middle;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .month-tick { stroke: var(--axis); stroke-width: 1px; opacity: 0.55; }
+  /* Compressed (event-free) axis segments get a faint diagonal-stripe overlay */
+  .axis-compressed {
+    fill: var(--axis);
+    opacity: 0.25;
+  }
+  .month-label.busy {
+    fill: var(--ink);
+    opacity: 0.9;
+    font-weight: 700;
+  }
+  .track-label {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    dominant-baseline: middle;
+  }
+  .event-dot { stroke: white; stroke-width: 2px; }
+  .event-stem { stroke: var(--stem); stroke-width: 1px; }
+  .event-date {
+    font-size: 11.5px;
+    font-weight: 700;
+    fill: #8a4423;
+    text-anchor: middle;
+  }
+  .event-date.flag { fill: var(--ink); }
+  .event-date.disputed { fill: var(--dispute); }
+  .event-label {
+    font-size: 12px;
+    fill: var(--ink);
+    text-anchor: middle;
+  }
+  .event-label.italic {
+    font-style: italic;
+    font-weight: 600;
+    fill: #888;
+    font-size: 12px;
+  }
+  .event-group { cursor: pointer; }
+  .event-group:hover .event-shape { filter: brightness(1.08); }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #1a1a1a;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    max-width: 320px;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 10;
+  }
+  .tooltip strong { color: #ffe066; display: block; margin-bottom: 4px; }
+  .tooltip .meta { color: #b8b8b8; font-size: 10px; margin-top: 4px; }
+  .tooltip .src { color: #9ad0ff; font-size: 10px; margin-top: 4px; font-style: italic; }
+  .legend {
+    max-width: 1800px;
+    margin: 16px auto 0 auto;
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    justify-content: center;
+  }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  footer {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .warnings {
+    max-width: 1800px;
+    margin: 12px auto 0 auto;
+    padding: 10px 14px;
+    background: #fffaf0;
+    border: 1px solid #f6e05e;
+    border-left: 3px solid #d69e2e;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #744210;
+  }
+  .warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .warnings li { margin: 2px 0; }
+  .warnings strong { color: #5c2d00; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Wanke, Industrial, Commercial, Residential, Inc. v. Keck<span class="style-pill">Centered Axis</span></h1>
+  <p class="case-meta">Cal. Ct. App. 4th Dist., Div. 1 · D058669 / D058825 (Super. Ct. No. 37-2008-00097163-CU-BC-CTL)</p>
+  <p class="subtitle">Former employees Scott Keck and Robert Bozarth left Wanke (a commercial waterproofing contractor) in early 2008 to form WP Solutions, allegedly soliciting Wanke's customers. Wanke sued in December 2008. The parties settled in October 2009 with a five-year Stipulated Injunction barring solicitation of named Wanke customers. Wanke later moved to enforce the injunction on (i) Con Am Management contacts (May–Aug 2010 contempt trial + motion to enforce) and (ii) the Saratoga West / AV Builders project (Sept 2010). The trial court acquitted on contempt (finding the injunction invalid under Bus. &amp; Prof. Code §16600 except for actually-confidential information) and denied the Saratoga West motion. The Court of Appeal (Aaron, J., Oct. 4, 2012) held that the double-jeopardy clause bars review of the contempt acquittal, but reversed on the motions-to-enforce: a facially valid stipulated injunction cannot be defended against on the ground that it is invalid. Petition for writ of mandate denied; appeals affirmed in part, reversed in part, and remanded.</p>
+</header>
+
+
+
+<div id="chart-wrap"></div>
+
+<div class="legend" id="legend"></div>
+
+<footer>Centered-axis · <strong>Facts</strong> above the axis, <strong>procedure</strong> below. Dot color = party. <strong>Time axis is density-weighted</strong>: empty months are compressed (faint amber segments), busy months expand (bold month labels). Hover for source citations.</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = {
+  "case": {
+    "id": "wanke_v_keck_2012",
+    "caption": "Wanke, Industrial, Commercial, Residential, Inc. v. Keck",
+    "court": "Cal. Ct. App. 4th Dist., Div. 1",
+    "docket": "D058669 / D058825 (Super. Ct. No. 37-2008-00097163-CU-BC-CTL)",
+    "jurisdiction": "California state appellate",
+    "date_range": [
+      "2007-06-01",
+      "2013-03-31"
+    ],
+    "cause_of_action": [
+      "misappropriation of trade secrets / customer list",
+      "breach of stipulated injunction (contempt)",
+      "breach of settlement agreement / liquidated damages",
+      "violation of Bus. & Prof. Code \u00a716600 (defense)"
+    ],
+    "status": "judgment",
+    "summary": "Former employees Scott Keck and Robert Bozarth left Wanke (a commercial waterproofing contractor) in early 2008 to form WP Solutions, allegedly soliciting Wanke's customers. Wanke sued in December 2008. The parties settled in October 2009 with a five-year Stipulated Injunction barring solicitation of named Wanke customers. Wanke later moved to enforce the injunction on (i) Con Am Management contacts (May\u2013Aug 2010 contempt trial + motion to enforce) and (ii) the Saratoga West / AV Builders project (Sept 2010). The trial court acquitted on contempt (finding the injunction invalid under Bus. & Prof. Code \u00a716600 except for actually-confidential information) and denied the Saratoga West motion. The Court of Appeal (Aaron, J., Oct. 4, 2012) held that the double-jeopardy clause bars review of the contempt acquittal, but reversed on the motions-to-enforce: a facially valid stipulated injunction cannot be defended against on the ground that it is invalid. Petition for writ of mandate denied; appeals affirmed in part, reversed in part, and remanded."
+  },
+  "parties": [
+    {
+      "id": "wanke",
+      "name": "Wanke, Industrial, Commercial, Residential, Inc.",
+      "short_name": "Wanke",
+      "role": [
+        "plaintiff",
+        "petitioner",
+        "appellant",
+        "cross_appellant"
+      ],
+      "type": "corporation",
+      "representation": [
+        "Lindborg & Mazor \u2014 Peter F. Lindborg, Irina J. Mazor, Patricia I. Forman"
+      ]
+    },
+    {
+      "id": "keck",
+      "name": "Scott Keck",
+      "short_name": "Keck",
+      "role": [
+        "defendant",
+        "real_party_in_interest",
+        "appellant"
+      ],
+      "type": "individual",
+      "representation": [
+        "Page, Lobo, Costales & Preston \u2014 Jonathan Preston",
+        "Boudreau, Williams \u2014 Jon R. Williams"
+      ]
+    },
+    {
+      "id": "bozarth",
+      "name": "Robert Bozarth",
+      "short_name": "Bozarth",
+      "role": [
+        "defendant"
+      ],
+      "type": "individual"
+    },
+    {
+      "id": "wp_solutions",
+      "name": "WP Solutions, Inc.",
+      "short_name": "WP Solutions",
+      "role": [
+        "defendant",
+        "real_party_in_interest",
+        "appellant"
+      ],
+      "type": "corporation"
+    },
+    {
+      "id": "trial_court",
+      "name": "San Diego County Superior Court (Hon. Timothy B. Taylor)",
+      "short_name": "Trial Court",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "court_of_appeal",
+      "name": "California Court of Appeal, 4th Dist., Div. 1 (Aaron, J.)",
+      "short_name": "Ct. App.",
+      "role": [
+        "court"
+      ],
+      "type": "court"
+    },
+    {
+      "id": "con_am",
+      "name": "Con Am Management Corporation",
+      "short_name": "Con Am",
+      "role": [
+        "non_party"
+      ],
+      "type": "corporation"
+    },
+    {
+      "id": "av_builders",
+      "name": "AV Builders (Saratoga West project)",
+      "short_name": "AV Builders",
+      "role": [
+        "non_party"
+      ],
+      "type": "corporation"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "plaintiff",
+      "label": "Plaintiff",
+      "sub": "Wanke",
+      "party_id": "wanke",
+      "order": 1
+    },
+    {
+      "id": "defendant",
+      "label": "Defendant",
+      "sub": "Keck / WP Sols.",
+      "party_id": "keck",
+      "order": 2
+    },
+    {
+      "id": "court",
+      "label": "Court",
+      "sub": "Trial \u2192 App.",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "e_employment_ends",
+      "label": "Keck & Bozarth leave Wanke; form WP Solutions",
+      "detail": "In early 2008, Keck and Bozarth (long-time Wanke employees) resigned and formed WP Solutions, Inc., a directly competing waterproofing contractor. Wanke later alleged that they had taken its customer list and other trade-secret information.",
+      "date": "2008-02-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "keck",
+        "bozarth",
+        "wp_solutions",
+        "wanke"
+      ],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": [
+        "s_opinion_p3"
+      ]
+    },
+    {
+      "id": "e_complaint",
+      "label": "Wanke files complaint (8 causes of action)",
+      "detail": "In December 2008, Wanke filed the underlying action against Keck and Bozarth alleging eight causes of action including misappropriation of trade secrets (customer list and confidential information); the complaint sought an injunction against further solicitation of Wanke's customers. WP Solutions was later added by amendment.",
+      "date": "2008-12-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wanke",
+        "keck",
+        "bozarth"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_opinion_p3"
+      ]
+    },
+    {
+      "id": "e_cross_complaint",
+      "label": "Keck & Bozarth file cross-complaint (unpaid wages)",
+      "detail": "Defendants Keck and Bozarth filed a cross-complaint against Wanke for unpaid wages and related claims arising out of their former employment.",
+      "date": "2009-02-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "keck",
+        "bozarth",
+        "wanke"
+      ],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": [
+        "s_opinion_p3"
+      ]
+    },
+    {
+      "id": "e_settlement",
+      "label": "Settlement Agreement (with stipulated injunction)",
+      "detail": "In October 2009 the parties resolved the action via a Settlement and Mutual General Release Agreement. Keck, Bozarth, and WP Solutions agreed to pay Wanke and to be bound by a Stipulated Injunction barring solicitation of Wanke's customers (listed on a 'Customer & Job List'). The agreement retained the trial court's jurisdiction under CCP \u00a7664.6 to enforce its terms.",
+      "date": "2009-10-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "wanke",
+        "keck",
+        "bozarth",
+        "wp_solutions"
+      ],
+      "kind": "settlement",
+      "category": "settlement_agreement",
+      "jurisdictional_significance": "Sets terms of the Stipulated Injunction and reserves \u00a7664.6 jurisdiction in the trial court \u2014 the procedural hook for all later enforcement motions.",
+      "source_ids": [
+        "s_opinion_p4"
+      ]
+    },
+    {
+      "id": "e_stipulated_injunction",
+      "label": "Trial court enters 5-year Stipulated Injunction",
+      "detail": "On October 30, 2009, the trial court entered the Stipulated Injunction. It barred Keck, Bozarth, and WP Solutions for five years from soliciting Wanke's listed customers (with an 18-month no-contact rule on the named individuals) and provided for liquidated damages of $10,000 for each post-first violation. The Customer & Job List was attached.",
+      "date": "2009-10-30",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "trial_court"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "jurisdictional_significance": "Five-year injunction term; liquidated-damages clause; later contested under Bus. & Prof. Code \u00a716600 (non-compete restrictions).",
+      "source_ids": [
+        "s_opinion_p5"
+      ]
+    },
+    {
+      "id": "e_osc_contempt_conam",
+      "label": "Wanke files OSC for contempt (Con Am \u2014 11 violations)",
+      "detail": "In May 2010, Wanke filed an application for an Order to Show Cause requesting that Keck, Bozarth, and WP Solutions be held in contempt for 11 separate violations of the Stipulated Injunction in connection with Con Am Management.",
+      "date": "2010-05-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wanke",
+        "keck",
+        "bozarth",
+        "wp_solutions"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_opinion_p7"
+      ]
+    },
+    {
+      "id": "e_motion_enforce_conam",
+      "label": "Wanke files motion to enforce settlement (Con Am)",
+      "detail": "In June 2010, Wanke filed a motion to enforce the Settlement Agreement under CCP \u00a7664.6, citing the same Con Am Management violations and seeking liquidated damages under the Stipulated Injunction.",
+      "date": "2010-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wanke"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_opinion_p7"
+      ]
+    },
+    {
+      "id": "e_combined_trial",
+      "label": "Combined contempt trial + hearing on motion to enforce",
+      "detail": "On August 9, 2010, the trial court held a combined contempt trial on Wanke's OSC and (pursuant to the parties' stipulated sequencing) the hearing on Wanke's motion to enforce the Settlement Agreement. Evidence: defendants contacted Con Am Management and supplied labor to it in alleged violation of the Stipulated Injunction.",
+      "date": "2010-08-09",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "trial_court",
+        "wanke",
+        "keck",
+        "wp_solutions"
+      ],
+      "kind": "discovery",
+      "category": "testimony",
+      "source_ids": [
+        "s_opinion_p8"
+      ]
+    },
+    {
+      "id": "e_statement_of_decision",
+      "label": "Trial court statement of decision: acquittal on contempt",
+      "detail": "On August 11, 2010, the trial court issued a statement of decision. It found Wanke had established three of the four contempt elements (knowledge, ability to comply, and willful violation) but acquitted defendants because, under Bus. & Prof. Code \u00a716600, the Stipulated Injunction could not lawfully bar contact with Con Am Management \u2014 the mere identity and location of Con Am were not trade secrets, so there was no valid 'lawful order' to enforce as to Con Am.",
+      "date": "2010-08-11",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "trial_court"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "jurisdictional_significance": "Reframes Stipulated Injunction as overbroad under \u00a716600 \u2014 the core ruling Wanke seeks to overturn on appeal.",
+      "source_ids": [
+        "s_opinion_p8"
+      ]
+    },
+    {
+      "id": "e_motion_enforce_saratoga",
+      "label": "Wanke files motion to enforce (Saratoga West / AV Builders)",
+      "detail": "In September 2010, Wanke filed a second motion to enforce the Settlement Agreement, this time arising out of WP Solutions performing waterproofing work for AV Builders on the 2009 Saratoga West multi-family housing project \u2014 a customer/job that appeared on the Stipulated Injunction's 'Customer & Job List'.",
+      "date": "2010-09-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wanke"
+      ],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": [
+        "s_opinion_p12"
+      ]
+    },
+    {
+      "id": "e_oct1_orders",
+      "label": "Trial court enters two Oct. 1 orders",
+      "detail": "On October 1, 2010, the trial court entered two orders. (1) Re Con Am Management: incorporated the Aug. 11 statement of decision, denied the motion to enforce as to Con Am. (2) Re Saratoga West / AV Builders: denied the motion to enforce as well, again on \u00a716600 grounds.",
+      "date": "2010-10-01",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "trial_court"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "jurisdictional_significance": "Final appealable orders; trigger appeals and cross-appeal.",
+      "source_ids": [
+        "s_opinion_p13"
+      ]
+    },
+    {
+      "id": "e_defs_appeal",
+      "label": "Keck & WP Solutions file appeal",
+      "detail": "Keck and WP Solutions appealed from the trial court's two October 1, 2010 orders \u2014 challenging the parts adverse to them.",
+      "date": "2010-11-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": [
+        "keck",
+        "wp_solutions"
+      ],
+      "kind": "filing",
+      "category": "notice_of_appeal",
+      "source_ids": [
+        "s_opinion_p13"
+      ]
+    },
+    {
+      "id": "e_wanke_crossappeal",
+      "label": "Wanke files cross-appeal",
+      "detail": "Wanke filed a cross-appeal from the trial court's October 1 order denying the motion to enforce as to Con Am Management.",
+      "date": "2010-12-01",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wanke"
+      ],
+      "kind": "filing",
+      "category": "notice_of_appeal",
+      "source_ids": [
+        "s_opinion_p13"
+      ]
+    },
+    {
+      "id": "e_wanke_writ",
+      "label": "Wanke files writ of mandate (D058825)",
+      "detail": "Wanke also filed a petition for writ of mandate (D058825) seeking review of the trial court's contempt acquittal \u2014 testing whether such acquittal can be reviewed despite double-jeopardy concerns.",
+      "date": "2011-01-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": [
+        "wanke"
+      ],
+      "kind": "filing",
+      "category": "petition_writ_of_mandate",
+      "jurisdictional_significance": "Squarely raises whether double-jeopardy clause bars appellate review of nonsummary criminal contempt acquittal.",
+      "source_ids": [
+        "s_opinion_p13"
+      ]
+    },
+    {
+      "id": "e_consolidation",
+      "label": "Ct. App. consolidates writ + cross-appeal",
+      "detail": "The Court of Appeal ordered that the petition for writ of mandate be considered together with the cross-appeal and the defendants' appeal, treating them as a consolidated proceeding.",
+      "date": "2011-03-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": [
+        "court_of_appeal"
+      ],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": [
+        "s_opinion_p14"
+      ]
+    },
+    {
+      "id": "e_oct4_opinion",
+      "label": "Ct. App. opinion: petition denied; reversed in part",
+      "detail": "October 4, 2012. Aaron, J., for the Court (certified for publication). HELD: (1) the double-jeopardy clause of the Fifth Amendment precludes appellate review of an order acquitting a defendant in a nonsummary criminal contempt proceeding \u2014 Wanke's writ petition is therefore denied. (2) A party cannot successfully defend against an alleged violation of a facially valid stipulated injunction that the trial court had jurisdiction to issue on the ground that the injunction is invalid \u2014 so the trial court erred in refusing to enforce the Settlement Agreement on \u00a716600 grounds. Appeals affirmed in part, reversed in part, and remanded.",
+      "date": "2012-10-04",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": [
+        "court_of_appeal"
+      ],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Establishes (a) double-jeopardy bar on appellate review of contempt acquittals in California, and (b) the rule that a facially valid stipulated injunction cannot be collaterally attacked as the defense to a violation claim \u2014 the holding that underwrites Wanke's later collection efforts in Wanke v. AV Builder Corp. (2020).",
+      "source_ids": [
+        "s_opinion_p2",
+        "s_opinion_caption"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "r_employment_to_complaint",
+      "from_event_id": "e_employment_ends",
+      "to_event_id": "e_complaint",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "Wanke sued in response to Keck and Bozarth's post-departure competition / alleged customer solicitation."
+    },
+    {
+      "id": "r_complaint_to_cross",
+      "from_event_id": "e_complaint",
+      "to_event_id": "e_cross_complaint",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_complaint_to_settlement",
+      "from_event_id": "e_complaint",
+      "to_event_id": "e_settlement",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_settlement_to_injunction",
+      "from_event_id": "e_settlement",
+      "to_event_id": "e_stipulated_injunction",
+      "type": "response",
+      "strength": "adjudicated",
+      "detail": "The Stipulated Injunction was the agreed-upon remedy in the Settlement Agreement; the court signed it the same month."
+    },
+    {
+      "id": "r_injunction_to_osc",
+      "from_event_id": "e_stipulated_injunction",
+      "to_event_id": "e_osc_contempt_conam",
+      "type": "tolls",
+      "strength": "adjudicated",
+      "detail": "The five-year injunction window starts running on Oct. 30, 2009; Wanke's later motions seek to enforce that clock.",
+      "clock_id": "stipulated_injunction_5yr",
+      "clock_effect": "start"
+    },
+    {
+      "id": "r_osc_to_motion_conam",
+      "from_event_id": "e_osc_contempt_conam",
+      "to_event_id": "e_motion_enforce_conam",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "Wanke filed the \u00a7664.6 motion to enforce alongside the OSC for contempt; the trial court later heard them together."
+    },
+    {
+      "id": "r_motion_conam_to_trial",
+      "from_event_id": "e_motion_enforce_conam",
+      "to_event_id": "e_combined_trial",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_osc_to_trial",
+      "from_event_id": "e_osc_contempt_conam",
+      "to_event_id": "e_combined_trial",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_trial_to_decision",
+      "from_event_id": "e_combined_trial",
+      "to_event_id": "e_statement_of_decision",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_decision_to_saratoga",
+      "from_event_id": "e_statement_of_decision",
+      "to_event_id": "e_motion_enforce_saratoga",
+      "type": "causal",
+      "strength": "alleged",
+      "detail": "After losing the Con Am contempt fight on \u00a716600 grounds, Wanke tried a second motion-to-enforce theory on the AV Builders / Saratoga West project."
+    },
+    {
+      "id": "r_saratoga_to_oct1",
+      "from_event_id": "e_motion_enforce_saratoga",
+      "to_event_id": "e_oct1_orders",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_decision_to_oct1",
+      "from_event_id": "e_statement_of_decision",
+      "to_event_id": "e_oct1_orders",
+      "type": "supersedes",
+      "strength": "undisputed",
+      "detail": "The Oct. 1 order on Con Am incorporates the Aug. 11 statement of decision."
+    },
+    {
+      "id": "r_oct1_to_defs_appeal",
+      "from_event_id": "e_oct1_orders",
+      "to_event_id": "e_defs_appeal",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_oct1_to_crossappeal",
+      "from_event_id": "e_oct1_orders",
+      "to_event_id": "e_wanke_crossappeal",
+      "type": "response",
+      "strength": "undisputed"
+    },
+    {
+      "id": "r_decision_to_writ",
+      "from_event_id": "e_statement_of_decision",
+      "to_event_id": "e_wanke_writ",
+      "type": "response",
+      "strength": "undisputed",
+      "detail": "The writ petition challenges the trial court's contempt acquittal embedded in the Aug. 11 statement of decision."
+    },
+    {
+      "id": "r_writ_to_consolidation",
+      "from_event_id": "e_wanke_writ",
+      "to_event_id": "e_consolidation",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_appeals_to_consolidation",
+      "from_event_id": "e_defs_appeal",
+      "to_event_id": "e_consolidation",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_consolidation_to_opinion",
+      "from_event_id": "e_consolidation",
+      "to_event_id": "e_oct4_opinion",
+      "type": "response",
+      "strength": "adjudicated"
+    },
+    {
+      "id": "r_opinion_supersedes_decision",
+      "from_event_id": "e_statement_of_decision",
+      "to_event_id": "e_oct4_opinion",
+      "type": "supersedes",
+      "strength": "adjudicated",
+      "detail": "Opinion reverses the trial court on the \u00a716600 defense to the Settlement Agreement motions (though it affirms the contempt acquittal on double-jeopardy grounds)."
+    }
+  ],
+  "disputes": [],
+  "sources": [
+    {
+      "id": "s_opinion_caption",
+      "type": "opinion",
+      "citation": "Wanke, Industrial, Commercial, Residential, Inc. v. Keck, 209 Cal. App. 4th 1151 (Cal. Ct. App. 4th Dist., Div. 1, filed Oct. 4, 2012) (D058669 / D058825) (Aaron, J., certified for publication)"
+    },
+    {
+      "id": "s_opinion_p2",
+      "type": "opinion",
+      "citation": "Slip op. at 2"
+    },
+    {
+      "id": "s_opinion_p3",
+      "type": "opinion",
+      "citation": "Slip op. at 3"
+    },
+    {
+      "id": "s_opinion_p4",
+      "type": "opinion",
+      "citation": "Slip op. at 4"
+    },
+    {
+      "id": "s_opinion_p5",
+      "type": "opinion",
+      "citation": "Slip op. at 5"
+    },
+    {
+      "id": "s_opinion_p7",
+      "type": "opinion",
+      "citation": "Slip op. at 7"
+    },
+    {
+      "id": "s_opinion_p8",
+      "type": "opinion",
+      "citation": "Slip op. at 8"
+    },
+    {
+      "id": "s_opinion_p12",
+      "type": "opinion",
+      "citation": "Slip op. at 12"
+    },
+    {
+      "id": "s_opinion_p13",
+      "type": "opinion",
+      "citation": "Slip op. at 13"
+    },
+    {
+      "id": "s_opinion_p14",
+      "type": "opinion",
+      "citation": "Slip op. at 14"
+    }
+  ]
+};
+
+// ---------- Parse + sort events chronologically ----------
+const parseDate = d3.timeParse("%Y-%m-%d");
+const fmtDateShort = d3.timeFormat("%m/%d/%y");
+const fmtDateLong  = d3.timeFormat("%B %d, %Y");
+
+const events = (DATA.events || []).map(e => ({
+  ...e,
+  _d: parseDate(e.date || (e.date_range && e.date_range[0]))
+})).filter(e => e._d).sort((a, b) => a._d - b._d);
+
+// (Side assignment is done by packEvents() below, after we know label widths.)
+
+// ---------- Layout constants ----------
+const margin = { top: 60, right: 120, bottom: 60, left: 120 };
+const width  = 1800;
+
+// Date domain: pad 30 days on either side
+const dates = events.map(e => e._d);
+const minDate = d3.timeDay.offset(d3.min(dates), -30);
+const maxDate = d3.timeDay.offset(d3.max(dates), 30);
+
+// -------------------- DENSITY-WEIGHTED TIME AXIS --------------------
+// Each calendar month gets a "weight" that drives its slice width along the
+// axis. Empty months stay at a baseline of 1; busy months expand. All three
+// tuning knobs are DERIVED from the actual event distribution, not fixed:
+//
+//   emptyFraction       = portion of months with zero events
+//   maxEventsInAnyMonth = how event-dense the busiest month is
+//
+//   TARGET_RATIO  ∈ [4, 15]  - how much wider the busiest month is vs empty;
+//                              more empty time → more aggressive compression.
+//   BASE_WEIGHT   = 1        - normalized empty-month width.
+//   MAX_WEIGHT    = TARGET_RATIO
+//   PER_EVENT     calibrated so the busiest month hits MAX_WEIGHT exactly.
+//
+// Example case-by-case behavior:
+//   - Wanke (21 ev / 130 mo / ~85% empty, max 3 ev): ratio ≈ 13:1, dramatic.
+//   - Williams (20 ev / ~12 mo / dense, max 5 ev): ratio ≈ 5:1, gentle.
+//   - Shearson (10 ev / ~85 mo / sparse, max 1 ev): ratio ≈ 14:1, dramatic.
+const monthList = d3.timeMonths(
+  d3.timeMonth.floor(minDate),
+  d3.timeMonth.offset(d3.timeMonth.floor(maxDate), 1)
+);
+const eventsPerMonth = new Map();
+events.forEach(e => {
+  const key = +d3.timeMonth.floor(e._d);
+  eventsPerMonth.set(key, (eventsPerMonth.get(key) || 0) + 1);
+});
+const monthCounts = monthList.map(m => eventsPerMonth.get(+m) || 0);
+const emptyMonths = monthCounts.filter(c => c === 0).length;
+const emptyFraction = monthCounts.length ? emptyMonths / monthCounts.length : 0;
+const maxEventsInAnyMonth = Math.max(1, ...monthCounts);
+
+const TARGET_RATIO = Math.min(15, Math.max(4, 4 + 11 * emptyFraction));
+const BASE_WEIGHT  = 1;
+const MAX_WEIGHT   = TARGET_RATIO;
+const PER_EVENT    = (MAX_WEIGHT - BASE_WEIGHT) / maxEventsInAnyMonth;
+
+const monthWeights = monthCounts.map(c =>
+  Math.min(MAX_WEIGHT, BASE_WEIGHT + c * PER_EVENT)
+);
+const totalWeight = d3.sum(monthWeights);
+const axisStart = margin.left;
+const axisEnd   = width - margin.right;
+const axisRange = axisEnd - axisStart;
+
+// Pre-compute each month's left/right x boundary on the axis
+const monthBoundaries = [axisStart];
+{
+  let cum = 0;
+  for (let i = 0; i < monthWeights.length; i++) {
+    cum += monthWeights[i];
+    monthBoundaries.push(axisStart + (cum / totalWeight) * axisRange);
+  }
+}
+
+// x() maps any date to an x-pixel by interpolating linearly within its month slice.
+// Dates before the first month or after the last get clamped to the axis ends.
+function x(date) {
+  const monthStart = d3.timeMonth.floor(date);
+  let idx = -1;
+  for (let i = 0; i < monthList.length; i++) {
+    if (+monthList[i] === +monthStart) { idx = i; break; }
+  }
+  if (idx === -1) return date < monthList[0] ? monthBoundaries[0] : monthBoundaries[monthBoundaries.length - 1];
+  const monthEnd = d3.timeMonth.offset(monthStart, 1);
+  const frac = (date - monthStart) / (monthEnd - monthStart);
+  return monthBoundaries[idx] + frac * (monthBoundaries[idx + 1] - monthBoundaries[idx]);
+}
+
+// ---------- Lane lookup (for color/short-name) ----------
+const laneById = new Map((DATA.lanes || []).map(l => [l.id, l]));
+const partyById = new Map((DATA.parties || []).map(p => [p.id, p]));
+const sourceById = new Map((DATA.sources || []).map(s => [s.id, s]));
+
+function colorForEvent(e) {
+  const lane = laneById.get(e.lane_id);
+  return (lane && lane.color) || "#666";
+}
+
+function shortLabel(e) {
+  return e.label || "(unlabeled)";
+}
+
+// ---------- Word wrap helper (defined early; row packing uses it) ----------
+function wrap(text, maxLen) {
+  const words = (text || "").split(" ");
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length <= maxLen) cur = (cur + " " + w).trim();
+    else { if (cur) lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// ---------- Width-aware row packing ----------
+// 1. Estimate each event's label box width from its wrapped text.
+// 2. Compute event x-position on the time axis.
+// 3. For each event, find the LOWEST-INDEX row on its side whose last label's
+//    right edge is clear of this event's left edge; otherwise open a new row.
+// This guarantees no two labels overlap horizontally on the same side. Row index
+// then determines stem length so the chart fans out vertically only as needed.
+const LABEL_WRAP_CHARS  = 26;
+const APPROX_CHAR_PX    = 6.7;
+const LABEL_PAD_PX      = 14;
+const MIN_LABEL_GAP_PX  = 10;
+
+function estimateLabelWidth(e) {
+  const wrapped = wrap(e.label || "", LABEL_WRAP_CHARS);
+  const longest = wrapped.reduce((m, line) => Math.max(m, line.length), 9 /* date width */);
+  return Math.max(longest * APPROX_CHAR_PX + LABEL_PAD_PX * 2, 60);
+}
+
+// Pre-compute x and label width for every event
+events.forEach(e => {
+  e._x = x(e._d);
+  e._labelW = estimateLabelWidth(e);
+});
+
+// Smart placement:
+//   Side is FIXED by event.kind — facts/external go above, filings/rulings/
+//   discovery/settlement go below. Within each side, the width-aware packer
+//   finds the lowest-index row whose previous label clears the new event's
+//   left edge, opening a new row only when nothing fits.
+const FACTUAL_KINDS = new Set(["fact", "external"]);
+function sideForEvent(e) {
+  return FACTUAL_KINDS.has(e.kind) ? "above" : "below";
+}
+
+function packEvents() {
+  const sideRowRightX = { above: [], below: [] };
+  events.forEach(e => {
+    const leftX = e._x - e._labelW / 2;
+    const rightX = e._x + e._labelW / 2;
+    const chosenSide = sideForEvent(e);
+    const rows = sideRowRightX[chosenSide];
+    let chosenRow = -1;
+    for (let r = 0; r < rows.length; r++) {
+      if (leftX >= rows[r] + MIN_LABEL_GAP_PX) { chosenRow = r; break; }
+    }
+    if (chosenRow === -1) {
+      chosenRow = rows.length;
+      rows.push(rightX);
+    } else {
+      rows[chosenRow] = rightX;
+    }
+    e._side = chosenSide;
+    e._row = chosenRow;
+  });
+  return {
+    rowsAbove: sideRowRightX.above.length,
+    rowsBelow: sideRowRightX.below.length,
+  };
+}
+const { rowsAbove, rowsBelow } = packEvents();
+
+// ---------- Vertical positioning (PER-ROW dynamic spacing) ----------
+// Each row's stem position is computed cumulatively from the preceding rows'
+// label-block heights. The step formula explicitly accounts for every visual
+// element in a row so the next row's MARKER never overlaps this row's DATE.
+//
+// Row N's contribution to the stem of row N+1 (going away from the axis):
+//   MARKER_RADIUS_PX     ← clear the top of row N's marker
+//   MARKER_TO_LABEL_PX   ← gap from marker center to nearest label baseline
+//   (linesN - 1) * LINE_H_PX  ← extra wrapped label lines
+//   LABEL_TO_DATE_PX     ← gap from top label baseline to date baseline
+//   DATE_ASCENT_PX       ← height of date text above its baseline
+//   ROW_GAP_PX           ← visible separation between row N's date top and
+//                          row N+1's marker bottom
+const LINE_H_PX            = 14;
+const MARKER_RADIUS_PX     = 7;
+const MARKER_TO_LABEL_PX   = 22;
+const LABEL_TO_DATE_PX     = 16;
+const DATE_ASCENT_PX       = 10;
+const ROW_GAP_PX           = 8;
+const ROW_BASE_PX          = 50;
+
+function stepBetweenRows(linesInPrev) {
+  return MARKER_RADIUS_PX
+       + MARKER_TO_LABEL_PX
+       + (linesInPrev - 1) * LINE_H_PX
+       + LABEL_TO_DATE_PX
+       + DATE_ASCENT_PX
+       + ROW_GAP_PX;
+}
+
+function buildStemTable(side) {
+  const rowMaxLines = new Map();
+  events.filter(e => e._side === side).forEach(e => {
+    const lines = wrap(e.label || "", LABEL_WRAP_CHARS).length;
+    rowMaxLines.set(e._row, Math.max(rowMaxLines.get(e._row) || 1, lines));
+  });
+  const stemAt = new Map();
+  if (rowMaxLines.size === 0) return stemAt;
+  const maxRow = Math.max(...rowMaxLines.keys());
+  let stem = ROW_BASE_PX;
+  for (let r = 0; r <= maxRow; r++) {
+    stemAt.set(r, stem);
+    stem += stepBetweenRows(rowMaxLines.get(r) || 1);
+  }
+  return stemAt;
+}
+
+const aboveStemTable = buildStemTable("above");
+const belowStemTable = buildStemTable("below");
+function stemLenForRow(rowIdx, side) {
+  const table = (side === "above") ? aboveStemTable : belowStemTable;
+  return table.get(rowIdx) || ROW_BASE_PX;
+}
+
+// Deepest visible y-extent on each side = top of the LAST row's date text.
+function deepestStem(side) {
+  const table = (side === "above") ? aboveStemTable : belowStemTable;
+  if (table.size === 0) return 0;
+  const maxRow = Math.max(...table.keys());
+  const lastLines = events
+    .filter(e => e._side === side && e._row === maxRow)
+    .reduce((m, e) => Math.max(m, wrap(e.label || "", LABEL_WRAP_CHARS).length), 1);
+  return table.get(maxRow)
+       + MARKER_TO_LABEL_PX
+       + (lastLines - 1) * LINE_H_PX
+       + LABEL_TO_DATE_PX
+       + DATE_ASCENT_PX;
+}
+
+// Compute the chart height so even the deepest-row event has room for its label.
+const padBeyondLastLabel = 24;
+const aboveExtent = (rowsAbove === 0 ? 0 : deepestStem("above")) + padBeyondLastLabel;
+const belowExtent = (rowsBelow === 0 ? 0 : deepestStem("below")) + padBeyondLastLabel;
+const minHalfHeight = 180;
+const aboveH = Math.max(aboveExtent, minHalfHeight);
+const belowH = Math.max(belowExtent, minHalfHeight);
+const height = margin.top + aboveH + belowH + margin.bottom;
+const axisY  = margin.top + aboveH;
+
+// ---------- SVG ----------
+const svg = d3.select("#chart-wrap").append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet");
+
+// ---------- Thin axis line ----------
+const axisX0 = x(minDate);
+const axisX1 = x(maxDate);
+svg.append("line")
+  .attr("class", "axis-line")
+  .attr("x1", axisX0).attr("x2", axisX1)
+  .attr("y1", axisY).attr("y2", axisY)
+  .attr("stroke-linecap", "round");
+
+// ---------- Year + month labels ----------
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX0 - 16).attr("y", axisY)
+  .attr("text-anchor", "end").text(d3.timeFormat("%Y")(minDate));
+svg.append("text").attr("class", "year-label")
+  .attr("x", axisX1 + 16).attr("y", axisY)
+  .attr("text-anchor", "start").text(d3.timeFormat("%Y")(maxDate));
+
+// Track labels: "FACTS" above the axis, "PROCEDURE" below — only show if that side has events
+if (rowsAbove > 0) {
+  svg.append("text").attr("class", "track-label")
+    .attr("x", margin.left - 20).attr("y", axisY - 22)
+    .attr("text-anchor", "end").text("FACTS");
+}
+if (rowsBelow > 0) {
+  svg.append("text").attr("class", "track-label")
+    .attr("x", margin.left - 20).attr("y", axisY + 32)
+    .attr("text-anchor", "end").text("PROCEDURE");
+}
+
+// Highlight compressed (empty / sparse) axis segments with a fainter overlay
+// so the reader can see where time has been visually shortened.
+// "Sparse" = any month at the empty baseline (no events). Months with at least
+// one event are visually marked as busy.
+const COMPRESS_THRESHOLD = BASE_WEIGHT + 0.001;
+monthList.forEach((m, i) => {
+  if (monthWeights[i] <= COMPRESS_THRESHOLD) {
+    svg.append("rect").attr("class", "axis-compressed")
+      .attr("x", monthBoundaries[i])
+      .attr("y", axisY - 3)
+      .attr("width", monthBoundaries[i + 1] - monthBoundaries[i])
+      .attr("height", 6);
+  }
+});
+
+// Month ticks at every month boundary
+monthList.forEach((m, i) => {
+  const cx = monthBoundaries[i];
+  svg.append("line").attr("class", "month-tick")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY - 5).attr("y2", axisY + 5);
+});
+
+// ---------- Greedy non-overlapping month-label placement ----------
+// Goal: never let two month labels overlap. Strategy:
+//   1. Lay down all *year* (January) labels first — highest priority.
+//   2. Then lay down busy-month labels (highest event count first).
+//   3. Finally fill quiet regions with sparse-month labels at a regular
+//      cadence, skipping any that would collide.
+// Each label reserves a horizontal slot of `LABEL_SLOT_PX` around its center.
+// LABEL_SLOT_PX is itself derived from the chart's average pixels-per-month —
+// so dense compressed charts use a tight slot and sparse open charts get a
+// generous one, but every chart still satisfies the no-overlap invariant.
+const avgPxPerMonth = axisRange / monthList.length;
+const LABEL_SLOT_PX = Math.max(26, Math.min(56, Math.round(avgPxPerMonth * 1.6)));
+const sparseEvery = monthList.length > 80 ? 12
+                 : monthList.length > 40 ? 6
+                 : monthList.length > 18 ? 3
+                 : 1;
+const placedSlots = [];
+function fitsAt(cx) {
+  const halfW = LABEL_SLOT_PX / 2;
+  for (let i = 0; i < placedSlots.length; i++) {
+    if (Math.abs(cx - placedSlots[i].x) < (halfW + placedSlots[i].width / 2)) return false;
+  }
+  return true;
+}
+function placeLabel(cx, text, opts) {
+  if (!fitsAt(cx)) return false;
+  placedSlots.push({ x: cx, width: LABEL_SLOT_PX });
+  const cls = "month-label" + (opts && opts.busy ? " busy" : "");
+  svg.append("text").attr("class", cls)
+    .attr("x", cx).attr("y", axisY + 22)
+    .text(text);
+  if (opts && opts.isJan) {
+    svg.append("text").attr("class", "month-label")
+      .attr("x", cx).attr("y", axisY + 36)
+      .style("font-size", "10.5px").style("opacity", 0.8)
+      .text(opts.year);
+  }
+  return true;
+}
+
+// Pass 1: all Januaries (year markers)
+monthList.forEach((m, i) => {
+  if (m.getMonth() === 0) {
+    placeLabel(monthBoundaries[i] + (monthBoundaries[i + 1] - monthBoundaries[i]) / 2,
+      d3.timeFormat("%b")(m), { isJan: true, year: d3.timeFormat("%Y")(m) });
+  }
+});
+
+// Pass 2: busy months (sorted by descending event count so peaks always label)
+const busyOrder = monthList
+  .map((m, i) => ({ m, i, c: eventsPerMonth.get(+m) || 0 }))
+  .filter(d => d.c > 0)
+  .sort((a, b) => b.c - a.c);
+busyOrder.forEach(d => {
+  const cx = monthBoundaries[d.i] + (monthBoundaries[d.i + 1] - monthBoundaries[d.i]) / 2;
+  placeLabel(cx, d3.timeFormat("%b")(d.m), { busy: true });
+});
+
+// Pass 3: sparse-region fill labels at a regular cadence (only if they fit)
+monthList.forEach((m, i) => {
+  if (i % sparseEvery !== 0) return;
+  if (m.getMonth() === 0) return; // already handled in pass 1
+  if ((eventsPerMonth.get(+m) || 0) > 0) return; // already handled in pass 2
+  const cx = monthBoundaries[i] + (monthBoundaries[i + 1] - monthBoundaries[i]) / 2;
+  placeLabel(cx, d3.timeFormat("%b")(m), {});
+});
+
+// ---------- Dots on the axis ----------
+events.forEach(e => {
+  svg.append("circle")
+    .attr("class", "event-dot")
+    .attr("cx", e._x).attr("cy", axisY).attr("r", 5)
+    .attr("fill", colorForEvent(e));
+});
+
+// ---------- Tooltip ----------
+const tooltip = d3.select("#tooltip");
+
+// ---------- Render each event ----------
+events.forEach(e => {
+  const cx = e._x;
+  const isAbove = e._side === "above";
+  const dir = isAbove ? -1 : 1;
+  const stemLen = stemLenForRow(e._row, e._side);
+  const stemEndY = axisY + dir * stemLen;
+
+  // stem from the axis dot to the marker
+  svg.append("line").attr("class", "event-stem")
+    .attr("x1", cx).attr("x2", cx)
+    .attr("y1", axisY + dir * 6)
+    .attr("y2", stemEndY + dir * -8);
+
+  // marker (small filled circle at the stem end)
+  const g = svg.append("g")
+    .attr("class", "event-group")
+    .attr("transform", `translate(${cx}, ${stemEndY})`)
+    .on("mouseover", () => {
+      const lane = laneById.get(e.lane_id);
+      const srcs = (e.source_ids || []).map(sid => sourceById.get(sid)).filter(Boolean);
+      const srcHTML = srcs.length ? `<div class="src">${srcs.map(s => s.citation).join(" · ")}</div>` : "";
+      const sig = e.jurisdictional_significance ? `<div class="meta" style="color:#ffb59a">⚖ ${e.jurisdictional_significance}</div>` : "";
+      tooltip.style("opacity", 1).html(
+        `<strong>${e.label}</strong>` +
+        `<div>${e.detail || ""}</div>` +
+        `<div class="meta">${(lane && lane.label) || e.lane_id} · ${fmtDateLong(e._d)}${e.disputed ? " · <span style='color:#ff8a8a'>DISPUTED</span>" : ""}</div>` +
+        sig + srcHTML
+      );
+    })
+    .on("mousemove", (ev) => {
+      tooltip.style("left", (ev.pageX + 14) + "px").style("top", (ev.pageY + 14) + "px");
+    })
+    .on("mouseout", () => tooltip.style("opacity", 0));
+
+  g.append("circle").attr("class", "event-shape")
+    .attr("r", 7)
+    .attr("fill", colorForEvent(e))
+    .attr("stroke", e.disputed ? "var(--dispute)" : "white")
+    .attr("stroke-width", e.disputed ? 2 : 2)
+    .attr("stroke-dasharray", e.disputed ? "2 2" : null);
+
+  // date text and label text, placed past the marker (away from axis)
+  const lineH = 14;
+  const wrapped = wrap(shortLabel(e), 28);
+  const baseY = stemEndY + dir * 22;
+
+  if (isAbove) {
+    const labelTopY = baseY - (wrapped.length - 1) * lineH;
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", labelTopY + i * lineH).text(line);
+    });
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", labelTopY - lineH - 2)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+  } else {
+    svg.append("text").attr("class", "event-date" + (e.disputed ? " disputed" : ""))
+      .attr("x", cx).attr("y", baseY)
+      .text(fmtDateShort(e._d) + (e.date_certainty && e.date_certainty !== "exact" ? " (~)" : ""));
+    wrapped.forEach((line, i) => {
+      svg.append("text").attr("class", "event-label")
+        .attr("x", cx).attr("y", baseY + lineH * (i + 1) + 2).text(line);
+    });
+  }
+});
+
+// ---------- Legend (one chip per lane) ----------
+const legendEl = document.getElementById("legend");
+(DATA.lanes || []).forEach(l => {
+  const item = document.createElement("span");
+  item.className = "item";
+  item.innerHTML = `<span class="swatch" style="background:${l.color || '#999'}"></span> ${l.label}${l.sub ? ' (' + l.sub + ')' : ''}`;
+  legendEl.appendChild(item);
+});
+</script>
+</body>
+</html>

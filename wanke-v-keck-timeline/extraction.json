@@ -1,0 +1,317 @@
+{
+  "case": {
+    "id": "wanke_v_keck_2012",
+    "caption": "Wanke, Industrial, Commercial, Residential, Inc. v. Keck",
+    "court": "Cal. Ct. App. 4th Dist., Div. 1",
+    "docket": "D058669 / D058825 (Super. Ct. No. 37-2008-00097163-CU-BC-CTL)",
+    "jurisdiction": "California state appellate",
+    "date_range": ["2007-06-01", "2013-03-31"],
+    "cause_of_action": [
+      "misappropriation of trade secrets / customer list",
+      "breach of stipulated injunction (contempt)",
+      "breach of settlement agreement / liquidated damages",
+      "violation of Bus. & Prof. Code §16600 (defense)"
+    ],
+    "status": "judgment",
+    "summary": "Former employees Scott Keck and Robert Bozarth left Wanke (a commercial waterproofing contractor) in early 2008 to form WP Solutions, allegedly soliciting Wanke's customers. Wanke sued in December 2008. The parties settled in October 2009 with a five-year Stipulated Injunction barring solicitation of named Wanke customers. Wanke later moved to enforce the injunction on (i) Con Am Management contacts (May–Aug 2010 contempt trial + motion to enforce) and (ii) the Saratoga West / AV Builders project (Sept 2010). The trial court acquitted on contempt (finding the injunction invalid under Bus. & Prof. Code §16600 except for actually-confidential information) and denied the Saratoga West motion. The Court of Appeal (Aaron, J., Oct. 4, 2012) held that the double-jeopardy clause bars review of the contempt acquittal, but reversed on the motions-to-enforce: a facially valid stipulated injunction cannot be defended against on the ground that it is invalid. Petition for writ of mandate denied; appeals affirmed in part, reversed in part, and remanded."
+  },
+  "parties": [
+    {
+      "id": "wanke",
+      "name": "Wanke, Industrial, Commercial, Residential, Inc.",
+      "short_name": "Wanke",
+      "role": ["plaintiff", "petitioner", "appellant", "cross_appellant"],
+      "type": "corporation",
+      "representation": ["Lindborg & Mazor — Peter F. Lindborg, Irina J. Mazor, Patricia I. Forman"]
+    },
+    {
+      "id": "keck",
+      "name": "Scott Keck",
+      "short_name": "Keck",
+      "role": ["defendant", "real_party_in_interest", "appellant"],
+      "type": "individual",
+      "representation": ["Page, Lobo, Costales & Preston — Jonathan Preston", "Boudreau, Williams — Jon R. Williams"]
+    },
+    {
+      "id": "bozarth",
+      "name": "Robert Bozarth",
+      "short_name": "Bozarth",
+      "role": ["defendant"],
+      "type": "individual"
+    },
+    {
+      "id": "wp_solutions",
+      "name": "WP Solutions, Inc.",
+      "short_name": "WP Solutions",
+      "role": ["defendant", "real_party_in_interest", "appellant"],
+      "type": "corporation"
+    },
+    {
+      "id": "trial_court",
+      "name": "San Diego County Superior Court (Hon. Timothy B. Taylor)",
+      "short_name": "Trial Court",
+      "role": ["court"],
+      "type": "court"
+    },
+    {
+      "id": "court_of_appeal",
+      "name": "California Court of Appeal, 4th Dist., Div. 1 (Aaron, J.)",
+      "short_name": "Ct. App.",
+      "role": ["court"],
+      "type": "court"
+    },
+    {
+      "id": "con_am",
+      "name": "Con Am Management Corporation",
+      "short_name": "Con Am",
+      "role": ["non_party"],
+      "type": "corporation"
+    },
+    {
+      "id": "av_builders",
+      "name": "AV Builders (Saratoga West project)",
+      "short_name": "AV Builders",
+      "role": ["non_party"],
+      "type": "corporation"
+    }
+  ],
+  "lanes": [
+    {"id": "plaintiff",  "label": "Plaintiff",  "sub": "Wanke",          "party_id": "wanke",        "order": 1},
+    {"id": "defendant",  "label": "Defendant",  "sub": "Keck / WP Sols.","party_id": "keck",         "order": 2},
+    {"id": "court",      "label": "Court",      "sub": "Trial → App.",                              "order": 3}
+  ],
+  "events": [
+    {
+      "id": "e_employment_ends",
+      "label": "Keck & Bozarth leave Wanke; form WP Solutions",
+      "detail": "In early 2008, Keck and Bozarth (long-time Wanke employees) resigned and formed WP Solutions, Inc., a directly competing waterproofing contractor. Wanke later alleged that they had taken its customer list and other trade-secret information.",
+      "date": "2008-02-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["keck", "bozarth", "wp_solutions", "wanke"],
+      "kind": "fact",
+      "category": "transaction",
+      "source_ids": ["s_opinion_p3"]
+    },
+    {
+      "id": "e_complaint",
+      "label": "Wanke files complaint (8 causes of action)",
+      "detail": "In December 2008, Wanke filed the underlying action against Keck and Bozarth alleging eight causes of action including misappropriation of trade secrets (customer list and confidential information); the complaint sought an injunction against further solicitation of Wanke's customers. WP Solutions was later added by amendment.",
+      "date": "2008-12-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["wanke", "keck", "bozarth"],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": ["s_opinion_p3"]
+    },
+    {
+      "id": "e_cross_complaint",
+      "label": "Keck & Bozarth file cross-complaint (unpaid wages)",
+      "detail": "Defendants Keck and Bozarth filed a cross-complaint against Wanke for unpaid wages and related claims arising out of their former employment.",
+      "date": "2009-02-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["keck", "bozarth", "wanke"],
+      "kind": "filing",
+      "category": "pleading",
+      "source_ids": ["s_opinion_p3"]
+    },
+    {
+      "id": "e_settlement",
+      "label": "Settlement Agreement (with stipulated injunction)",
+      "detail": "In October 2009 the parties resolved the action via a Settlement and Mutual General Release Agreement. Keck, Bozarth, and WP Solutions agreed to pay Wanke and to be bound by a Stipulated Injunction barring solicitation of Wanke's customers (listed on a 'Customer & Job List'). The agreement retained the trial court's jurisdiction under CCP §664.6 to enforce its terms.",
+      "date": "2009-10-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["wanke", "keck", "bozarth", "wp_solutions"],
+      "kind": "settlement",
+      "category": "settlement_agreement",
+      "jurisdictional_significance": "Sets terms of the Stipulated Injunction and reserves §664.6 jurisdiction in the trial court — the procedural hook for all later enforcement motions.",
+      "source_ids": ["s_opinion_p4"]
+    },
+    {
+      "id": "e_stipulated_injunction",
+      "label": "Trial court enters 5-year Stipulated Injunction",
+      "detail": "On October 30, 2009, the trial court entered the Stipulated Injunction. It barred Keck, Bozarth, and WP Solutions for five years from soliciting Wanke's listed customers (with an 18-month no-contact rule on the named individuals) and provided for liquidated damages of $10,000 for each post-first violation. The Customer & Job List was attached.",
+      "date": "2009-10-30",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["trial_court"],
+      "kind": "ruling",
+      "category": "order",
+      "jurisdictional_significance": "Five-year injunction term; liquidated-damages clause; later contested under Bus. & Prof. Code §16600 (non-compete restrictions).",
+      "source_ids": ["s_opinion_p5"]
+    },
+    {
+      "id": "e_osc_contempt_conam",
+      "label": "Wanke files OSC for contempt (Con Am — 11 violations)",
+      "detail": "In May 2010, Wanke filed an application for an Order to Show Cause requesting that Keck, Bozarth, and WP Solutions be held in contempt for 11 separate violations of the Stipulated Injunction in connection with Con Am Management.",
+      "date": "2010-05-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["wanke", "keck", "bozarth", "wp_solutions"],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": ["s_opinion_p7"]
+    },
+    {
+      "id": "e_motion_enforce_conam",
+      "label": "Wanke files motion to enforce settlement (Con Am)",
+      "detail": "In June 2010, Wanke filed a motion to enforce the Settlement Agreement under CCP §664.6, citing the same Con Am Management violations and seeking liquidated damages under the Stipulated Injunction.",
+      "date": "2010-06-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["wanke"],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": ["s_opinion_p7"]
+    },
+    {
+      "id": "e_combined_trial",
+      "label": "Combined contempt trial + hearing on motion to enforce",
+      "detail": "On August 9, 2010, the trial court held a combined contempt trial on Wanke's OSC and (pursuant to the parties' stipulated sequencing) the hearing on Wanke's motion to enforce the Settlement Agreement. Evidence: defendants contacted Con Am Management and supplied labor to it in alleged violation of the Stipulated Injunction.",
+      "date": "2010-08-09",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["trial_court", "wanke", "keck", "wp_solutions"],
+      "kind": "discovery",
+      "category": "testimony",
+      "source_ids": ["s_opinion_p8"]
+    },
+    {
+      "id": "e_statement_of_decision",
+      "label": "Trial court statement of decision: acquittal on contempt",
+      "detail": "On August 11, 2010, the trial court issued a statement of decision. It found Wanke had established three of the four contempt elements (knowledge, ability to comply, and willful violation) but acquitted defendants because, under Bus. & Prof. Code §16600, the Stipulated Injunction could not lawfully bar contact with Con Am Management — the mere identity and location of Con Am were not trade secrets, so there was no valid 'lawful order' to enforce as to Con Am.",
+      "date": "2010-08-11",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["trial_court"],
+      "kind": "ruling",
+      "category": "order",
+      "jurisdictional_significance": "Reframes Stipulated Injunction as overbroad under §16600 — the core ruling Wanke seeks to overturn on appeal.",
+      "source_ids": ["s_opinion_p8"]
+    },
+    {
+      "id": "e_motion_enforce_saratoga",
+      "label": "Wanke files motion to enforce (Saratoga West / AV Builders)",
+      "detail": "In September 2010, Wanke filed a second motion to enforce the Settlement Agreement, this time arising out of WP Solutions performing waterproofing work for AV Builders on the 2009 Saratoga West multi-family housing project — a customer/job that appeared on the Stipulated Injunction's 'Customer & Job List'.",
+      "date": "2010-09-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["wanke"],
+      "kind": "filing",
+      "category": "motion",
+      "source_ids": ["s_opinion_p12"]
+    },
+    {
+      "id": "e_oct1_orders",
+      "label": "Trial court enters two Oct. 1 orders",
+      "detail": "On October 1, 2010, the trial court entered two orders. (1) Re Con Am Management: incorporated the Aug. 11 statement of decision, denied the motion to enforce as to Con Am. (2) Re Saratoga West / AV Builders: denied the motion to enforce as well, again on §16600 grounds.",
+      "date": "2010-10-01",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["trial_court"],
+      "kind": "ruling",
+      "category": "order",
+      "jurisdictional_significance": "Final appealable orders; trigger appeals and cross-appeal.",
+      "source_ids": ["s_opinion_p13"]
+    },
+    {
+      "id": "e_defs_appeal",
+      "label": "Keck & WP Solutions file appeal",
+      "detail": "Keck and WP Solutions appealed from the trial court's two October 1, 2010 orders — challenging the parts adverse to them.",
+      "date": "2010-11-15",
+      "date_certainty": "approximate",
+      "lane_id": "defendant",
+      "party_ids": ["keck", "wp_solutions"],
+      "kind": "filing",
+      "category": "notice_of_appeal",
+      "source_ids": ["s_opinion_p13"]
+    },
+    {
+      "id": "e_wanke_crossappeal",
+      "label": "Wanke files cross-appeal",
+      "detail": "Wanke filed a cross-appeal from the trial court's October 1 order denying the motion to enforce as to Con Am Management.",
+      "date": "2010-12-01",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["wanke"],
+      "kind": "filing",
+      "category": "notice_of_appeal",
+      "source_ids": ["s_opinion_p13"]
+    },
+    {
+      "id": "e_wanke_writ",
+      "label": "Wanke files writ of mandate (D058825)",
+      "detail": "Wanke also filed a petition for writ of mandate (D058825) seeking review of the trial court's contempt acquittal — testing whether such acquittal can be reviewed despite double-jeopardy concerns.",
+      "date": "2011-01-15",
+      "date_certainty": "approximate",
+      "lane_id": "plaintiff",
+      "party_ids": ["wanke"],
+      "kind": "filing",
+      "category": "petition_writ_of_mandate",
+      "jurisdictional_significance": "Squarely raises whether double-jeopardy clause bars appellate review of nonsummary criminal contempt acquittal.",
+      "source_ids": ["s_opinion_p13"]
+    },
+    {
+      "id": "e_consolidation",
+      "label": "Ct. App. consolidates writ + cross-appeal",
+      "detail": "The Court of Appeal ordered that the petition for writ of mandate be considered together with the cross-appeal and the defendants' appeal, treating them as a consolidated proceeding.",
+      "date": "2011-03-15",
+      "date_certainty": "approximate",
+      "lane_id": "court",
+      "party_ids": ["court_of_appeal"],
+      "kind": "ruling",
+      "category": "order",
+      "source_ids": ["s_opinion_p14"]
+    },
+    {
+      "id": "e_oct4_opinion",
+      "label": "Ct. App. opinion: petition denied; reversed in part",
+      "detail": "October 4, 2012. Aaron, J., for the Court (certified for publication). HELD: (1) the double-jeopardy clause of the Fifth Amendment precludes appellate review of an order acquitting a defendant in a nonsummary criminal contempt proceeding — Wanke's writ petition is therefore denied. (2) A party cannot successfully defend against an alleged violation of a facially valid stipulated injunction that the trial court had jurisdiction to issue on the ground that the injunction is invalid — so the trial court erred in refusing to enforce the Settlement Agreement on §16600 grounds. Appeals affirmed in part, reversed in part, and remanded.",
+      "date": "2012-10-04",
+      "date_certainty": "exact",
+      "lane_id": "court",
+      "party_ids": ["court_of_appeal"],
+      "kind": "ruling",
+      "category": "opinion",
+      "jurisdictional_significance": "Establishes (a) double-jeopardy bar on appellate review of contempt acquittals in California, and (b) the rule that a facially valid stipulated injunction cannot be collaterally attacked as the defense to a violation claim — the holding that underwrites Wanke's later collection efforts in Wanke v. AV Builder Corp. (2020).",
+      "source_ids": ["s_opinion_p2", "s_opinion_caption"]
+    }
+  ],
+  "relationships": [
+    {"id": "r_employment_to_complaint",     "from_event_id": "e_employment_ends",       "to_event_id": "e_complaint",              "type": "causal",     "strength": "alleged",    "detail": "Wanke sued in response to Keck and Bozarth's post-departure competition / alleged customer solicitation."},
+    {"id": "r_complaint_to_cross",           "from_event_id": "e_complaint",             "to_event_id": "e_cross_complaint",        "type": "response",   "strength": "undisputed"},
+    {"id": "r_complaint_to_settlement",      "from_event_id": "e_complaint",             "to_event_id": "e_settlement",             "type": "response",   "strength": "undisputed"},
+    {"id": "r_settlement_to_injunction",     "from_event_id": "e_settlement",            "to_event_id": "e_stipulated_injunction",  "type": "response",   "strength": "adjudicated", "detail": "The Stipulated Injunction was the agreed-upon remedy in the Settlement Agreement; the court signed it the same month."},
+    {"id": "r_injunction_to_osc",            "from_event_id": "e_stipulated_injunction", "to_event_id": "e_osc_contempt_conam",     "type": "tolls",      "strength": "adjudicated", "detail": "The five-year injunction window starts running on Oct. 30, 2009; Wanke's later motions seek to enforce that clock.", "clock_id": "stipulated_injunction_5yr", "clock_effect": "start"},
+    {"id": "r_osc_to_motion_conam",          "from_event_id": "e_osc_contempt_conam",    "to_event_id": "e_motion_enforce_conam",   "type": "response",   "strength": "undisputed",  "detail": "Wanke filed the §664.6 motion to enforce alongside the OSC for contempt; the trial court later heard them together."},
+    {"id": "r_motion_conam_to_trial",        "from_event_id": "e_motion_enforce_conam",  "to_event_id": "e_combined_trial",         "type": "response",   "strength": "adjudicated"},
+    {"id": "r_osc_to_trial",                 "from_event_id": "e_osc_contempt_conam",    "to_event_id": "e_combined_trial",         "type": "response",   "strength": "adjudicated"},
+    {"id": "r_trial_to_decision",            "from_event_id": "e_combined_trial",        "to_event_id": "e_statement_of_decision",  "type": "response",   "strength": "adjudicated"},
+    {"id": "r_decision_to_saratoga",         "from_event_id": "e_statement_of_decision", "to_event_id": "e_motion_enforce_saratoga","type": "causal",     "strength": "alleged",     "detail": "After losing the Con Am contempt fight on §16600 grounds, Wanke tried a second motion-to-enforce theory on the AV Builders / Saratoga West project."},
+    {"id": "r_saratoga_to_oct1",             "from_event_id": "e_motion_enforce_saratoga","to_event_id": "e_oct1_orders",           "type": "response",   "strength": "adjudicated"},
+    {"id": "r_decision_to_oct1",             "from_event_id": "e_statement_of_decision", "to_event_id": "e_oct1_orders",            "type": "supersedes", "strength": "undisputed",  "detail": "The Oct. 1 order on Con Am incorporates the Aug. 11 statement of decision."},
+    {"id": "r_oct1_to_defs_appeal",          "from_event_id": "e_oct1_orders",           "to_event_id": "e_defs_appeal",            "type": "response",   "strength": "undisputed"},
+    {"id": "r_oct1_to_crossappeal",          "from_event_id": "e_oct1_orders",           "to_event_id": "e_wanke_crossappeal",      "type": "response",   "strength": "undisputed"},
+    {"id": "r_decision_to_writ",             "from_event_id": "e_statement_of_decision", "to_event_id": "e_wanke_writ",             "type": "response",   "strength": "undisputed", "detail": "The writ petition challenges the trial court's contempt acquittal embedded in the Aug. 11 statement of decision."},
+    {"id": "r_writ_to_consolidation",        "from_event_id": "e_wanke_writ",            "to_event_id": "e_consolidation",          "type": "response",   "strength": "adjudicated"},
+    {"id": "r_appeals_to_consolidation",     "from_event_id": "e_defs_appeal",           "to_event_id": "e_consolidation",          "type": "response",   "strength": "adjudicated"},
+    {"id": "r_consolidation_to_opinion",     "from_event_id": "e_consolidation",         "to_event_id": "e_oct4_opinion",           "type": "response",   "strength": "adjudicated"},
+    {"id": "r_opinion_supersedes_decision",  "from_event_id": "e_statement_of_decision", "to_event_id": "e_oct4_opinion",           "type": "supersedes", "strength": "adjudicated", "detail": "Opinion reverses the trial court on the §16600 defense to the Settlement Agreement motions (though it affirms the contempt acquittal on double-jeopardy grounds)."}
+  ],
+  "disputes": [],
+  "sources": [
+    {"id": "s_opinion_caption",  "type": "opinion",  "citation": "Wanke, Industrial, Commercial, Residential, Inc. v. Keck, 209 Cal. App. 4th 1151 (Cal. Ct. App. 4th Dist., Div. 1, filed Oct. 4, 2012) (D058669 / D058825) (Aaron, J., certified for publication)"},
+    {"id": "s_opinion_p2",       "type": "opinion",  "citation": "Slip op. at 2"},
+    {"id": "s_opinion_p3",       "type": "opinion",  "citation": "Slip op. at 3"},
+    {"id": "s_opinion_p4",       "type": "opinion",  "citation": "Slip op. at 4"},
+    {"id": "s_opinion_p5",       "type": "opinion",  "citation": "Slip op. at 5"},
+    {"id": "s_opinion_p7",       "type": "opinion",  "citation": "Slip op. at 7"},
+    {"id": "s_opinion_p8",       "type": "opinion",  "citation": "Slip op. at 8"},
+    {"id": "s_opinion_p12",      "type": "opinion",  "citation": "Slip op. at 12"},
+    {"id": "s_opinion_p13",      "type": "opinion",  "citation": "Slip op. at 13"},
+    {"id": "s_opinion_p14",      "type": "opinion",  "citation": "Slip op. at 14"}
+  ]
+}
