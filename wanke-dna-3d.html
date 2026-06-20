@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wanke v. AV Builder — Case DNA (3D)</title>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<style>
+  :root{--ink:#e6e9ef;--muted:#9aa4b2;--line:#2a313c;--panel:#161b22;
+    --wanke:#5aa9f0;--avb:#e07a52;--debtors:#a98be6;--court_group:#9aa7b5;--win:#5fd38a;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:radial-gradient(1200px 600px at 50% -10%,#1a2230,#0b0e13 60%);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;padding:18px}
+  h1{font-size:19px;font-weight:700}
+  .docket{color:var(--muted);font-size:12px;margin-top:2px}
+  .metaphor{margin-top:10px;background:#11161d;border:1px solid var(--line);border-radius:9px;padding:9px 13px;font-size:12px;color:#c7cedb;max-width:1180px;line-height:1.55}
+  .metaphor b{color:#fff}.pill{display:inline-block;border-radius:9px;padding:1px 7px;margin:0 1px;font-weight:600;font-size:11px}
+  .toolbar{display:flex;align-items:center;gap:10px;margin:13px 0;flex-wrap:wrap}
+  .toolbar .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  button.ctrl{background:#1d2530;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer}
+  button.ctrl:hover{border-color:#3a4756}
+  input[type=range]{accent-color:#5aa9f0;cursor:pointer}
+  .chip{border:1px solid var(--line);background:#161b22;color:var(--ink);border-radius:14px;padding:4px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+  .chip .d{width:9px;height:9px;border-radius:50%}.chip:hover{border-color:#3a4756}.chip.active{background:#e6e9ef;color:#0b0e13;border-color:#e6e9ef}
+  .chip.reset{color:var(--muted)}
+  #stage{position:relative;height:520px;background:linear-gradient(180deg,#0f141b,#0a0e13);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  #stage canvas{display:block}
+  #fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:13px;padding:30px}
+  .axis-hint{position:absolute;left:14px;bottom:10px;font-size:11px;color:#6b7686}
+  .axis-hint b{color:#9fb6d6}
+  .drag-hint{position:absolute;right:14px;top:10px;font-size:11px;color:#6b7686}
+  .lgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:9px}
+  .issue-row{display:flex;gap:9px;align-items:flex-start;padding:8px;border:1px solid var(--line);border-radius:9px;margin-bottom:8px;cursor:pointer;transition:all .12s}
+  .issue-row:hover{border-color:#3a4756;background:#1a212b}.issue-row.dim{opacity:.4}
+  .issue-row .bar{width:5px;align-self:stretch;border-radius:3px;flex:none}
+  .issue-row .ti{font-weight:700;font-size:12.5px}.issue-row .meta{font-size:10.5px;color:var(--muted);margin-top:1px}
+  .issue-row .hold{font-size:10.5px;color:var(--win);margin-top:3px;font-weight:600}
+  .keyrow{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:6px}
+  .keyrow span{display:flex;align-items:center;gap:5px}.kd{width:10px;height:10px;border-radius:50%;display:inline-block}
+  table{border-collapse:collapse;width:100%;font-size:11px}
+  th{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:5px 7px;border-bottom:1px solid var(--line)}
+  td{padding:6px 7px;border-bottom:1px solid #20262f;vertical-align:top;line-height:1.35;color:#c7cedb}
+  tr.cmp-row{cursor:pointer}tr.cmp-row.dim{opacity:.4}td.hold{color:var(--win)}
+  #tip{position:fixed;pointer-events:none;background:#05070a;color:#fff;border:1px solid #2a313c;padding:7px 9px;border-radius:6px;font-size:11px;line-height:1.45;max-width:300px;opacity:0;transition:opacity .1s;z-index:50;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+  <h1>Wanke, Industrial v. AV Builder Corp. — <span style="color:#7fd1ff">Case DNA (3D)</span></h1>
+  <div class="docket">Cal. Ct. App. 4th Dist., Div. 1 · D074392 · filed 2020-02-19 · Judgment affirmed</div>
+  <div class="metaphor">🧬 <b>The case as a real 3D double helix.</b> Two backbones =
+    <span class="pill" style="background:#26303f;color:#9fb6d6">Strand A · Events</span> and
+    <span class="pill" style="background:#2c2740;color:#c3b4ee">Strand B · Issues</span>;
+    each <b>base-pair rung</b> = one <b>issue→event link</b>. The helix <b>axis is time</b> (2008→2020).
+    <b>Drag to orbit</b>, scroll to zoom, hover a node to trace its rungs.</div>
+
+  <div class="toolbar">
+    <span class="lbl">Twist</span><input type="range" id="twist" min="4" max="16" value="9" style="width:130px">
+    <span class="lbl" style="margin-left:10px">Party</span>
+    <div id="chips" style="display:flex;gap:8px"></div>
+    <div class="chip reset" id="reset">Reset ✕</div>
+  </div>
+
+  <div id="stage">
+    <div class="axis-hint"><b>2008</b> ◂──────── time ────────▸ <b>2020</b></div>
+    <div class="drag-hint">drag to orbit · scroll to zoom</div>
+    <div id="fallback">Loading Three.js… if this persists, the 3D view needs an internet connection to fetch Three.js from the CDN.<br>Use <b>wanke-dna.html</b> for the fully offline 2.5D version.</div>
+  </div>
+
+  <div class="lgrid">
+    <div class="card"><h2>Issues (Strand B) — hover to trace rungs</h2><div id="issues"></div>
+      <div class="keyrow" style="margin-top:8px"><b style="color:var(--muted);font-weight:700;font-size:10px">EVENT NODES (STRAND A) BY PARTY</b></div>
+      <div class="keyrow" id="pkey"></div>
+    </div>
+    <div class="card"><h2>Comparison — AVB vs. Wanke vs. Court</h2><table id="cmp"></table></div>
+  </div>
+<div id="tip"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ═══════════ DATA ═══════════ */
+const PC={wanke:'#5aa9f0',avb:'#e07a52',debtors:'#a98be6',court_group:'#9aa7b5'};
+const PNAME={wanke:'Wanke',debtors:'WP·Keck',avb:'AVB',court_group:'Courts'};
+const norm=p=>(p==='trial_court'||p==='court_of_appeal'||p==='court')?'court_group':(p==='wp_solutions'||p==='keck')?'debtors':p;
+const events=[
+  {id:'e_2008_trade_secret_suit',label:'Wanke sues Keck (trade secrets)',date:'2008-01-01',lane:'wanke',kind:'external',parties:['wanke','keck'],detail:'2008 trade-secret suit after Keck left to form WP Solutions. Origin of the dispute.'},
+  {id:'e_subcontract_saratoga',label:'Saratoga West subcontract',date:'2009-11-16',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'WP Solutions ↔ AVB waterproofing subcontract. Earliest of five.'},
+  {id:'e_wanke_keck_appellate',label:'Wanke v. Keck (2012)',date:'2012-01-01',lane:'court',kind:'external',parties:['wanke','keck','court_of_appeal'],detail:'Wanke I, 209 Cal.App.4th 1151. Background to the 2013 judgment.'},
+  {id:'e_subcontract_pointloma',label:'Point Loma subcontract',date:'2012-06-11',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'Pool deck later caused $57,055.95 repair damage — the only partial setoff allowed ($25,908).'},
+  {id:'e_predicate_judgment',label:'Predicate judgment ($1,190,929)',date:'2013-01-01',lane:'court',kind:'ruling',parties:['wanke','wp_solutions','keck','trial_court'],detail:'Judgment against Keck & WP Solutions — basis of Wanke’s §708.210 standing and the debt it sought to collect.'},
+  {id:'e_subcontract_promenade',label:'133 Promenade subcontract',date:'2013-04-25',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'WP Solutions ↔ AVB waterproofing subcontract.'},
+  {id:'e_subcontract_taitz',label:'Taitz subcontract',date:'2013-09-09',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'Open balance per Keck. Within 4 years of the 2016 suit — anchors Wanke’s §337(a) theory.'},
+  {id:'e_subcontract_oxford',label:'Oxford subcontract',date:'2013-12-23',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'Open balance per Keck. Within 4 years of the 2016 suit — anchors §708.230(a)(1) timeliness.'},
+  {id:'e_subcontract_breach_accrual',label:'Accrual (Wanke theory)',date:'2013-12-23',lane:'wanke',kind:'fact',parties:['wanke'],detail:'Wanke’s SoL anchor: §337(a) 4-year contract clock runs from AVB’s non-payment on the 2013 subcontracts.'},
+  {id:'e_wp_corp_suspension',label:'WP corporate suspension',date:'2014-01-01',lane:'debtors',kind:'external',parties:['wp_solutions'],detail:'Corporate suspension of WP Solutions.'},
+  {id:'e_work_complete_bankruptcy',label:'Work done; Keck bankruptcy',date:'2014-06-15',lane:'debtors',kind:'fact',parties:['wp_solutions','keck'],detail:'WP dissolves; Keck files bankruptcy — WP can no longer perform warranty obligations. Basis for AVB’s warranty-setoff theory.'},
+  {id:'e_levy_served',label:'Writ of execution & levy on AVB',date:'2014-06-15',lane:'wanke',kind:'filing',parties:['wanke','avb'],detail:'Wanke levies on AVB to reach the WP receivable.'},
+  {id:'e_license_suspended',label:'WP license suspended',date:'2014-07-01',lane:'debtors',kind:'external',parties:['wp_solutions'],detail:'AVB’s SoL anchor: WP contractor license suspended (§7031); 2-year clock to July 2016.'},
+  {id:'e_examination_proceedings',label:'Examination; $109,327 debt found',date:'2014-07-15',lane:'wanke',kind:'discovery',parties:['wanke','avb'],detail:'Debtor exam identifies the $109,327 AVB owed WP — the receivable the creditor’s suit reaches.'},
+  {id:'e_exam_lien_expired',label:'Examination lien expired (1-yr)',date:'2015-07-15',lane:'court',kind:'external',parties:[],detail:'§708.120(c) 1-year examination lien expires.'},
+  {id:'e_levy_lien_expired',label:'Levy lien expired (2-yr)',date:'2016-06-15',lane:'court',kind:'external',parties:[],detail:'§697.710 2-year levy lien expires.'},
+  {id:'e_creditors_suit',label:'Creditor’s suit filed ($109,327)',date:'2016-07-15',lane:'wanke',kind:'filing',parties:['wanke','avb','trial_court'],detail:'§708.210 creditor’s suit against AVB. The operative pleading.'},
+  {id:'e_avb_trial_brief_standing',label:'AVB trial brief: standing/capacity',date:'2018-05-01',lane:'avb',kind:'filing',parties:['avb'],detail:'AVB argues Wanke stands in shoes of suspended WP Solutions and lacks capacity.'},
+  {id:'e_bench_trial',label:'Two-day bench trial',date:'2018-06-15',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb','keck'],detail:'Bench trial on collection, setoff, and capacity; Keck testified to open balances.'},
+  {id:'e_trial_judgment',label:'Trial judgment ($83,418.94)',date:'2018-08-01',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb'],detail:'Judgment for Wanke; most setoffs rejected, $25,908 pool-deck setoff allowed.'},
+  {id:'e_appeal_affirmed',label:'Court of Appeal affirms',date:'2020-02-19',lane:'court',kind:'ruling',parties:['court_of_appeal','wanke','avb'],detail:'Affirmed on all three appellate issues.'},
+];
+const issues=[
+  {id:'ISSUE-001',n:'I',color:'#5ec8e8',title:'Standing & Capacity',type:'procedural',a:'Wanke stands in shoes of suspended WP Solutions; lacks capacity.',b:'Independent statutory standing under § 708.210.',hold:'AFFIRMED — § 368 not triggered; Wanke sues in its own right.'},
+  {id:'ISSUE-002',n:'II',color:'#f0a04b',title:'Statute of Limitations',type:'procedural',a:'License suspension (2014) cut off the right to sue; 2-yr clock ran.',b:'Timely — accrual governs; § 337(a) 4-yr clock from 2013 subcontracts.',hold:'AFFIRMED — § 708.230(a)(1) accrual-based; AVB failed its burden.'},
+  {id:'ISSUE-003',n:'III',color:'#56cfa1',title:'Warranty Setoff',type:'amount',a:'Entitled to $43,929 setoff (5–7¢/sq ft × warranty years).',b:'Failed to prove any non-speculative warranty value.',hold:'AFFIRMED — $0 setoff; no credible valuation. Net $83,418.94.'},
+];
+const issueEventLinks=[
+  {issue:'ISSUE-001',event:'e_predicate_judgment'},{issue:'ISSUE-001',event:'e_creditors_suit'},{issue:'ISSUE-001',event:'e_avb_trial_brief_standing'},{issue:'ISSUE-001',event:'e_examination_proceedings'},{issue:'ISSUE-001',event:'e_wp_corp_suspension'},{issue:'ISSUE-001',event:'e_appeal_affirmed'},
+  {issue:'ISSUE-002',event:'e_license_suspended'},{issue:'ISSUE-002',event:'e_subcontract_breach_accrual'},{issue:'ISSUE-002',event:'e_subcontract_taitz'},{issue:'ISSUE-002',event:'e_subcontract_oxford'},{issue:'ISSUE-002',event:'e_creditors_suit'},{issue:'ISSUE-002',event:'e_appeal_affirmed'},
+  {issue:'ISSUE-003',event:'e_work_complete_bankruptcy'},{issue:'ISSUE-003',event:'e_bench_trial'},{issue:'ISSUE-003',event:'e_trial_judgment'},{issue:'ISSUE-003',event:'e_appeal_affirmed'},
+];
+const issById=Object.fromEntries(issues.map(i=>[i.id,i]));
+const evById=Object.fromEntries(events.map(e=>[e.id,e]));
+const iByEvent={}; issueEventLinks.forEach(l=>{(iByEvent[l.event]=iByEvent[l.event]||[]).push(l.issue);});
+
+/* ═══════════ SCENE ═══════════ */
+const stage=document.getElementById('stage');
+const fb=document.getElementById('fallback'); fb.style.display='flex';
+let renderer,scene,camera,controls,helix;
+const eventMeshes=[],markerMeshes=[],rungMeshes=[]; let backA,backB;
+const L=240, R=26; let turns=9;
+const tmin=new Date(2008,0,1).getTime(), tmax=new Date(2020,9,1).getTime();
+const fracOf=e=>(new Date(e.date).getTime()-tmin)/(tmax-tmin);
+const C=hex=>new THREE.Color(hex);
+
+function strandPoint(frac,phase){
+  const xx=-L/2+frac*L, ang=frac*turns*2*Math.PI+phase;
+  return new THREE.Vector3(xx, R*Math.cos(ang), R*Math.sin(ang));
+}
+// fan multiple base-pairs on one event around the strand-B side
+const linksOf={}; issueEventLinks.forEach((l,i)=>{(linksOf[l.event]=linksOf[l.event]||[]).push(i);});
+const fanPhase=new Array(issueEventLinks.length).fill(0);
+Object.values(linksOf).forEach(arr=>arr.forEach((li,k)=>fanPhase[li]=(k-(arr.length-1)/2)*0.34));
+
+function buildBackbone(phase,color){
+  const pts=[]; for(let f=0;f<=1.0001;f+=0.004) pts.push(strandPoint(f,phase));
+  const geo=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),420,1.4,10,false);
+  const mat=new THREE.MeshStandardMaterial({color:C(color),emissive:C(color),emissiveIntensity:0.18,roughness:0.55,metalness:0.1,transparent:true,opacity:0.85});
+  const m=new THREE.Mesh(geo,mat); m.userData={base:color,baseOp:0.85,emi:0.18}; return m;
+}
+function rung(p1,p2,color,ud){
+  const dir=new THREE.Vector3().subVectors(p2,p1), len=dir.length();
+  const geo=new THREE.CylinderGeometry(0.55,0.55,len,7);
+  const mat=new THREE.MeshStandardMaterial({color:C(color),emissive:C(color),emissiveIntensity:0.3,roughness:0.5,transparent:true,opacity:0.9});
+  const m=new THREE.Mesh(geo,mat);
+  m.position.copy(p1).addScaledVector(dir,0.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize());
+  m.userData={...ud,base:color,baseOp:0.9,emi:0.3}; return m;
+}
+function ball(pos,rad,color,ud){
+  const geo=new THREE.SphereGeometry(rad,22,22);
+  const mat=new THREE.MeshStandardMaterial({color:C(color),emissive:C(color),emissiveIntensity:0.25,roughness:0.35,metalness:0.15,transparent:true,opacity:1});
+  const m=new THREE.Mesh(geo,mat); m.position.copy(pos); m.userData={...ud,base:color,baseOp:1,emi:0.25}; return m;
+}
+function yearSprite(text,xx){
+  const c=document.createElement('canvas'); c.width=128;c.height=48; const g=c.getContext('2d');
+  g.fillStyle='#6b7686'; g.font='bold 30px Helvetica,Arial'; g.textAlign='center'; g.fillText(text,64,34);
+  const tex=new THREE.CanvasTexture(c); const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,opacity:0.9}));
+  sp.position.set(xx,-R-9,0); sp.scale.set(20,7.5,1); return sp;
+}
+
+function buildHelix(){
+  if(helix){scene.remove(helix); helix.traverse(o=>{o.geometry&&o.geometry.dispose&&o.geometry.dispose();o.material&&o.material.dispose&&o.material.dispose();});}
+  eventMeshes.length=markerMeshes.length=rungMeshes.length=0;
+  helix=new THREE.Group();
+  backA=buildBackbone(0,'#5b6b7f'); backB=buildBackbone(Math.PI,'#7c6bb0'); helix.add(backA,backB);
+  // axis line + year sprites (these live in helix so they spin with it)
+  const axisGeo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-L/2,0,0),new THREE.Vector3(L/2,0,0)]);
+  helix.add(new THREE.Line(axisGeo,new THREE.LineBasicMaterial({color:0x222a34,transparent:true,opacity:0.5})));
+  [2008,2012,2016,2020].forEach(y=>helix.add(yearSprite(String(y), -L/2 + ((new Date(y,0,1).getTime()-tmin)/(tmax-tmin))*L)));
+  // rungs + strand-B markers
+  issueEventLinks.forEach((l,i)=>{
+    const f=fracOf(evById[l.event]);
+    const pA=strandPoint(f,0), pB=strandPoint(f,Math.PI+fanPhase[i]);
+    const col=issById[l.issue].color;
+    const rg=rung(pA,pB,col,{type:'rung',event:l.event,issue:l.issue}); rungMeshes.push(rg); helix.add(rg);
+    const mk=ball(pB,2.6,col,{type:'marker',event:l.event,issue:l.issue}); markerMeshes.push(mk); helix.add(mk);
+  });
+  // strand-A event nodes
+  events.forEach(e=>{
+    const m=ball(strandPoint(fracOf(e),0), e.kind==='ruling'?4:3, PC[norm(e.lane)], {type:'event',id:e.id});
+    eventMeshes.push(m); helix.add(m);
+  });
+  scene.add(helix);
+}
+
+function init(){
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(stage.clientWidth,stage.clientHeight);
+  stage.appendChild(renderer.domElement);
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(46,stage.clientWidth/stage.clientHeight,0.1,2000);
+  camera.position.set(0,38,250);
+  controls=new OrbitControls(camera,renderer.domElement);
+  controls.enableDamping=true; controls.dampingFactor=0.07; controls.target.set(0,0,0);
+  scene.add(new THREE.AmbientLight(0xffffff,0.65));
+  const d1=new THREE.DirectionalLight(0xbfe0ff,0.9); d1.position.set(60,80,120); scene.add(d1);
+  const d2=new THREE.DirectionalLight(0xffd9b0,0.35); d2.position.set(-80,-40,-60); scene.add(d2);
+  buildHelix();
+  fb.style.display='none';
+  window.addEventListener('resize',onResize);
+  renderer.domElement.addEventListener('pointermove',onMove);
+  renderer.domElement.addEventListener('pointerleave',()=>{state.hoverEvent=state.hoverIssue=null;hoverPause=false;hideTip();updateHighlight();});
+  animate();
+}
+function onResize(){camera.aspect=stage.clientWidth/stage.clientHeight;camera.updateProjectionMatrix();renderer.setSize(stage.clientWidth,stage.clientHeight);}
+
+/* ═══════════ INTERACTION ═══════════ */
+const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
+const state={hoverEvent:null,hoverIssue:null,party:null}; let hoverPause=false; // hoverPause retained as a harmless no-op; auto-spin removed
+const partyHit=(pl,sel)=>pl.some(p=>norm(p)===sel);
+function focusEvents(){if(state.hoverEvent)return new Set([state.hoverEvent]);if(state.hoverIssue)return new Set(issueEventLinks.filter(l=>l.issue===state.hoverIssue).map(l=>l.event));if(state.party)return new Set(events.filter(e=>partyHit(e.parties,state.party)).map(e=>e.id));return null;}
+function focusIssues(){if(state.hoverIssue)return new Set([state.hoverIssue]);if(state.hoverEvent)return new Set(iByEvent[state.hoverEvent]||[]);if(state.party)return new Set(issueEventLinks.filter(l=>partyHit(evById[l.event].parties,state.party)).map(l=>l.issue));return null;}
+
+function setLit(m,lit){m.material.opacity=lit?m.userData.baseOp:0.08;m.material.emissiveIntensity=lit?(state.hoverEvent&&m.userData.id===state.hoverEvent?0.8:m.userData.emi):0.0;}
+function updateHighlight(){
+  const fE=focusEvents(),fI=focusIssues(),on=(fE||fI);
+  eventMeshes.forEach(m=>setLit(m,!on||(fE&&fE.has(m.userData.id))));
+  markerMeshes.forEach(m=>setLit(m,!on||(fI&&fI.has(m.userData.issue))||(fE&&fE.has(m.userData.event))));
+  rungMeshes.forEach(m=>setLit(m,!on||(fI&&fI.has(m.userData.issue))||(fE&&fE.has(m.userData.event))));
+  if(backA){backA.material.opacity=on?0.4:0.85; backB.material.opacity=on?0.4:0.85;}
+  syncDim();
+}
+function onMove(e){
+  const r=renderer.domElement.getBoundingClientRect();
+  ndc.x=((e.clientX-r.left)/r.width)*2-1; ndc.y=-((e.clientY-r.top)/r.height)*2+1;
+  ray.setFromCamera(ndc,camera);
+  const hits=ray.intersectObjects([...eventMeshes,...markerMeshes],false);
+  if(hits.length){const u=hits[0].object.userData;
+    if(u.type==='event'){state.hoverEvent=u.id;state.hoverIssue=null;tipEvent(evById[u.id],e);}
+    else{state.hoverIssue=u.issue;state.hoverEvent=null;tipIssue(issById[u.issue],e);}
+    hoverPause=true; updateHighlight();
+  } else if(state.hoverEvent||state.hoverIssue){state.hoverEvent=state.hoverIssue=null;hoverPause=false;hideTip();updateHighlight();}
+  else if(document.getElementById('tip').style.opacity==='1'){moveTip(e);}
+}
+function animate(){requestAnimationFrame(animate); controls&&controls.update(); renderer&&renderer.render(scene,camera);}
+
+/* ═══════════ TOOLTIP ═══════════ */
+const tip=document.getElementById('tip');
+const moveTip=e=>{tip.style.left=(e.clientX+13)+'px';tip.style.top=(e.clientY+13)+'px';};
+const hideTip=()=>tip.style.opacity=0;
+function tipEvent(d,e){const iss=(iByEvent[d.id]||[]).map(id=>issById[id].title).join(' · ')||'—';
+  tip.innerHTML=`<b>${d.label}</b><br>${d.date} · ${PNAME[norm(d.lane)]}<br>${d.detail}<br><span style="color:#8fb">base-pairs → ${iss}</span>`;tip.style.opacity=1;moveTip(e);}
+function tipIssue(iss,e){tip.innerHTML=`<b>${iss.n}. ${iss.title}</b> <span style="color:#9aa4b2">(${iss.type})</span><br><span style="color:#f3b0a0">AVB:</span> ${iss.a}<br><span style="color:#9ec5e8">Wanke:</span> ${iss.b}<br><span style="color:#7fd99c">Held:</span> ${iss.hold}`;tip.style.opacity=1;moveTip(e);}
+
+/* ═══════════ SIDE PANELS ═══════════ */
+const ir=document.getElementById('issues');
+issues.forEach(iss=>{const row=document.createElement('div');row.className='issue-row';row.dataset.issue=iss.id;
+  row.innerHTML=`<div class="bar" style="background:${iss.color}"></div><div><div class="ti" style="color:${iss.color}">${iss.n}. ${iss.title}</div>
+    <div class="meta"><b style="color:#f3b0a0">AVB</b> ${iss.a} &nbsp; <b style="color:#9ec5e8">Wanke</b> ${iss.b}</div>
+    <div class="hold">${iss.hold}</div></div>`;
+  row.addEventListener('mouseenter',()=>{state.hoverIssue=iss.id;state.hoverEvent=null;hoverPause=true;updateHighlight();});
+  row.addEventListener('mouseleave',()=>{state.hoverIssue=null;hoverPause=false;updateHighlight();});
+  ir.appendChild(row);});
+const pk=document.getElementById('pkey');
+['wanke','debtors','avb','court_group'].forEach(p=>{const s=document.createElement('span');s.innerHTML=`<i class="kd" style="background:${PC[p]}"></i>${PNAME[p]}`;pk.appendChild(s);});
+const tb=document.createElement('tbody');
+document.getElementById('cmp').innerHTML='<thead><tr><th>Issue</th><th>AVB</th><th>Wanke</th><th>Court</th></tr></thead>';
+issues.forEach(iss=>{const tr=document.createElement('tr');tr.className='cmp-row';tr.dataset.issue=iss.id;
+  tr.innerHTML=`<td style="border-left:3px solid ${iss.color};font-weight:700">${iss.n}. ${iss.title}</td><td>${iss.a}</td><td>${iss.b}</td><td class="hold">${iss.hold}</td>`;
+  tr.addEventListener('mouseenter',()=>{state.hoverIssue=iss.id;state.hoverEvent=null;hoverPause=true;updateHighlight();});
+  tr.addEventListener('mouseleave',()=>{state.hoverIssue=null;hoverPause=false;updateHighlight();});
+  tb.appendChild(tr);});
+document.getElementById('cmp').appendChild(tb);
+function syncDim(){const fI=focusIssues();document.querySelectorAll('.issue-row,.cmp-row').forEach(r=>r.classList.toggle('dim',!!(fI&&!fI.has(r.dataset.issue))));}
+
+/* ═══════════ CONTROLS ═══════════ */
+document.getElementById('twist').addEventListener('input',function(){turns=+this.value;buildHelix();updateHighlight();});
+const chips=document.getElementById('chips');
+['wanke','debtors','avb','court_group'].forEach(p=>{const c=document.createElement('div');c.className='chip';c.dataset.party=p;
+  c.innerHTML=`<span class="d" style="background:${PC[p]}"></span>${PNAME[p]}`;
+  c.addEventListener('click',()=>{state.party=(state.party===p?null:p);state.hoverEvent=state.hoverIssue=null;
+    document.querySelectorAll('.chip[data-party]').forEach(x=>x.classList.toggle('active',x.dataset.party===state.party));updateHighlight();});
+  chips.appendChild(c);});
+document.getElementById('reset').addEventListener('click',()=>{state.party=state.hoverEvent=state.hoverIssue=null;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));updateHighlight();});
+
+try{ init(); }catch(err){ fb.style.display='flex'; fb.innerHTML='3D failed to initialize: '+err.message+'<br>Use <b>wanke-dna.html</b> for the offline 2.5D version.'; console.error(err); }
+</script>
+</body>
+</html>

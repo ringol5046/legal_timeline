@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wanke v. AV Builder — Timeline-Anchored Case Map</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root{--bg:#f4f5f7;--panel:#fff;--ink:#1f2430;--muted:#6b7280;--line:#e3e6ea;
+    --wanke:#2b6cb0;--avb:#b04a2b;--debtors:#6b46c1;--court_group:#4a5568;--win:#1f7a3d;--dim:.12;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;padding:18px}
+  h1{font-size:19px;font-weight:700}
+  .docket{color:var(--muted);font-size:12px;margin-top:2px}
+  .summary{color:#404652;font-size:12.5px;line-height:1.5;max-width:1150px;margin-top:8px}
+  .struct{font-size:11.5px;color:#404652;margin-top:7px}
+  .struct b{color:var(--ink)}.struct .ar{color:var(--muted)}
+  .connbar{margin-top:10px;background:#eef3fb;border:1px solid #d6e2f3;border-radius:8px;padding:8px 12px;font-size:12px;color:#33455f}
+  .connbar b{color:#1f2430}
+  .toolbar{display:flex;align-items:center;gap:8px;margin:12px 0;flex-wrap:wrap}
+  .toolbar .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:14px;padding:4px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none;transition:all .12s}
+  .chip .d{width:9px;height:9px;border-radius:50%}
+  .chip:hover{border-color:#b9bfc7}.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip.reset{color:var(--muted)}
+  .hint{font-size:11px;color:#9aa1ab;margin-left:auto}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 8px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .scrollx{overflow-x:auto}
+  svg{display:block}
+  .transi{transition:opacity .15s}
+  .dimmed{opacity:var(--dim)!important}
+  .seclabel{font-size:9.5px;fill:#9aa1ab;text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+  /* mind-map anchor cards */
+  .mm-card{cursor:pointer}
+  .mm-card .cbg{fill:#fff;stroke:var(--line);stroke-width:1}
+  .mm-card .ttl{font-size:10.5px;font-weight:700;fill:#fff}
+  .mm-card .role{font-size:8.5px;font-weight:700}
+  .mm-card .lf{font-size:8.5px;fill:#555}
+  .mm-root rect{fill:#3d3b6e}.mm-root text{fill:#fff}
+  .mm-rootlink{fill:none;stroke:#bfc4d6;stroke-width:1;stroke-dasharray:3 3}
+  .drop{fill:none;stroke-width:2;opacity:.5}
+  .drop.hot{opacity:1;stroke-width:3.2}
+  .drop-dot{stroke:#fff;stroke-width:1.5}
+  /* anchor ticks */
+  .tick{stroke-width:1.4}
+  /* timeline */
+  .spine-rule{stroke-width:2}
+  .lane-label{font-size:11.5px;font-weight:600;fill:var(--ink)}
+  .lane-sub{font-size:9px;fill:var(--muted)}
+  .axis text{font-size:10px;fill:#9aa1ab}.yrline{stroke:#eef0f3}
+  .evt circle{stroke:#fff;stroke-width:1.5;cursor:pointer}
+  .evt text{font-size:9px;fill:#3a4150;pointer-events:none;opacity:0;transition:opacity .12s}
+  .evt.always text,.evt.lab text{opacity:1}.evt:hover text{opacity:1}.evt:hover circle{stroke:#1f2430}
+  .evtlink{fill:none;stroke:#c7ccd4;stroke-width:1.2}.evtlink.tolls{stroke-dasharray:3 3;stroke:#9aa1ab}
+  .dispute-arc{fill:none;stroke:#d98324;stroke-width:1.6;stroke-dasharray:4 3}
+  /* ER left rail */
+  .er-stub{stroke-width:1.5}
+  .er-edge{fill:none;stroke-width:1.6}
+  .er-elab{font-size:7.5px;fill:#5b6370;font-weight:700}
+  .er-node rect{stroke-width:1.6;fill:#fff}
+  .er-node .nm{font-size:10px;font-weight:700}
+  .er-node .rl{font-size:7.5px;fill:var(--muted)}
+  .er-node{cursor:pointer}
+  /* transient beams */
+  .beam{fill:none;stroke-width:1.6;opacity:.85}
+  /* comparison table */
+  .drawer{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-top:14px}
+  .drawer h2{font-size:12.5px;font-weight:700}.drawer .sub{font-size:11px;color:#9aa1ab;margin:2px 0 8px}
+  table{border-collapse:collapse;width:100%;font-size:11.5px}
+  th{font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:6px 9px;border-bottom:2px solid var(--line);font-weight:700}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.4}
+  tr.cmp-row{cursor:pointer}tr.cmp-row:hover{background:#f8fafc}
+  .iss-name{font-weight:700}
+  .tag{font-size:8.5px;font-weight:600;padding:1px 6px;border-radius:7px;background:#eef1f4;color:#5b6370;text-transform:uppercase}
+  td.hold{color:var(--win);font-weight:600;background:#fbfdfb}
+  .amt{color:var(--muted);font-size:10.5px}
+  .pa{border-left:3px solid var(--avb)}.pb{border-left:3px solid var(--wanke)}
+  #tip{position:fixed;pointer-events:none;background:#1a1d24;color:#fff;padding:7px 9px;border-radius:5px;font-size:11px;line-height:1.4;max-width:300px;opacity:0;transition:opacity .1s;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:8px;padding-left:4px}
+  .legend span{display:flex;align-items:center;gap:5px}.key{width:18px;border-top-width:2px;border-top-style:solid;display:inline-block}
+</style>
+</head>
+<body>
+  <h1>Wanke, Industrial v. AV Builder Corp. — Timeline-Anchored Case Map</h1>
+  <div class="docket">Cal. Ct. App. 4th Dist., Div. 1 · D074392 · filed 2020-02-19 · <strong>Judgment affirmed</strong></div>
+  <div class="summary">Wanke held a 2013 judgment against Keck and WP Solutions for $1,190,929. To collect, it filed a creditor's suit against third party AVB for the $109,327 AVB owed WP Solutions under five waterproofing subcontracts. The trial court awarded Wanke $83,418.94; the Court of Appeal affirmed on all three appellate issues.</div>
+  <div class="struct"><b>Entity structure:</b> <b style="color:var(--wanke)">Wanke</b><span class="ar"> —$1.19M judgment→ </span><b style="color:var(--debtors)">WP Solutions · Keck</b><span class="ar">&nbsp; ·&nbsp; </span><b style="color:var(--avb)">AVB</b><span class="ar"> —owes $109,327→ </span><b style="color:var(--debtors)">WP Solutions · Keck</b><span class="ar"> (the receivable)&nbsp; ·&nbsp; Wanke —creditor's suit (§708.210)→ AVB</span></div>
+  <div class="connbar">🪢 <b>The timeline is the base.</b> Everything else hangs off it. <b>Mind-map</b> issue cards (top) drop a line to the exact event where each issue was <b>decided</b>; the <b>entity-relation</b> rail (left) welds each party to the lane it owns; the <b>comparison</b> table (bottom) is tied by color and by the ▲ markers aligned to the same time-axis. <b>Hover any card / row / party / event</b> → its connections to the timeline light up.</div>
+
+  <div class="toolbar">
+    <span class="lbl">Filter party</span>
+    <div id="chips" style="display:flex;gap:8px"></div>
+    <div class="chip reset" id="reset">Reset ✕</div>
+    <span class="hint">drop-lines = where each issue was decided · hover an issue card → fan-lines to all its events</span>
+  </div>
+
+  <div class="stage"><div class="scrollx"><svg id="stage"></svg></div></div>
+
+  <div class="drawer">
+    <h2>Comparison Chart <span style="font-weight:400;color:#9aa1ab;font-size:11px">— connected to the timeline by color &amp; the ▲ markers below</span></h2>
+    <div class="sub">Issue-by-issue: AVB vs. Wanke positions vs. court holding · hover a row to light its events on the timeline</div>
+    <div class="scrollx"><table id="cmp"></table></div>
+    <div class="scrollx"><svg id="strip"></svg></div>
+  </div>
+  <div class="legend">
+    <span><i class="key" style="border-color:#c7ccd4"></i>causal / response</span>
+    <span><i class="key" style="border-color:#9aa1ab;border-top-style:dashed"></i>tolls (SoL clock)</span>
+    <span><i class="key" style="border-color:#d98324;border-top-style:dashed"></i>disputed fact</span>
+    <span>│ drop-line = issue decided here &nbsp; ◯ event &nbsp; ⬤ ruling</span>
+  </div>
+<div id="tip"></div>
+
+<script>
+/* ═══════════ UNIFIED DATA MODEL ═══════════ */
+const PC={wanke:'#2b6cb0',avb:'#b04a2b',debtors:'#6b46c1',court_group:'#4a5568'};
+const norm=p=>(p==='trial_court'||p==='court_of_appeal'||p==='court')?'court_group':(p==='wp_solutions'||p==='keck')?'debtors':p;
+const lanes=[
+  {id:'wanke',label:'Plaintiff / Respondent',sub:'Wanke'},
+  {id:'debtors',label:'Judgment Debtors',sub:'WP Solutions · Keck'},
+  {id:'avb',label:'Defendant / Appellant',sub:'AVB'},
+  {id:'court',label:'Court',sub:'Trial · Court of Appeal'},
+];
+const events=[
+  {id:'e_2008_trade_secret_suit',label:'Wanke sues Keck (trade secrets)',date:'2008-01-01',lane:'wanke',kind:'external',parties:['wanke','keck'],detail:'2008 trade-secret suit after Keck left to form WP Solutions. Origin of the dispute.'},
+  {id:'e_subcontract_saratoga',label:'Saratoga West subcontract',date:'2009-11-16',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'WP Solutions ↔ AVB waterproofing subcontract. Earliest of five.'},
+  {id:'e_wanke_keck_appellate',label:'Wanke v. Keck (2012)',date:'2012-01-01',lane:'court',kind:'external',parties:['wanke','keck','court_of_appeal'],detail:'Wanke I, 209 Cal.App.4th 1151. Background to the 2013 judgment.'},
+  {id:'e_subcontract_pointloma',label:'Point Loma subcontract',date:'2012-06-11',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'Point Loma Tennis Club subcontract. Pool deck later caused $57,055.95 repair damage — the only partial setoff allowed ($25,908).'},
+  {id:'e_predicate_judgment',label:'Predicate judgment ($1,190,929)',date:'2013-01-01',lane:'court',kind:'ruling',parties:['wanke','wp_solutions','keck','trial_court'],detail:'Judgment against Keck & WP Solutions — the obligation Wanke later sought to collect.'},
+  {id:'e_subcontract_promenade',label:'133 Promenade subcontract',date:'2013-04-25',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'WP Solutions ↔ AVB waterproofing subcontract.'},
+  {id:'e_subcontract_taitz',label:'Taitz subcontract',date:'2013-09-09',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'Taitz Residence subcontract. Open balance per Keck. Within 4 years of the 2016 suit — anchors Wanke’s §337(a) theory.'},
+  {id:'e_subcontract_oxford',label:'Oxford subcontract',date:'2013-12-23',lane:'debtors',kind:'fact',parties:['wp_solutions','avb'],detail:'Oxford Court subcontract. Open balance per Keck. Within 4 years of the 2016 suit — anchors §708.230(a)(1) timeliness.'},
+  {id:'e_subcontract_breach_accrual',label:'Accrual (Wanke theory)',date:'2013-12-23',lane:'wanke',kind:'fact',parties:['wanke'],detail:'Wanke’s SoL anchor: §337(a) 4-year contract clock runs from AVB’s non-payment on the 2013 subcontracts.'},
+  {id:'e_wp_corp_suspension',label:'WP corporate suspension',date:'2014-01-01',lane:'debtors',kind:'external',parties:['wp_solutions'],detail:'Corporate suspension of WP Solutions.'},
+  {id:'e_work_complete_bankruptcy',label:'Work done; Keck bankruptcy',date:'2014-06-15',lane:'debtors',kind:'fact',parties:['wp_solutions','keck'],detail:'WP Solutions dissolves and Keck files bankruptcy — so WP could no longer perform its warranty obligations. Basis for AVB’s warranty-setoff theory (ISSUE-003).'},
+  {id:'e_levy_served',label:'Writ of execution & levy on AVB',date:'2014-06-15',lane:'wanke',kind:'filing',parties:['wanke','avb'],detail:'Wanke levies on AVB to reach the WP receivable.'},
+  {id:'e_license_suspended',label:'WP license suspended',date:'2014-07-01',lane:'debtors',kind:'external',parties:['wp_solutions'],detail:'AVB’s SoL anchor: WP contractor license suspended (§7031), allegedly ending WP’s right to sue; 2-year clock to July 2016.'},
+  {id:'e_examination_proceedings',label:'Examination; $109,327 debt found',date:'2014-07-15',lane:'wanke',kind:'discovery',parties:['wanke','avb'],detail:'Debtor exam identifies the $109,327 AVB receivable that became the creditor’s suit.'},
+  {id:'e_exam_lien_expired',label:'Examination lien expired (1-yr)',date:'2015-07-15',lane:'court',kind:'external',parties:[],detail:'§708.120(c) 1-year examination lien expires.'},
+  {id:'e_levy_lien_expired',label:'Levy lien expired (2-yr)',date:'2016-06-15',lane:'court',kind:'external',parties:[],detail:'§697.710 2-year levy lien expires.'},
+  {id:'e_creditors_suit',label:'Creditor’s suit filed ($109,327)',date:'2016-07-15',lane:'wanke',kind:'filing',parties:['wanke','avb','trial_court'],detail:'§708.210 creditor’s suit against AVB, filed in San Diego Superior Court. The operative pleading.'},
+  {id:'e_avb_trial_brief_standing',label:'AVB trial brief: standing/capacity',date:'2018-05-01',lane:'avb',kind:'filing',parties:['avb'],detail:'AVB argues Wanke stands in shoes of suspended WP Solutions and lacks capacity.'},
+  {id:'e_bench_trial',label:'Two-day bench trial',date:'2018-06-15',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb','keck'],detail:'Two-day bench trial on collection, setoff, and capacity; Keck testified to the open subcontract balances.'},
+  {id:'e_trial_judgment',label:'Trial judgment ($83,418.94)',date:'2018-08-01',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb'],detail:'Judgment for Wanke; most setoffs rejected, $25,908 pool-deck setoff allowed.'},
+  {id:'e_appeal_affirmed',label:'Court of Appeal affirms',date:'2020-02-19',lane:'court',kind:'ruling',parties:['court_of_appeal','wanke','avb'],detail:'Affirmed on all three issues.'},
+];
+const links=[
+  {from:'e_2008_trade_secret_suit',to:'e_predicate_judgment',type:'causal'},
+  {from:'e_predicate_judgment',to:'e_levy_served',type:'causal'},
+  {from:'e_levy_served',to:'e_examination_proceedings',type:'causal'},
+  {from:'e_levy_served',to:'e_levy_lien_expired',type:'tolls'},
+  {from:'e_examination_proceedings',to:'e_exam_lien_expired',type:'tolls'},
+  {from:'e_examination_proceedings',to:'e_creditors_suit',type:'causal'},
+  {from:'e_creditors_suit',to:'e_avb_trial_brief_standing',type:'response'},
+  {from:'e_avb_trial_brief_standing',to:'e_bench_trial',type:'response'},
+  {from:'e_bench_trial',to:'e_trial_judgment',type:'response'},
+  {from:'e_trial_judgment',to:'e_appeal_affirmed',type:'response'},
+  {from:'e_license_suspended',to:'e_creditors_suit',type:'tolls'},
+  {from:'e_subcontract_breach_accrual',to:'e_creditors_suit',type:'tolls'},
+];
+const dispute={from:'e_license_suspended',to:'e_subcontract_breach_accrual',detail:'Disputed § 708.230(a)(1) clock anchor — AVB: 2014 license suspension; Wanke: 2013 subcontract accrual. Resolved for Wanke.'};
+const issues=[
+  {id:'ISSUE-001',n:'I',color:'#3b9fd6',title:'Standing & Capacity',type:'procedural',parties:['avb','wanke'],ruling:'e_appeal_affirmed',
+   a:'Wanke stands in the shoes of suspended WP Solutions and lacks capacity to sue.',aShort:'lacks capacity',
+   b:'Independent statutory standing as a judgment creditor under § 708.210.',bShort:'§708.210 standing',
+   hold:'AFFIRMED — no assignment created; § 368 not triggered. Wanke sues in its own right.',holdShort:'Affirmed',amount:null},
+  {id:'ISSUE-002',n:'II',color:'#e08e3c',title:'Statute of Limitations',type:'procedural',parties:['avb','wanke'],ruling:'e_appeal_affirmed',
+   a:'License suspension (2014) cut off WP’s right to sue; the 2-year clock ran out July 2016.',aShort:'license cut off SoL',
+   b:'Timely — accrual governs, not capacity; § 337(a) 4-year clock from the 2013 subcontracts.',bShort:'accrual governs',
+   hold:'AFFIRMED — § 708.230(a)(1) is accrual-based; AVB also failed its burden of proof.',holdShort:'Affirmed',amount:null},
+  {id:'ISSUE-003',n:'III',color:'#3ab0a8',title:'Warranty Setoff',type:'amount',parties:['avb','wanke'],ruling:'e_appeal_affirmed',
+   a:'Entitled to a $43,929 setoff (5–7¢/sq ft × warranty years).',aShort:'$43,929 setoff',
+   b:'AVB failed to prove any non-speculative warranty value.',bShort:'value speculative',
+   hold:'AFFIRMED — $0 warranty setoff; no credible valuation.',holdShort:'$0 · Affirmed',
+   amount:{a:'$43,929',court:'$0',net:'$83,418.94'}},
+];
+const issueEventLinks=[ // ── THE BRIDGE ──
+  {issue:'ISSUE-001',event:'e_predicate_judgment'},{issue:'ISSUE-001',event:'e_creditors_suit'},
+  {issue:'ISSUE-001',event:'e_avb_trial_brief_standing'},{issue:'ISSUE-001',event:'e_examination_proceedings'},
+  {issue:'ISSUE-001',event:'e_wp_corp_suspension'},{issue:'ISSUE-001',event:'e_appeal_affirmed'},
+  {issue:'ISSUE-002',event:'e_license_suspended'},{issue:'ISSUE-002',event:'e_subcontract_breach_accrual'},
+  {issue:'ISSUE-002',event:'e_subcontract_taitz'},{issue:'ISSUE-002',event:'e_subcontract_oxford'},
+  {issue:'ISSUE-002',event:'e_creditors_suit'},{issue:'ISSUE-002',event:'e_appeal_affirmed'},
+  {issue:'ISSUE-003',event:'e_work_complete_bankruptcy'},{issue:'ISSUE-003',event:'e_bench_trial'},
+  {issue:'ISSUE-003',event:'e_trial_judgment'},{issue:'ISSUE-003',event:'e_appeal_affirmed'},
+];
+
+/* ═══════════ GEOMETRY (one shared scale; every connector reads ePos) ═══════════ */
+const W=1180, plotL=164, plotR=1154;
+const CARD_W=170, CARD_H=92, CARD_TOP=8, CARD_BOT=CARD_TOP+CARD_H;
+const ANCHOR_Y=132;                      // routing rail for drop-lines / fans
+const TICK_Y=112, TICK_GAP=5;            // 3 anchor-tick micro-rows
+const LANE_TOP=152, LANE_H=86, SVG_H=LANE_TOP+lanes.length*LANE_H+10;
+const cy={}; lanes.forEach((l,i)=>cy[l.id]=LANE_TOP+i*LANE_H+LANE_H/2);
+const partyCY={wanke:cy.wanke,debtors:cy.debtors,avb:cy.avb,court_group:cy.court};
+const x=d3.scaleTime().domain([new Date(2008,0,1),new Date(2020,9,1)]).range([plotL,plotR]);
+// issue cards ordered left→right by ruling x to avoid drop-line crossings: III(trial 2018) , I, II (appeal 2020)
+const cardX={'ISSUE-003':430,'ISSUE-001':720,'ISSUE-002':1010};
+
+const stage=d3.select('#stage').attr('viewBox',`0 0 ${W} ${SVG_H}`).attr('width',W).attr('height',SVG_H).style('min-width',W+'px');
+
+/* event positions — single source of truth */
+const ePos={}; events.forEach(e=>ePos[e.id]={x:x(new Date(e.date)),y:cy[e.lane]});
+const byLane={}; events.forEach(e=>{(byLane[e.lane]=byLane[e.lane]||[]).push(e);});
+const SLOT=[0,-22,22,-40,40], GAP=30;
+Object.values(byLane).forEach(arr=>{arr.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const last=new Array(SLOT.length).fill(-Infinity);
+  arr.forEach(e=>{const ex=ePos[e.id].x;let k=last.findIndex(v=>ex-v>=GAP);if(k===-1)k=last.indexOf(Math.min(...last));ePos[e.id].y=cy[e.lane]+SLOT[k];last[k]=ex;});});
+
+const eByIssue={},iByEvent={};
+issueEventLinks.forEach(l=>{(eByIssue[l.issue]=eByIssue[l.issue]||[]).push(l.event);(iByEvent[l.event]=iByEvent[l.event]||[]).push(l.issue);});
+// fan out issues that share a ruling event so their drop-dots / ▲ markers don't print on the same pixel
+const rulingGroups={}; issues.forEach(i=>{(rulingGroups[i.ruling]=rulingGroups[i.ruling]||[]).push(i.id);});
+const rulingDx=iss=>{const grp=rulingGroups[iss.ruling];return (grp.indexOf(iss.id)-(grp.length-1)/2)*15;};
+const rulingX=iss=>ePos[iss.ruling].x+rulingDx(iss);
+
+/* routed connector: vertical to the anchor rail, then S-curve to target (keeps cluster lines parallel) */
+const conn=(sx,sy,tx,ty)=>`M${sx},${sy} L${sx},${ANCHOR_Y} C${tx},${ANCHOR_Y} ${tx},${ANCHOR_Y} ${tx},${ty}`;
+const beamP=(sx,sy,tx,ty)=>`M${sx},${sy} C${sx+70},${sy} ${tx-70},${ty} ${tx},${ty}`;
+
+/* ═══════════ SHARED SELECTION ═══════════ */
+const state={hoverIssue:null,hoverParty:null,event:null,party:null};
+const partyHit=(plist,sel)=>plist.some(p=>norm(p)===sel);
+function focus(){
+  if(state.hoverIssue)return{k:'issue',id:state.hoverIssue};
+  if(state.hoverParty)return{k:'party',id:state.hoverParty};
+  if(state.event)return{k:'event',id:state.event};
+  if(state.party)return{k:'party',id:state.party};
+  return null;}
+function activeEvents(){const f=focus();if(!f)return null;
+  if(f.k==='issue')return new Set(eByIssue[f.id]||[]);
+  if(f.k==='event')return new Set([f.id]);
+  if(f.k==='party')return new Set(events.filter(e=>partyHit(e.parties,f.id)).map(e=>e.id));}
+function activeIssues(){const f=focus();if(!f)return null;
+  if(f.k==='issue')return new Set([f.id]);
+  if(f.k==='event')return new Set(iByEvent[f.id]||[]);
+  if(f.k==='party'){const evs=new Set(events.filter(e=>partyHit(e.parties,f.id)).map(e=>e.id));
+    return new Set(issues.filter(i=>i.parties.includes(f.id)||(eByIssue[i.id]||[]).some(ev=>evs.has(ev))).map(i=>i.id));}}
+function activeParties(){const f=focus();if(!f)return null;
+  if(f.k==='party')return new Set([f.id]);
+  if(f.k==='issue'){const s=new Set(issues.find(i=>i.id===f.id).parties);(eByIssue[f.id]||[]).forEach(ev=>events.find(e=>e.id===ev).parties.forEach(p=>s.add(norm(p))));return s;}
+  if(f.k==='event')return new Set(events.find(e=>e.id===f.id).parties.map(norm));}
+
+const tip=d3.select('#tip');
+const showTip=(h,ev)=>tip.html(h).style('opacity',1).style('left',(ev.clientX+12)+'px').style('top',(ev.clientY+12)+'px');
+const hideTip=()=>tip.style('opacity',0);
+const setHoverIssue=id=>{state.hoverIssue=id;applyHighlight();};
+const setHoverParty=id=>{state.hoverParty=id;applyHighlight();};
+
+/* ═══════════ render order (back → front) ═══════════ */
+// 1. lane bands + year grid
+lanes.forEach((l,i)=>{const top=LANE_TOP+i*LANE_H;
+  stage.append('rect').attr('x',0).attr('y',top).attr('width',W).attr('height',LANE_H).attr('fill',i%2?'#fafbfc':'#fff');});
+d3.timeYears(new Date(2008,0,1),new Date(2021,0,1)).forEach(yr=>{const xx=x(yr);
+  stage.append('line').attr('class','yrline').attr('x1',xx).attr('x2',xx).attr('y1',CARD_BOT+6).attr('y2',LANE_TOP+lanes.length*LANE_H);
+  stage.append('text').attr('class','axis').attr('x',xx).attr('y',LANE_TOP-6).attr('text-anchor','middle').text(yr.getFullYear());});
+// spine marker (timeline = base)
+stage.append('line').attr('class','spine-rule').attr('x1',0).attr('x2',W).attr('y1',LANE_TOP).attr('y2',LANE_TOP).attr('stroke','#cfd5dd');
+stage.append('text').attr('class','seclabel').attr('x',plotL).attr('y',LANE_TOP-22).text('▼ Timeline — the case spine (everything connects here)');
+
+// 2. anchor-tick ribbon (where each issue touches time)
+const tickG=stage.append('g');
+issues.forEach((iss,r)=>{const row=tickG.append('g').attr('class','tickrow transi').attr('data-issue',iss.id).attr('data-row',r);
+  (eByIssue[iss.id]||[]).forEach(ev=>{row.append('line').attr('class','tick').attr('stroke',iss.color)
+    .attr('x1',ePos[ev].x).attr('x2',ePos[ev].x).attr('y1',TICK_Y+r*TICK_GAP).attr('y2',TICK_Y+r*TICK_GAP+4);});});
+
+// 3. ER LEFT RAIL (welded to lanes by row alignment)
+(function(){
+  const NX=78, NW=120, NH=32;
+  const N={wanke:{y:cy.wanke,nm:'Wanke',rl:'judgment creditor'},debtors:{y:cy.debtors,nm:'WP·Keck',rl:'judgment debtors'},
+           avb:{y:cy.avb,nm:'AVB',rl:'third party'},court_group:{y:cy.court,nm:'Courts',rl:'trial · appeal'}};
+  const E=[{f:'wanke',t:'debtors',l:'$1.19M'},{f:'debtors',t:'avb',l:'$109K'},{f:'wanke',t:'avb',l:'suit'}];
+  // structural arcs bowing into the left margin
+  stage.selectAll('path.er-edge').data(E).join('path').attr('class','er-edge transi').attr('data-from',d=>d.f).attr('data-to',d=>d.t)
+    .attr('stroke','#8a93a0').attr('d',d=>{const s=N[d.f].y,t=N[d.t].y,bx=Math.abs(t-s)>120?6:14;return `M${NX-NW/2},${s} C${bx},${s} ${bx},${t} ${NX-NW/2},${t}`;});
+  stage.selectAll('text.er-elab').data(E).join('text').attr('class','er-elab transi').attr('data-from',d=>d.f).attr('data-to',d=>d.t)
+    .attr('x',d=>Math.abs(N[d.t].y-N[d.f].y)>120?12:20).attr('y',d=>(N[d.f].y+N[d.t].y)/2).attr('text-anchor','start').text(d=>d.l);
+  // connector stubs node → lane (the weld)
+  stage.selectAll('line.er-stub').data(Object.entries(N)).join('line').attr('class','er-stub transi').attr('data-party',d=>d[0])
+    .attr('stroke',d=>PC[d[0]]).attr('x1',NX+NW/2).attr('x2',plotL).attr('y1',d=>d[1].y).attr('y2',d=>d[1].y).attr('opacity',.5);
+  stage.selectAll('text.stubarrow').data(Object.entries(N)).join('text').attr('class','stubarrow transi').attr('data-party',d=>d[0])
+    .attr('x',plotL-2).attr('y',d=>d[1].y+3).attr('text-anchor','end').attr('fill',d=>PC[d[0]]).style('font-size','9px').text('▸');
+  const g=stage.selectAll('g.er-node').data(Object.entries(N)).join('g').attr('class','er-node transi').attr('data-party',d=>d[0])
+    .attr('transform',d=>`translate(${NX},${d[1].y})`);
+  g.append('rect').attr('x',-NW/2).attr('y',-NH/2).attr('width',NW).attr('height',NH).attr('rx',7).attr('stroke',d=>PC[d[0]]);
+  g.append('text').attr('class','nm').attr('text-anchor','middle').attr('y',-2).attr('fill',d=>PC[d[0]]).text(d=>d[1].nm);
+  g.append('text').attr('class','rl').attr('text-anchor','middle').attr('y',10).text(d=>d[1].rl);
+  g.on('mouseenter',(e,d)=>setHoverParty(d[0])).on('mouseleave',()=>setHoverParty(null))
+   .on('click',(e,d)=>{state.party=(state.party===d[0]?null:d[0]);state.event=null;state.hoverParty=null;applyHighlight();})
+   .on('mousemove',(e,d)=>showTip(`<b>${d[1].nm}</b> — ${d[1].rl}`,e));
+  stage.append('text').attr('class','seclabel').attr('x',8).attr('y',LANE_TOP-22).text('◀ Entities');
+})();
+
+// 4. event→event links + dispute arc
+stage.append('g').selectAll('path').data(links).join('path').attr('class',d=>'evtlink transi '+d.type)
+  .attr('d',d=>{const s=ePos[d.from],t=ePos[d.to],mx=(s.x+t.x)/2;return `M${s.x},${s.y} C${mx},${s.y} ${mx},${t.y} ${t.x},${t.y}`;});
+(function(){const s=ePos[dispute.from],t=ePos[dispute.to],top=LANE_TOP+4;
+  stage.append('path').datum(dispute).attr('class','dispute-arc transi').attr('d',`M${s.x},${s.y-9} C${s.x},${top} ${t.x},${top} ${t.x},${t.y-9}`)
+    .on('mousemove',ev=>showTip(dispute.detail,ev)).on('mouseleave',hideTip);})();
+
+// 5. PERMANENT drop-lines (mind-map card → the event where the issue was decided)
+stage.append('g').selectAll('path').data(issues).join('path').attr('class','drop transi').attr('data-issue',d=>d.id)
+  .attr('stroke',d=>d.color).attr('d',d=>conn(cardX[d.id],CARD_BOT,rulingX(d),ePos[d.ruling].y));
+stage.append('g').selectAll('circle').data(issues).join('circle').attr('class','drop-dot transi').attr('data-issue',d=>d.id)
+  .attr('cx',d=>rulingX(d)).attr('cy',d=>ePos[d.ruling].y).attr('r',9).attr('fill','none').attr('stroke',d=>d.color);
+
+// 6. event dots
+const g=stage.append('g').selectAll('g').data(events).join('g').attr('class',d=>'evt transi'+(d.kind==='ruling'?' ruling':'')+(d.kind==='ruling'&&d.id!=='e_bench_trial'?' always':''))
+  .attr('transform',d=>`translate(${ePos[d.id].x},${ePos[d.id].y})`);
+g.append('circle').attr('r',d=>d.kind==='ruling'?7:5.5).attr('fill',d=>PC[norm(d.lane)])
+  .attr('stroke',d=>d.kind==='ruling'?'#1f2430':'#fff').attr('stroke-width',d=>d.kind==='ruling'?2:1.5);
+g.append('text').attr('y',3.5).attr('x',d=>ePos[d.id].x>W-150?-9:9).attr('text-anchor',d=>ePos[d.id].x>W-150?'end':'start')
+  .text(d=>d.label.length>26?d.label.slice(0,25)+'…':d.label);
+g.on('mousemove',(ev,d)=>showTip(`<b>${d.label}</b><br>${d.date}<br>${d.detail}`,ev)).on('mouseleave',hideTip)
+ .on('click',(ev,d)=>{state.event=(state.event===d.id?null:d.id);state.party=null;applyHighlight();});
+
+// 7. MIND-MAP root + anchor cards (top band)
+(function(){
+  const rootX=40, rootY=CARD_TOP+CARD_H/2;
+  stage.selectAll('path.mm-rootlink').data(issues).join('path').attr('class','mm-rootlink')
+    .attr('d',d=>{const tx=cardX[d.id]-CARD_W/2;return `M${rootX+22},${rootY} C${(rootX+tx)/2},${rootY} ${(rootX+tx)/2},${CARD_TOP+14} ${tx},${CARD_TOP+14}`;});
+  const rt=stage.append('g').attr('class','mm-root');
+  rt.append('rect').attr('x',rootX-22).attr('y',rootY-16).attr('width',44).attr('height',32).attr('rx',7);
+  rt.append('text').attr('x',rootX).attr('y',rootY-2).attr('text-anchor','middle').style('font-size','10px').style('font-weight',700).text('Appeal');
+  rt.append('text').attr('x',rootX).attr('y',rootY+9).attr('text-anchor','middle').style('font-size','7.5px').attr('fill','#cfcfe6').text('3 issues');
+  stage.append('text').attr('class','seclabel').attr('x',plotL).attr('y',4).attr('dy','0.7em').text('▲ Mind map — issues & holdings, each dropped to where it was decided');
+  const cards=stage.selectAll('g.mm-card').data(issues).join('g').attr('class','mm-card transi').attr('data-issue',d=>d.id)
+    .attr('transform',d=>`translate(${cardX[d.id]-CARD_W/2},${CARD_TOP})`);
+  cards.append('rect').attr('class','cbg').attr('width',CARD_W).attr('height',CARD_H).attr('rx',8);
+  cards.append('rect').attr('width',CARD_W).attr('height',20).attr('rx',8).attr('fill',d=>d.color);
+  cards.append('rect').attr('y',10).attr('width',CARD_W).attr('height',10).attr('fill',d=>d.color);
+  cards.append('text').attr('class','ttl').attr('x',8).attr('y',14).text(d=>`${d.n}. ${d.title}`);
+  const leaf=(sel,who,getter,col)=>{};
+  cards.each(function(d){const c=d3.select(this);
+    const rows=[{r:'AVB',t:d.aShort,col:'#b04a2b'},{r:'Wanke',t:d.bShort,col:'#2b6cb0'},{r:'Court',t:d.holdShort,col:'#1f7a3d'}];
+    rows.forEach((rw,j)=>{const yy=36+j*19;
+      c.append('circle').attr('cx',12).attr('cy',yy-3).attr('r',3).attr('fill',rw.col);
+      c.append('text').attr('class','role').attr('x',20).attr('y',yy).attr('fill',rw.col).text(rw.r+':');
+      c.append('text').attr('class','lf').attr('x',20+(rw.r==='Court'?34:rw.r==='Wanke'?40:30)).attr('y',yy).text(rw.t);});});
+  cards.on('mouseenter',(e,d)=>setHoverIssue(d.id)).on('mouseleave',()=>setHoverIssue(null))
+    .on('mousemove',(e,d)=>showTip(`<b>${d.title}</b><br><span style="color:#f3b0a0">AVB:</span> ${d.a}<br><span style="color:#9ec5e8">Wanke:</span> ${d.b}<br><span style="color:#7fd99c">Held:</span> ${d.hold}`,e));
+})();
+
+// 8. transient beams layer (topmost)
+const beams=stage.append('g').attr('id','beams');
+function renderBeams(){
+  beams.selectAll('*').remove();
+  const f=focus(); if(!f)return;
+  if(f.k==='issue'){const iss=issues.find(i=>i.id===f.id);
+    (eByIssue[f.id]||[]).forEach(ev=>{if(ev===iss.ruling)return;
+      beams.append('path').attr('class','beam').attr('stroke',iss.color).attr('d',conn(cardX[f.id],CARD_BOT,ePos[ev].x,ePos[ev].y));});}
+  if(f.k==='party'){const py=partyCY[f.id];
+    events.filter(e=>partyHit(e.parties,f.id)).forEach(ev=>{
+      beams.append('path').attr('class','beam').attr('stroke',PC[f.id]).attr('opacity',.6).attr('d',beamP(plotL,py,ePos[ev.id].x,ePos[ev.id].y));});}
+  if(f.k==='event'){(iByEvent[f.id]||[]).forEach(isid=>{const iss=issues.find(i=>i.id===isid);
+      beams.append('path').attr('class','beam').attr('stroke',iss.color).attr('d',conn(cardX[isid],CARD_BOT,ePos[f.id].x,ePos[f.id].y));});}
+}
+
+/* ═══════════ 4 · COMPARISON TABLE + ruling-marker strip ═══════════ */
+(function(){
+  const t=d3.select('#cmp');
+  t.append('thead').append('tr').html('<th>Issue</th><th>Type</th><th>AVB — Appellant</th><th>Wanke — Respondent</th><th>Court of Appeal</th><th>Amount</th>');
+  const tb=t.append('tbody');
+  issues.forEach(iss=>{
+    const amt=iss.amount?`AVB ${iss.amount.a} · court ${iss.amount.court}<br><span class="amt">net ${iss.amount.net}</span>`:'<span class="amt">— (procedural)</span>';
+    const tr=tb.append('tr').attr('class','cmp-row transi').attr('data-issue',iss.id);
+    tr.html(`<td class="iss-name" style="border-left:4px solid ${iss.color}">${iss.n}. ${iss.title}</td>
+      <td><span class="tag">${iss.type}</span></td>
+      <td class="pa">${iss.a}</td><td class="pb">${iss.b}</td>
+      <td class="hold">${iss.hold}</td><td>${amt}</td>`);
+    tr.on('mouseenter',()=>setHoverIssue(iss.id)).on('mouseleave',()=>setHoverIssue(null));
+  });
+  // strip: ▲ marker per issue ruling, aligned to the SAME x-axis as the timeline above
+  const SH=30, strip=d3.select('#strip').attr('viewBox',`0 0 ${W} ${SH}`).attr('width',W).attr('height',SH).style('min-width',W+'px');
+  strip.append('line').attr('x1',plotL).attr('x2',plotR).attr('y1',4).attr('y2',4).attr('stroke','#e3e6ea');
+  d3.timeYears(new Date(2008,0,1),new Date(2021,0,1)).forEach(yr=>{strip.append('text').attr('x',x(yr)).attr('y',26).attr('text-anchor','middle').style('font-size','8px').attr('fill','#c2c8d0').text("'"+String(yr.getFullYear()).slice(2));});
+  strip.selectAll('g.smark').data(issues).join('g').attr('class','smark transi').attr('data-issue',d=>d.id).each(function(d){
+    const xx=rulingX(d), g=d3.select(this);
+    g.append('line').attr('x1',xx).attr('x2',xx).attr('y1',4).attr('y2',12).attr('stroke',d.color).attr('stroke-width',1.4);
+    g.append('path').attr('d',`M${xx-5},14 L${xx+5},14 L${xx},6 Z`).attr('fill',d.color);
+  });
+  strip.append('text').attr('x',plotR).attr('y',26).attr('text-anchor','end').style('font-size','8.5px').attr('fill','#9aa1ab').text('▲ where each issue was decided — same time-axis as the timeline above');
+})();
+
+/* ═══════════ APPLY HIGHLIGHT (one function drives every region) ═══════════ */
+function applyHighlight(){
+  const aE=activeEvents(),aI=activeIssues(),aP=activeParties(),on=focus();
+  const hE=aE&&aE.size, hI=aI&&aI.size, hP=aP&&aP.size;   // empty sets must NOT dim everything
+  stage.selectAll('.evt').classed('dimmed',d=>on&&hE&&!aE.has(d.id)).classed('lab',d=>hE?aE.has(d.id):false);
+  stage.selectAll('.evtlink').classed('dimmed',d=>on&&hE&&!(aE.has(d.from)&&aE.has(d.to)));
+  stage.selectAll('.dispute-arc').classed('dimmed',()=>on&&hE&&!(aE.has(dispute.from)&&aE.has(dispute.to)));
+  stage.selectAll('.mm-card,.drop,.drop-dot,.tickrow').classed('dimmed',function(){return on&&hI&&!aI.has(this.dataset.issue);}).classed('hot',function(){return hI&&aI.has(this.dataset.issue);});
+  d3.selectAll('.cmp-row,.smark').classed('dimmed',function(){return on&&hI&&!aI.has(this.dataset.issue);});
+  stage.selectAll('.er-node,.er-stub,.stubarrow').classed('dimmed',function(){return on&&hP&&this.dataset.party&&!aP.has(this.dataset.party);});
+  stage.selectAll('.er-edge,.er-elab').classed('dimmed',function(){return on&&hP&&!(aP.has(this.dataset.from)&&aP.has(this.dataset.to));});
+  d3.selectAll('.chip[data-party]').classed('active',function(){return this.dataset.party===state.party;});
+  renderBeams();
+}
+
+/* ═══════════ TOOLBAR ═══════════ */
+const cb=d3.select('#chips');
+[{id:'wanke',t:'Wanke'},{id:'debtors',t:'Debtors'},{id:'avb',t:'AVB'},{id:'court_group',t:'Courts'}].forEach(c=>{
+  cb.append('div').attr('class','chip').attr('data-party',c.id).html(`<span class="d" style="background:${PC[c.id]}"></span>${c.t}`)
+    .on('mouseenter',()=>{if(!state.party)setHoverParty(c.id);}).on('mouseleave',()=>setHoverParty(null))
+    .on('click',()=>{state.party=(state.party===c.id?null:c.id);state.event=null;state.hoverParty=null;applyHighlight();});
+});
+d3.select('#reset').on('click',()=>{state.party=state.event=state.hoverIssue=state.hoverParty=null;applyHighlight();});
+applyHighlight();
+</script>
+</body>
+</html>

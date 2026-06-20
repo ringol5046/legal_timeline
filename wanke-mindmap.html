@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wanke v. AV Builder Corp — Mind Map</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #efefef;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  svg {
+    background: #fafafa;
+    border-radius: 14px;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.12);
+    display: block;
+    max-width: 100%;
+  }
+</style>
+</head>
+<body>
+<svg id="mindmap"></svg>
+<script>
+// ── dimensions ───────────────────────────────────────────────────
+const W = 980, H = 640;
+const svg = d3.select("#mindmap").attr("width", W).attr("height", H);
+
+// ── colour palette ───────────────────────────────────────────────
+const C = { i1: "#6CB4E4", i2: "#F4A261", i3: "#5BBFBF", root: "#3d3b6e" };
+
+// ── layout constants ─────────────────────────────────────────────
+const ROOT  = { x: 96, y: H / 2 };
+const ISS_X = 268;   // issue node x
+const SUB_X = 530;   // sub-label endpoint x
+const SPE_X = 790;   // special node x (net judgment)
+
+// ── data ─────────────────────────────────────────────────────────
+const issues = [
+  {
+    color: C.i1, label: "Standing & Capacity",
+    x: ISS_X, y: 140,
+    subs: [
+      { label: ["AVB: Stands in shoes of", "suspended WP Solutions"],       x: SUB_X, y: 58  },
+      { label: ["Wanke: Independent statutory", "standing under §708.210"], x: SUB_X, y: 140 },
+      { label: ["AFFIRMED — No assignment", "created; §368 not triggered"], x: SUB_X, y: 224 }
+    ]
+  },
+  {
+    color: C.i2, label: "Statute of Limitations",
+    x: ISS_X, y: 322,
+    subs: [
+      { label: ["AVB: License suspension cut off", "right to sue (2014)"],        x: SUB_X, y: 262 },
+      { label: ["Wanke: Timely — accrual,", "not capacity, governs"],            x: SUB_X, y: 324 },
+      { label: ["AFFIRMED — §708.230(a)(1)", "accrual-based; AVB failed burden"], x: SUB_X, y: 390 }
+    ]
+  },
+  {
+    color: C.i3, label: "Warranty Setoff",
+    x: ISS_X, y: 510,
+    subs: [
+      { label: ["AVB: Sought $43,929", "(5–7¢/sq ft × warranty years)"],  x: SUB_X, y: 446 },
+      { label: ["Wanke: Failed to prove", "non-speculative value"],        x: SUB_X, y: 516 },
+      { label: ["AFFIRMED — $0 setoff;", "no credible valuation"],        x: SUB_X, y: 584 },
+      { label: ["Net Judgment:", "$83,418.94 for Wanke"], x: SPE_X, y: 584, special: true }
+    ]
+  }
+];
+
+// ── bezier path helper ───────────────────────────────────────────
+function path(sx, sy, tx, ty, t1 = 0.55, t2 = 0.4) {
+  const dx = tx - sx;
+  return `M${sx},${sy} C${sx + dx*t1},${sy} ${tx - dx*t2*t1},${ty} ${tx},${ty}`;
+}
+
+// ── draw root → issue trunk lines ────────────────────────────────
+issues.forEach(iss => {
+  svg.append("path")
+    .attr("d", path(ROOT.x + 52, ROOT.y, iss.x - 8, iss.y))
+    .attr("fill", "none")
+    .attr("stroke", iss.color)
+    .attr("stroke-width", 10)
+    .attr("stroke-linecap", "round")
+    .attr("opacity", 0.82);
+});
+
+// ── draw issue → sub branch lines ────────────────────────────────
+issues.forEach(iss => {
+  iss.subs.forEach(sub => {
+    const special = sub.special;
+    const sx = special ? iss.subs[2].x      : iss.x + 8;
+    const sy = special ? iss.subs[2].y      : iss.y;
+    svg.append("path")
+      .attr("d", path(sx, sy, sub.x - 6, sub.y, 0.5, 0.35))
+      .attr("fill", "none")
+      .attr("stroke", iss.color)
+      .attr("stroke-width", special ? 3 : 5)
+      .attr("stroke-linecap", "round")
+      .attr("opacity", special ? 0.7 : 0.78);
+  });
+});
+
+// ── draw sub-label endpoints + text ─────────────────────────────
+issues.forEach(iss => {
+  iss.subs.forEach(sub => {
+    const special = sub.special;
+    const g = svg.append("g");
+    g.append("circle")
+      .attr("cx", sub.x).attr("cy", sub.y)
+      .attr("r", special ? 3.5 : 4.5)
+      .attr("fill", iss.color).attr("opacity", 0.75);
+
+    sub.label.forEach((line, li) => {
+      const offset = (li - (sub.label.length - 1) / 2) * 16;
+      g.append("text")
+        .attr("x", sub.x + 9)
+        .attr("y", sub.y + offset)
+        .attr("dominant-baseline", "middle")
+        .attr("font-size", special ? "11.5px" : "12px")
+        .attr("font-weight", special ? "600" : "400")
+        .attr("fill", special ? "#1e6060" : "#2e2e2e")
+        .text(line);
+    });
+  });
+});
+
+// ── draw issue node circles + labels ─────────────────────────────
+issues.forEach(iss => {
+  // White pill behind label so branch curve doesn't obscure it
+  const approxW = iss.label.length * 7.8 + 16;
+  svg.append("rect")
+    .attr("x", iss.x + 8).attr("y", iss.y - 12)
+    .attr("width", approxW).attr("height", 24).attr("rx", 5)
+    .attr("fill", "#fafafa").attr("opacity", 0.85);
+
+  svg.append("circle")
+    .attr("cx", iss.x).attr("cy", iss.y)
+    .attr("r", 6).attr("fill", iss.color);
+
+  svg.append("text")
+    .attr("x", iss.x + 16).attr("y", iss.y)
+    .attr("dominant-baseline", "middle")
+    .attr("font-size", "13.5px").attr("font-weight", "700")
+    .attr("fill", iss.color)
+    .text(iss.label);
+});
+
+// ── draw root rounded-rect node ──────────────────────────────────
+const rw = 104, rh = 52;
+svg.append("rect")
+  .attr("x", ROOT.x - rw/2 + 2).attr("y", ROOT.y - rh/2)
+  .attr("width", rw).attr("height", rh).attr("rx", 10)
+  .attr("fill", C.root).attr("opacity", 0.93);
+
+["Wanke v.", "AV Builder"].forEach((line, i) => {
+  svg.append("text")
+    .attr("x", ROOT.x).attr("y", ROOT.y + (i - 0.5) * 18)
+    .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
+    .attr("font-size", "13px").attr("font-weight", "700").attr("fill", "#fff")
+    .text(line);
+});
+
+// ── legend ───────────────────────────────────────────────────────
+const legend = [
+  { color: C.i1, label: "Issue 1 · Standing & Capacity" },
+  { color: C.i2, label: "Issue 2 · Statute of Limitations" },
+  { color: C.i3, label: "Issue 3 · Warranty Setoff" }
+];
+legend.forEach((d, i) => {
+  const lx = 44 + i * 270, ly = H - 22;
+  svg.append("circle").attr("cx", lx).attr("cy", ly).attr("r", 5.5).attr("fill", d.color);
+  svg.append("text").attr("x", lx + 11).attr("y", ly)
+    .attr("dominant-baseline", "middle")
+    .attr("font-size", "11px").attr("fill", "#888").text(d.label);
+});
+
+// ── case citation ─────────────────────────────────────────────────
+svg.append("text")
+  .attr("x", W - 14).attr("y", 16).attr("text-anchor", "end")
+  .attr("font-size", "10.5px").attr("fill", "#bbb")
+  .text("D074392 · Cal. Ct. App. 4th Dist. Div. 1 · Feb 19, 2020 · Affirmed");
+</script>
+</body>
+</html>

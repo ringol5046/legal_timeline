@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wanke v. AV Builder — Stacked Planes (3D)</title>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<style>
+  :root{--ink:#e6e9ef;--muted:#9aa4b2;--line:#2a313c;--wanke:#5aa9f0;--avb:#e07a52;--debtors:#a98be6;--court_group:#9aa7b5;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:radial-gradient(1200px 600px at 50% -10%,#1a2230,#0b0e13 60%);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;padding:18px}
+  h1{font-size:19px;font-weight:700}.docket{color:var(--muted);font-size:12px;margin-top:2px}
+  .metaphor{margin-top:10px;background:#11161d;border:1px solid var(--line);border-radius:9px;padding:9px 13px;font-size:12px;color:#c7cedb;max-width:1180px;line-height:1.55}
+  .metaphor b{color:#fff}
+  .toolbar{display:flex;align-items:center;gap:8px;margin:12px 0;flex-wrap:wrap}
+  .toolbar .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .chip{border:1px solid var(--line);background:#161b22;color:var(--ink);border-radius:14px;padding:4px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+  .chip .d{width:9px;height:9px;border-radius:50%}.chip:hover{border-color:#3a4756}.chip.active{background:#e6e9ef;color:#0b0e13}
+  .chip.reset{color:var(--muted)}
+  #stage{position:relative;height:600px;background:linear-gradient(180deg,#0f141b,#0a0e13);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  #stage canvas{display:block}
+  #fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:30px}
+  .hint{position:absolute;right:14px;top:10px;font-size:11px;color:#6b7686}
+  #tip{position:fixed;pointer-events:none;background:#05070a;color:#fff;border:1px solid #2a313c;padding:7px 9px;border-radius:6px;font-size:11px;line-height:1.45;max-width:300px;opacity:0;transition:opacity .1s;z-index:50;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .legend{display:flex;gap:15px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:9px}
+  .legend span{display:flex;align-items:center;gap:5px}.kd{width:10px;height:10px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+  <h1>Wanke, Industrial v. AV Builder Corp. — <span style="color:#7fd1ff">Stacked Planes (3D)</span></h1>
+  <div class="docket">Cal. Ct. App. 4th Dist., Div. 1 · D074392 · filed 2020-02-19 · Judgment affirmed</div>
+  <div class="metaphor">🗂️ <b>The four diagrams as connected layers.</b> Each plane is one view —
+    <b style="color:#9fb1c9">Entity-Relation</b> ▸ <b style="color:#7fc6ad">Timeline</b> ▸ <b style="color:#b3a3e6">Mind Map</b> ▸ <b style="color:#d6b08a">Comparison</b> —
+    stacked in depth and wired by the shared <b>Party / Event / Issue</b> keys.
+    <b>Hover or click any node</b> and it lights up — along with every connected node on the other three planes and the links between them.</div>
+
+  <div class="toolbar">
+    <span class="lbl">Highlight party</span><div id="chips" style="display:flex;gap:8px"></div>
+    <div class="chip reset" id="reset">Clear ✕</div>
+    <span class="lbl" style="margin-left:6px">·</span><span style="color:#6b7686;font-size:11px">click a node to pin · click empty space to clear</span>
+  </div>
+
+  <div id="stage"><div class="hint">drag to orbit · scroll to zoom</div><div id="fallback">Loading Three.js… needs internet to fetch the library from the CDN.</div></div>
+  <div class="legend" id="legend"></div>
+<div id="tip"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ───────── DATA ───────── */
+const PC={wanke:'#5aa9f0',avb:'#e07a52',debtors:'#a98be6',court_group:'#9aa7b5'};
+const PNAME={wanke:'Wanke',debtors:'WP·Keck',avb:'AVB',court_group:'Courts'};
+const norm=p=>(p==='trial_court'||p==='court_of_appeal'||p==='court')?'court_group':(p==='wp_solutions'||p==='keck')?'debtors':p;
+const LANES=['wanke','debtors','avb','court_group'];
+const events=[
+  {id:'e_2008',label:'Wanke sues Keck (trade secrets)',date:'2008-01-01',lane:'wanke',kind:'external',parties:['wanke','keck']},
+  {id:'e_saratoga',label:'Saratoga West subcontract',date:'2009-11-16',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_wankeI',label:'Wanke v. Keck (2012)',date:'2012-01-01',lane:'court',kind:'external',parties:['wanke','keck','court_of_appeal']},
+  {id:'e_pointloma',label:'Point Loma subcontract',date:'2012-06-11',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_predicate',label:'Predicate judgment ($1,190,929)',date:'2013-01-01',lane:'court',kind:'ruling',parties:['wanke','wp_solutions','keck','trial_court']},
+  {id:'e_promenade',label:'133 Promenade subcontract',date:'2013-04-25',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_taitz',label:'Taitz subcontract',date:'2013-09-09',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_oxford',label:'Oxford subcontract',date:'2013-12-23',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_accrual',label:'Accrual (Wanke theory)',date:'2013-12-23',lane:'wanke',kind:'fact',parties:['wanke']},
+  {id:'e_wpsusp',label:'WP corporate suspension',date:'2014-01-01',lane:'debtors',kind:'external',parties:['wp_solutions']},
+  {id:'e_work',label:'Work done; Keck bankruptcy',date:'2014-06-15',lane:'debtors',kind:'fact',parties:['wp_solutions','keck']},
+  {id:'e_levy',label:'Writ of execution & levy on AVB',date:'2014-06-15',lane:'wanke',kind:'filing',parties:['wanke','avb']},
+  {id:'e_license',label:'WP license suspended',date:'2014-07-01',lane:'debtors',kind:'external',parties:['wp_solutions']},
+  {id:'e_exam',label:'Examination; $109,327 debt found',date:'2014-07-15',lane:'wanke',kind:'discovery',parties:['wanke','avb']},
+  {id:'e_examlien',label:'Examination lien expired',date:'2015-07-15',lane:'court',kind:'external',parties:['court_of_appeal']},
+  {id:'e_levylien',label:'Levy lien expired',date:'2016-06-15',lane:'court',kind:'external',parties:['court_of_appeal']},
+  {id:'e_suit',label:'Creditor’s suit filed ($109,327)',date:'2016-07-15',lane:'wanke',kind:'filing',parties:['wanke','avb','trial_court']},
+  {id:'e_brief',label:'AVB trial brief: standing/capacity',date:'2018-05-01',lane:'avb',kind:'filing',parties:['avb']},
+  {id:'e_bench',label:'Two-day bench trial',date:'2018-06-15',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb','keck']},
+  {id:'e_trialjmt',label:'Trial judgment ($83,418.94)',date:'2018-08-01',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb']},
+  {id:'e_affirm',label:'Court of Appeal affirms',date:'2020-02-19',lane:'court',kind:'ruling',parties:['court_of_appeal','wanke','avb']},
+];
+const issues=[
+  {id:'ISSUE-001',n:'I',color:'#5ec8e8',title:'Standing & Capacity',a:'Wanke stands in shoes of suspended WP; lacks capacity.',b:'Independent standing under §708.210.',hold:'AFFIRMED — Wanke sues in its own right.'},
+  {id:'ISSUE-002',n:'II',color:'#f0a04b',title:'Statute of Limitations',a:'License suspension cut off the right to sue.',b:'Timely — accrual governs; §337(a) 4-yr clock.',hold:'AFFIRMED — §708.230(a)(1) accrual-based.'},
+  {id:'ISSUE-003',n:'III',color:'#56cfa1',title:'Warranty Setoff',a:'Entitled to $43,929 setoff.',b:'Failed to prove non-speculative value.',hold:'AFFIRMED — $0 setoff; net $83,418.94.'},
+];
+const bridge=[
+  ['ISSUE-001','e_predicate'],['ISSUE-001','e_suit'],['ISSUE-001','e_brief'],['ISSUE-001','e_exam'],['ISSUE-001','e_wpsusp'],['ISSUE-001','e_affirm'],
+  ['ISSUE-002','e_license'],['ISSUE-002','e_accrual'],['ISSUE-002','e_taitz'],['ISSUE-002','e_oxford'],['ISSUE-002','e_suit'],['ISSUE-002','e_affirm'],
+  ['ISSUE-003','e_work'],['ISSUE-003','e_bench'],['ISSUE-003','e_trialjmt'],['ISSUE-003','e_affirm'],
+];
+const evById=Object.fromEntries(events.map(e=>[e.id,e]));
+const issById=Object.fromEntries(issues.map(i=>[i.id,i]));
+const partiesOf=e=>[...new Set(evById[e].parties.map(norm))];
+const eventsByParty={}; LANES.forEach(p=>eventsByParty[p]=[]); events.forEach(e=>partiesOf(e.id).forEach(p=>eventsByParty[p].push(e.id)));
+const bridgeByIssue={}, issuesByEvent={};
+bridge.forEach(([i,e])=>{(bridgeByIssue[i]=bridgeByIssue[i]||[]).push(e);(issuesByEvent[e]=issuesByEvent[e]||[]).push(i);});
+const tmin=new Date(2008,0,1).getTime(), tmax=new Date(2020,9,1).getTime();
+const fracOf=e=>(new Date(evById[e].date).getTime()-tmin)/(tmax-tmin);
+
+/* ───────── SCENE ───────── */
+const stage=document.getElementById('stage'), fb=document.getElementById('fallback'); fb.style.display='flex';
+let renderer,scene,camera,controls; const nodes=[], conns=[]; let pinned=null, focusNode=null;
+const C=h=>new THREE.Color(h);
+function nodeMat(color){return new THREE.MeshStandardMaterial({color:C(color),emissive:C(color),emissiveIntensity:0.24,roughness:0.4,metalness:0.1,transparent:true,opacity:1});}
+function ball(pos,r,color,ud){const m=new THREE.Mesh(new THREE.SphereGeometry(r,20,20),nodeMat(color));m.position.copy(pos);m.userData=ud;m.userData._r=r;nodes.push(m);return m;}
+function cube(pos,s,color,ud){const m=new THREE.Mesh(new THREE.BoxGeometry(s,s,s),nodeMat(color));m.position.copy(pos);m.userData=ud;nodes.push(m);return m;}
+function bar(pos,w,color,ud){const m=new THREE.Mesh(new THREE.BoxGeometry(w,7,10),nodeMat(color));m.position.copy(pos);m.userData=ud;nodes.push(m);return m;}
+function conn(p1,p2,color,litOp,ud){const g=new THREE.BufferGeometry().setFromPoints([p1,p2]);const m=new THREE.Line(g,new THREE.LineBasicMaterial({color:C(color),transparent:true,opacity:litOp}));m.userData={...ud,litOp};conns.push(m);return m;}
+function planeMesh(w,d,y,color){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({color:C(color),transparent:true,opacity:0.06,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=y;return m;}
+function sprite(text,color,scale){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.fillStyle=color;g.font='bold 30px Helvetica,Arial';g.textBaseline='middle';g.fillText(text,6,34);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true}));s.scale.set((scale||1)*30,(scale||1)*7.5,1);s.userData={_label:true};return s;}
+
+const W=250, Dp=140, YP={er:150,tl:50,mm:-50,cmp:-150};
+const erPos={}, tlPos={}, mmPos={}, cmpPos={};
+
+function build(){
+  const g=new THREE.Group();
+  [['er','Entity-Relation','#9fb1c9'],['tl','Timeline','#7fc6ad'],['mm','Mind Map','#b3a3e6'],['cmp','Comparison','#d6b08a']].forEach(([k,name,col])=>{
+    g.add(planeMesh(W,Dp,YP[k],col));
+    const s=sprite(name,col,1.05); s.position.set(-W/2+2,YP[k]+9,Dp/2+10); g.add(s);
+  });
+  // ER plane — party nodes + structural edges
+  LANES.forEach((p,i)=>{erPos[p]=new THREE.Vector3(-80+i*53,YP.er,0);
+    g.add(ball(erPos[p],6,PC[p],{kind:'party',id:p,label:PNAME[p],sub:'party / entity'}));
+    const s=sprite(PNAME[p],PC[p],0.7);s.position.copy(erPos[p]).add(new THREE.Vector3(0,9,0));g.add(s);});
+  [['wanke','debtors','$1.19M judgment'],['avb','debtors','owes $109,327'],['wanke','avb','creditor’s suit']].forEach(([a,b])=>
+    g.add(conn(erPos[a],erPos[b],'#8a93a0',0.55,{type:'pp',p:a,p2:b})));
+  // Timeline plane — events along time, slight depth by lane
+  const L=W-44, laneZ={wanke:42,debtors:14,avb:-14,court_group:-42};
+  events.forEach(e=>{tlPos[e.id]=new THREE.Vector3(-L/2+fracOf(e.id)*L,YP.tl,laneZ[norm(e.lane)]);
+    g.add(ball(tlPos[e.id],e.kind==='ruling'?4:2.8,PC[norm(e.lane)],{kind:'event',id:e.id,label:e.label,sub:e.date+' · '+PNAME[norm(e.lane)]}));});
+  [2008,2012,2016,2020].forEach(y=>{const xx=-L/2+((new Date(y,0,1).getTime()-tmin)/(tmax-tmin))*L;const s=sprite(String(y),'#6b7686',0.6);s.position.set(xx,YP.tl+2,Dp/2-6);g.add(s);});
+  // Mind Map plane — issue cubes ; Comparison plane — issue bars (same x → clean vertical link)
+  issues.forEach((iss,k)=>{const xx=-70+k*70;
+    mmPos[iss.id]=new THREE.Vector3(xx,YP.mm,0);
+    g.add(cube(mmPos[iss.id],12,iss.color,{kind:'issue',id:iss.id,label:iss.n+'. '+iss.title,sub:iss.hold}));
+    const s=sprite(iss.n+'. '+iss.title,iss.color,0.72);s.position.copy(mmPos[iss.id]).add(new THREE.Vector3(0,11,0));g.add(s);
+    cmpPos[iss.id]=new THREE.Vector3(xx,YP.cmp,0);
+    g.add(bar(cmpPos[iss.id],46,iss.color,{kind:'issue',id:iss.id,label:iss.n+'. '+iss.title,sub:'AVB: '+iss.a+'  |  Wanke: '+iss.b+'  |  '+iss.hold}));
+    const s2=sprite(iss.hold.split('—')[0].trim(),iss.color,0.62);s2.position.copy(cmpPos[iss.id]).add(new THREE.Vector3(0,8,0));g.add(s2);});
+  // cross-plane connectors
+  events.forEach(e=>partiesOf(e.id).forEach(p=>{if(erPos[p])g.add(conn(erPos[p],tlPos[e.id],PC[p],0.10,{type:'pe',p,e:e.id}));}));
+  bridge.forEach(([i,e])=>g.add(conn(tlPos[e],mmPos[i],issById[i].color,0.30,{type:'ei',e,i})));
+  issues.forEach(iss=>g.add(conn(mmPos[iss.id],cmpPos[iss.id],iss.color,0.45,{type:'ii',i:iss.id})));
+  scene.add(g);
+}
+
+/* ───────── HIGHLIGHT (cross-plane) ───────── */
+function relatedSets(node){
+  const P=new Set(),E=new Set(),I=new Set(); const u=node.userData;
+  if(u.kind==='party'){P.add(u.id);(eventsByParty[u.id]||[]).forEach(e=>E.add(e));
+    issues.forEach(i=>{if((bridgeByIssue[i.id]||[]).some(e=>E.has(e)))I.add(i.id);});}
+  else if(u.kind==='event'){E.add(u.id);partiesOf(u.id).forEach(p=>P.add(p));(issuesByEvent[u.id]||[]).forEach(i=>I.add(i));}
+  else{I.add(u.id);(bridgeByIssue[u.id]||[]).forEach(e=>{E.add(e);partiesOf(e).forEach(p=>P.add(p));});}
+  return {P,E,I};
+}
+function nodeLit(u,f){return (u.kind==='party'&&f.P.has(u.id))||(u.kind==='event'&&f.E.has(u.id))||(u.kind==='issue'&&f.I.has(u.id));}
+function connLit(u,f){
+  if(u.type==='pe')return f.P.has(u.p)&&f.E.has(u.e);
+  if(u.type==='ei')return f.E.has(u.e)&&f.I.has(u.i);
+  if(u.type==='ii')return f.I.has(u.i);
+  if(u.type==='pp')return f.P.has(u.p)&&f.P.has(u.p2);
+  return false;
+}
+function applyHL(){
+  const f=focusNode?relatedSets(focusNode):null;
+  nodes.forEach(m=>{const lit=!f||nodeLit(m.userData,f);
+    m.material.opacity=lit?1:0.06; m.material.emissiveIntensity=f?(lit?0.65:0.05):0.24;
+    const s=lit&&f?1.25:1; m.scale.setScalar(s);});
+  conns.forEach(c=>{const lit=!f||connLit(c.userData,f); c.material.opacity=lit?(f?Math.min(0.95,c.userData.litOp+0.5):c.userData.litOp):0.015;});
+}
+
+/* ───────── INTERACTION ───────── */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),tip=document.getElementById('tip');
+let downXY=null;
+function pickAt(e){const r=renderer.domElement.getBoundingClientRect();ndc.x=((e.clientX-r.left)/r.width)*2-1;ndc.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(ndc,camera);return ray.intersectObjects(nodes,false)[0]?.object||null;}
+function onMove(e){const hit=pickAt(e);
+  if(hit){const u=hit.userData;tip.innerHTML=`<b>${u.label}</b><br><span style="color:#9aa4b2">${u.sub||u.kind}</span>`;tip.style.opacity=1;tip.style.left=(e.clientX+13)+'px';tip.style.top=(e.clientY+13)+'px';renderer.domElement.style.cursor='pointer';}
+  else{tip.style.opacity=0;renderer.domElement.style.cursor='grab';}
+  const nf=hit||pinned; if(nf!==focusNode){focusNode=nf;applyHL();}
+}
+function onUp(e){if(!downXY)return;const moved=Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1]);downXY=null;if(moved>5)return; // drag, not click
+  const hit=pickAt(e); pinned=hit?(pinned===hit?null:hit):null; focusNode=pinned||null; applyHL();
+  syncChips();}
+
+function init(){
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(stage.clientWidth,stage.clientHeight);stage.appendChild(renderer.domElement);
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(44,stage.clientWidth/stage.clientHeight,0.1,4000);
+  camera.position.set(150,55,380);
+  controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;controls.target.set(0,0,0);
+  scene.add(new THREE.AmbientLight(0xffffff,0.72));
+  const d1=new THREE.DirectionalLight(0xbfe0ff,0.85);d1.position.set(90,140,150);scene.add(d1);
+  const d2=new THREE.DirectionalLight(0xffd9b0,0.3);d2.position.set(-100,-70,-90);scene.add(d2);
+  build(); applyHL(); fb.style.display='none';
+  window.addEventListener('resize',onResize);
+  const dom=renderer.domElement;
+  dom.addEventListener('pointermove',onMove);
+  dom.addEventListener('pointerdown',e=>downXY=[e.clientX,e.clientY]);
+  dom.addEventListener('pointerup',onUp);
+  dom.addEventListener('pointerleave',()=>{tip.style.opacity=0;focusNode=pinned||null;applyHL();});
+  animate();
+}
+function onResize(){camera.aspect=stage.clientWidth/stage.clientHeight;camera.updateProjectionMatrix();renderer.setSize(stage.clientWidth,stage.clientHeight);}
+function animate(){requestAnimationFrame(animate);controls&&controls.update();renderer&&renderer.render(scene,camera);}
+
+/* ───────── UI: party chips pin a party highlight ───────── */
+const chips=document.getElementById('chips');
+function partyNode(p){return nodes.find(m=>m.userData.kind==='party'&&m.userData.id===p);}
+function syncChips(){document.querySelectorAll('.chip[data-party]').forEach(c=>c.classList.toggle('active',!!(pinned&&pinned.userData.kind==='party'&&pinned.userData.id===c.dataset.party)));}
+LANES.forEach(p=>{const c=document.createElement('div');c.className='chip';c.dataset.party=p;c.innerHTML=`<span class="d" style="background:${PC[p]}"></span>${PNAME[p]}`;
+  c.addEventListener('click',()=>{const pn=partyNode(p);pinned=(pinned===pn?null:pn);focusNode=pinned||null;applyHL();syncChips();});
+  chips.appendChild(c);});
+document.getElementById('reset').addEventListener('click',()=>{pinned=focusNode=null;applyHL();syncChips();});
+const legend=document.getElementById('legend');
+LANES.forEach(p=>{const s=document.createElement('span');s.innerHTML=`<i class="kd" style="background:${PC[p]}"></i>${PNAME[p]}`;legend.appendChild(s);});
+issues.forEach(i=>{const s=document.createElement('span');s.innerHTML=`<i class="kd" style="background:${i.color}"></i>${i.n}. ${i.title}`;legend.appendChild(s);});
+
+try{init();}catch(err){fb.style.display='flex';fb.textContent='3D failed: '+err.message;console.error(err);}
+</script>
+</body>
+</html>

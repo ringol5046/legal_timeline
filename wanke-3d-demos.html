@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wanke v. AV Builder — 3D form demos</title>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<style>
+  :root{--ink:#e6e9ef;--muted:#9aa4b2;--line:#2a313c;--wanke:#5aa9f0;--avb:#e07a52;--debtors:#a98be6;--court_group:#9aa7b5;--win:#5fd38a;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:radial-gradient(1200px 600px at 50% -10%,#1a2230,#0b0e13 60%);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;padding:18px}
+  h1{font-size:19px;font-weight:700}.docket{color:var(--muted);font-size:12px;margin-top:2px}
+  .tabs{display:flex;gap:8px;margin:13px 0 8px}
+  .tab{background:#161b22;border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:13px;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:2px}
+  .tab small{font-size:10.5px;color:var(--muted)}
+  .tab:hover{border-color:#3a4756}
+  .tab.active{background:#1f2a3a;border-color:#4a6f99;box-shadow:0 0 0 1px #2b5f8f inset}
+  .desc{font-size:12px;color:#c7cedb;background:#11161d;border:1px solid var(--line);border-radius:9px;padding:8px 12px;margin-bottom:10px;line-height:1.5;min-height:38px}
+  .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .toolbar .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .chip{border:1px solid var(--line);background:#161b22;color:var(--ink);border-radius:14px;padding:4px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+  .chip .d{width:9px;height:9px;border-radius:50%}.chip:hover{border-color:#3a4756}.chip.active{background:#e6e9ef;color:#0b0e13}
+  #stage{position:relative;height:560px;background:linear-gradient(180deg,#0f141b,#0a0e13);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  #stage canvas{display:block}
+  #fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:30px}
+  .hint{position:absolute;right:14px;top:10px;font-size:11px;color:#6b7686}
+  #tip{position:fixed;pointer-events:none;background:#05070a;color:#fff;border:1px solid #2a313c;padding:7px 9px;border-radius:6px;font-size:11px;line-height:1.45;max-width:300px;opacity:0;transition:opacity .1s;z-index:50;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:9px}
+  .legend span{display:flex;align-items:center;gap:5px}.kd{width:10px;height:10px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+  <h1>Wanke v. AV Builder — <span style="color:#7fd1ff">3D form demos</span></h1>
+  <div class="docket">Same case data, three Three.js layouts. Pick the one you want me to build out fully · drag to orbit · scroll to zoom</div>
+
+  <div class="tabs">
+    <div class="tab active" data-mode="timeline"><b>1 · Layered timeline</b><small>time axis + party lanes + issue layer</small></div>
+    <div class="tab" data-mode="graph"><b>2 · Knowledge graph</b><small>entities/events/issues as a 3D network</small></div>
+    <div class="tab" data-mode="planes"><b>3 · Stacked planes</b><small>four diagrams as connected layers</small></div>
+  </div>
+  <div class="desc" id="desc"></div>
+
+  <div class="toolbar">
+    <span class="lbl">Party</span><div id="chips" style="display:flex;gap:8px"></div>
+    <span class="lbl" style="margin-left:8px">·</span><span class="hint" style="position:static;color:#6b7686">hover a node for details</span>
+  </div>
+
+  <div id="stage"><div class="hint">drag to orbit · scroll to zoom</div><div id="fallback">Loading Three.js… needs internet to fetch the library from the CDN.</div></div>
+  <div class="legend" id="legend"></div>
+<div id="tip"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ───────── DATA ───────── */
+const PC={wanke:'#5aa9f0',avb:'#e07a52',debtors:'#a98be6',court_group:'#9aa7b5'};
+const PNAME={wanke:'Wanke',debtors:'WP·Keck',avb:'AVB',court_group:'Courts'};
+const norm=p=>(p==='trial_court'||p==='court_of_appeal'||p==='court')?'court_group':(p==='wp_solutions'||p==='keck')?'debtors':p;
+const LANES=['wanke','debtors','avb','court_group'];
+const events=[
+  {id:'e_2008',label:'Wanke sues Keck (trade secrets)',date:'2008-01-01',lane:'wanke',kind:'external',parties:['wanke','keck']},
+  {id:'e_saratoga',label:'Saratoga West subcontract',date:'2009-11-16',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_wankeI',label:'Wanke v. Keck (2012)',date:'2012-01-01',lane:'court',kind:'external',parties:['wanke','keck','court_of_appeal']},
+  {id:'e_pointloma',label:'Point Loma subcontract',date:'2012-06-11',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_predicate',label:'Predicate judgment ($1,190,929)',date:'2013-01-01',lane:'court',kind:'ruling',parties:['wanke','wp_solutions','keck','trial_court']},
+  {id:'e_promenade',label:'133 Promenade subcontract',date:'2013-04-25',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_taitz',label:'Taitz subcontract',date:'2013-09-09',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_oxford',label:'Oxford subcontract',date:'2013-12-23',lane:'debtors',kind:'fact',parties:['wp_solutions','avb']},
+  {id:'e_accrual',label:'Accrual (Wanke theory)',date:'2013-12-23',lane:'wanke',kind:'fact',parties:['wanke']},
+  {id:'e_wpsusp',label:'WP corporate suspension',date:'2014-01-01',lane:'debtors',kind:'external',parties:['wp_solutions']},
+  {id:'e_work',label:'Work done; Keck bankruptcy',date:'2014-06-15',lane:'debtors',kind:'fact',parties:['wp_solutions','keck']},
+  {id:'e_levy',label:'Writ of execution & levy on AVB',date:'2014-06-15',lane:'wanke',kind:'filing',parties:['wanke','avb']},
+  {id:'e_license',label:'WP license suspended',date:'2014-07-01',lane:'debtors',kind:'external',parties:['wp_solutions']},
+  {id:'e_exam',label:'Examination; $109,327 debt found',date:'2014-07-15',lane:'wanke',kind:'discovery',parties:['wanke','avb']},
+  {id:'e_examlien',label:'Examination lien expired',date:'2015-07-15',lane:'court',kind:'external',parties:['court_of_appeal']},
+  {id:'e_levylien',label:'Levy lien expired',date:'2016-06-15',lane:'court',kind:'external',parties:['court_of_appeal']},
+  {id:'e_suit',label:'Creditor’s suit filed ($109,327)',date:'2016-07-15',lane:'wanke',kind:'filing',parties:['wanke','avb','trial_court']},
+  {id:'e_brief',label:'AVB trial brief: standing/capacity',date:'2018-05-01',lane:'avb',kind:'filing',parties:['avb']},
+  {id:'e_bench',label:'Two-day bench trial',date:'2018-06-15',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb','keck']},
+  {id:'e_trialjmt',label:'Trial judgment ($83,418.94)',date:'2018-08-01',lane:'court',kind:'ruling',parties:['trial_court','wanke','avb']},
+  {id:'e_affirm',label:'Court of Appeal affirms',date:'2020-02-19',lane:'court',kind:'ruling',parties:['court_of_appeal','wanke','avb']},
+];
+const issues=[
+  {id:'ISSUE-001',n:'I',color:'#5ec8e8',title:'Standing & Capacity',hold:'AFFIRMED — Wanke sues in its own right (§708.210).'},
+  {id:'ISSUE-002',n:'II',color:'#f0a04b',title:'Statute of Limitations',hold:'AFFIRMED — §708.230(a)(1) accrual-based.'},
+  {id:'ISSUE-003',n:'III',color:'#56cfa1',title:'Warranty Setoff',hold:'AFFIRMED — $0 setoff; net $83,418.94.'},
+];
+const bridge=[
+  ['ISSUE-001','e_predicate'],['ISSUE-001','e_suit'],['ISSUE-001','e_brief'],['ISSUE-001','e_exam'],['ISSUE-001','e_wpsusp'],['ISSUE-001','e_affirm'],
+  ['ISSUE-002','e_license'],['ISSUE-002','e_accrual'],['ISSUE-002','e_taitz'],['ISSUE-002','e_oxford'],['ISSUE-002','e_suit'],['ISSUE-002','e_affirm'],
+  ['ISSUE-003','e_work'],['ISSUE-003','e_bench'],['ISSUE-003','e_trialjmt'],['ISSUE-003','e_affirm'],
+];
+const ruling={'ISSUE-001':'e_affirm','ISSUE-002':'e_affirm','ISSUE-003':'e_trialjmt'};
+const evById=Object.fromEntries(events.map(e=>[e.id,e]));
+const issById=Object.fromEntries(issues.map(i=>[i.id,i]));
+const tmin=new Date(2008,0,1).getTime(), tmax=new Date(2020,9,1).getTime();
+const fracOf=e=>(new Date(e.date).getTime()-tmin)/(tmax-tmin);
+
+/* ───────── THREE SETUP ───────── */
+const stage=document.getElementById('stage'), fb=document.getElementById('fallback'); fb.style.display='flex';
+let renderer,scene,camera,controls,viz; let pick=[]; let mode='timeline';
+const C=h=>new THREE.Color(h);
+function ball(pos,r,color,ud){const m=new THREE.Mesh(new THREE.SphereGeometry(r,20,20),new THREE.MeshStandardMaterial({color:C(color),emissive:C(color),emissiveIntensity:0.25,roughness:0.4,metalness:0.1}));m.position.copy(pos);m.userData=ud||{};m.userData._r=r;return m;}
+function box(pos,w,h,d,color,ud){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:C(color),emissive:C(color),emissiveIntensity:0.2,roughness:0.5}));m.position.copy(pos);m.userData=ud||{};return m;}
+function line(p1,p2,color,op){const g=new THREE.BufferGeometry().setFromPoints([p1,p2]);return new THREE.Line(g,new THREE.LineBasicMaterial({color:C(color),transparent:true,opacity:op==null?0.5:op}));}
+function plane(w,h,color,op){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:C(color),transparent:true,opacity:op,side:THREE.DoubleSide}));return m;}
+function sprite(text,color,scale){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.fillStyle=color||'#c7cedb';g.font='bold 30px Helvetica,Arial';g.textBaseline='middle';g.fillText(text,6,34);const tex=new THREE.CanvasTexture(c);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));s.scale.set((scale||1)*28,(scale||1)*7,1);s.userData._label=true;return s;}
+
+function init(){
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(stage.clientWidth,stage.clientHeight);stage.appendChild(renderer.domElement);
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(46,stage.clientWidth/stage.clientHeight,0.1,4000);
+  controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.08;
+  scene.add(new THREE.AmbientLight(0xffffff,0.7));
+  const d1=new THREE.DirectionalLight(0xbfe0ff,0.9);d1.position.set(80,120,140);scene.add(d1);
+  const d2=new THREE.DirectionalLight(0xffd9b0,0.3);d2.position.set(-90,-60,-80);scene.add(d2);
+  build(mode); fb.style.display='none';
+  window.addEventListener('resize',onResize);
+  renderer.domElement.addEventListener('pointermove',onMove);
+  renderer.domElement.addEventListener('pointerleave',()=>{hideTip();});
+  animate();
+}
+function onResize(){camera.aspect=stage.clientWidth/stage.clientHeight;camera.updateProjectionMatrix();renderer.setSize(stage.clientWidth,stage.clientHeight);}
+function animate(){requestAnimationFrame(animate);controls&&controls.update();renderer&&renderer.render(scene,camera);}
+function clearViz(){if(viz){scene.remove(viz);viz.traverse(o=>{o.geometry&&o.geometry.dispose&&o.geometry.dispose();o.material&&o.material.dispose&&o.material.dispose();});}viz=new THREE.Group();scene.add(viz);pick=[];}
+
+/* ───────── MODE 1 — LAYERED TIMELINE ───────── */
+function buildTimeline(){
+  const L=260, laneZ={wanke:54,debtors:18,avb:-18,court_group:-54}, ISSUE_Y=64;
+  const xOf=e=>-L/2+fracOf(e)*L;
+  LANES.forEach(l=>{ // lane ribbons + labels
+    const pl=plane(L,14,PC[l],0.06);pl.rotation.x=-Math.PI/2;pl.position.set(0,0,laneZ[l]);viz.add(pl);
+    viz.add(line(new THREE.Vector3(-L/2,0,laneZ[l]),new THREE.Vector3(L/2,0,laneZ[l]),PC[l],0.35));
+    const s=sprite(PNAME[l],PC[l],0.9);s.position.set(-L/2-30,2,laneZ[l]);viz.add(s);
+  });
+  [2008,2012,2016,2020].forEach(y=>{const xx=-L/2+((new Date(y,0,1).getTime()-tmin)/(tmax-tmin))*L;const s=sprite(String(y),'#6b7686',0.7);s.position.set(xx,-10,60);viz.add(s);});
+  const evPos={};
+  events.forEach(e=>{const p=new THREE.Vector3(xOf(e),0,laneZ[norm(e.lane)]);evPos[e.id]=p;
+    const m=ball(p,e.kind==='ruling'?4.2:3,PC[norm(e.lane)],{type:'event',id:e.id,label:e.label,sub:e.date});viz.add(m);pick.push(m);});
+  // issue layer floating above, at x of ruling event
+  issues.forEach((iss,k)=>{const rx=xOf(evById[ruling[iss.id]])+(k-1)*6;const p=new THREE.Vector3(rx,ISSUE_Y,0);
+    const m=box(p,10,10,10,iss.color,{type:'issue',id:iss.id,label:iss.n+'. '+iss.title,sub:iss.hold});viz.add(m);pick.push(m);
+    const s=sprite(iss.n+'. '+iss.title,iss.color,0.85);s.position.set(rx,ISSUE_Y+11,0);viz.add(s);});
+  // bridge drop-links issue -> events
+  bridge.forEach(([is,ev])=>{const a=viz.children.find(c=>c.userData.type==='issue'&&c.userData.id===is);
+    viz.add(line(a.position,evPos[ev],issById[is].color,0.5));});
+  camera.position.set(0,90,250);controls.target.set(0,24,0);controls.update();
+}
+
+/* ───────── MODE 2 — KNOWLEDGE GRAPH ───────── */
+function buildGraph(){
+  const nodes=[], edges=[];
+  LANES.forEach(p=>nodes.push({id:p,type:'party',color:PC[p],label:PNAME[p],r:6}));
+  events.forEach(e=>nodes.push({id:e.id,type:'event',color:PC[norm(e.lane)],label:e.label,r:e.kind==='ruling'?3.6:2.6}));
+  issues.forEach(i=>nodes.push({id:i.id,type:'issue',color:i.color,label:i.n+'. '+i.title,r:5}));
+  events.forEach(e=>{[...new Set(e.parties.map(norm))].forEach(p=>edges.push({a:e.id,b:p,c:PC[p],o:0.25}));});
+  bridge.forEach(([is,ev])=>edges.push({a:is,b:ev,c:issById[is].color,o:0.5}));
+  // seed + force layout (deterministic)
+  let seed=7; const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+  nodes.forEach(n=>n.pos=new THREE.Vector3((rnd()-0.5)*120,(rnd()-0.5)*120,(rnd()-0.5)*120));
+  const idx=Object.fromEntries(nodes.map((n,i)=>[n.id,i])), k=26;
+  for(let it=0;it<240;it++){const disp=nodes.map(()=>new THREE.Vector3());
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const d=new THREE.Vector3().subVectors(nodes[i].pos,nodes[j].pos);let len=d.length()||0.01;const f=k*k/len;disp[i].add(d.clone().multiplyScalar(f/len));disp[j].add(d.clone().multiplyScalar(-f/len));}
+    edges.forEach(e=>{const i=idx[e.a],j=idx[e.b];const d=new THREE.Vector3().subVectors(nodes[i].pos,nodes[j].pos);let len=d.length()||0.01;const f=len*len/k;disp[i].add(d.clone().multiplyScalar(-f/len));disp[j].add(d.clone().multiplyScalar(f/len));});
+    const t=Math.max(1,26*(1-it/240));nodes.forEach((n,i)=>{const len=disp[i].length()||0.01;n.pos.add(disp[i].multiplyScalar(Math.min(len,t)/len));});
+  }
+  const pos=Object.fromEntries(nodes.map(n=>[n.id,n.pos]));
+  edges.forEach(e=>viz.add(line(pos[e.a],pos[e.b],e.c,e.o)));
+  nodes.forEach(n=>{const m=ball(n.pos,n.r,n.color,{type:n.type,id:n.id,label:n.label,sub:n.type});viz.add(m);pick.push(m);
+    if(n.type!=='event'){const s=sprite(n.label,n.color,0.7);s.position.copy(n.pos).add(new THREE.Vector3(0,n.r+4,0));viz.add(s);}});
+  camera.position.set(0,0,210);controls.target.set(0,0,0);controls.update();
+}
+
+/* ───────── MODE 3 — STACKED PLANES ───────── */
+function buildPlanes(){
+  const W=220,Dp=120,yOf={er:135,tl:45,mm:-45,cmp:-135};
+  const planeDefs=[['er','Entity-Relation','#6b7f9f'],['tl','Timeline','#5b8f7f'],['mm','Mind Map','#8a7cc0'],['cmp','Comparison','#b08a6a']];
+  planeDefs.forEach(([key,name,col])=>{const pl=plane(W,Dp,col,0.07);pl.rotation.x=-Math.PI/2;pl.position.set(0,yOf[key],0);viz.add(pl);
+    const s=sprite(name,col,0.95);s.position.set(-W/2-6,yOf[key]+3,Dp/2+8);viz.add(s);});
+  const L=W-40, xOf=e=>-L/2+fracOf(e)*L;
+  // plane positions per entity
+  const erPos={}, tlPos={}, mmPos={}, cmpPos={};
+  LANES.forEach((p,i)=>{erPos[p]=new THREE.Vector3(-70+i*46,yOf.er,0);const m=ball(erPos[p],5,PC[p],{type:'party',id:p,label:PNAME[p],sub:'entity'});viz.add(m);pick.push(m);});
+  // structural ER edges
+  [['wanke','debtors','$1.19M'],['avb','debtors','$109K'],['wanke','avb','suit']].forEach(([a,b])=>viz.add(line(erPos[a],erPos[b],'#8a93a0',0.5)));
+  events.forEach(e=>{tlPos[e.id]=new THREE.Vector3(xOf(e),yOf.tl,({wanke:36,debtors:12,avb:-12,court_group:-36})[norm(e.lane)]);
+    const m=ball(tlPos[e.id],e.kind==='ruling'?3.6:2.6,PC[norm(e.lane)],{type:'event',id:e.id,label:e.label,sub:e.date});viz.add(m);pick.push(m);});
+  issues.forEach((iss,k)=>{mmPos[iss.id]=new THREE.Vector3(-60+k*60,yOf.mm,0);const m=box(mmPos[iss.id],11,9,9,iss.color,{type:'issue',id:iss.id,label:iss.n+'. '+iss.title,sub:iss.hold});viz.add(m);pick.push(m);
+    const s=sprite(iss.n,iss.color,0.8);s.position.copy(mmPos[iss.id]).add(new THREE.Vector3(0,7,0));viz.add(s);
+    cmpPos[iss.id]=new THREE.Vector3(-60+k*60,yOf.cmp,0);const b=box(cmpPos[iss.id],34,7,9,iss.color,{type:'issue',id:iss.id,label:iss.n+'. '+iss.title,sub:iss.hold});viz.add(b);pick.push(b);});
+  // cross-plane connectors (shared keys)
+  events.forEach(e=>{[...new Set(e.parties.map(norm))].forEach(p=>{if(erPos[p])viz.add(line(erPos[p],tlPos[e.id],PC[p],0.12));});});
+  bridge.forEach(([is,ev])=>{viz.add(line(tlPos[ev],mmPos[is],issById[is].color,0.28));});
+  issues.forEach(iss=>viz.add(line(mmPos[iss.id],cmpPos[iss.id],iss.color,0.4)));
+  camera.position.set(170,40,210);controls.target.set(0,0,0);controls.update();
+}
+
+const DESC={
+  timeline:'<b>Layered timeline.</b> Time runs left→right; the four party lanes are parallel tracks in depth; event nodes sit on their lane at their date; the three issue cubes float above, each dropping links to the events that decide it.',
+  graph:'<b>Knowledge graph.</b> Parties (large), events (small), and issues (cubes… here spheres) are nodes in a 3D force-directed network — edges are “event involves party” + the issue→event bridge. Clusters reveal which events bind which issue.',
+  planes:'<b>Stacked planes.</b> The four diagrams sit on parallel planes in depth (entity-relation, timeline, mind map, comparison); thin vertical connectors link the same party / event / issue across the layers — the integration shown literally.',
+};
+function build(m){mode=m;clearViz();document.getElementById('desc').innerHTML=DESC[m];
+  if(m==='timeline')buildTimeline();else if(m==='graph')buildGraph();else buildPlanes();}
+
+/* ───────── HOVER ───────── */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),tip=document.getElementById('tip');
+function onMove(e){const r=renderer.domElement.getBoundingClientRect();ndc.x=((e.clientX-r.left)/r.width)*2-1;ndc.y=-((e.clientY-r.top)/r.height)*2+1;
+  ray.setFromCamera(ndc,camera);const hit=ray.intersectObjects(pick,false)[0];
+  if(hit){const u=hit.object.userData;tip.innerHTML=`<b>${u.label}</b><br><span style="color:#9aa4b2">${u.sub||u.type}</span>`;tip.style.opacity=1;tip.style.left=(e.clientX+13)+'px';tip.style.top=(e.clientY+13)+'px';renderer.domElement.style.cursor='pointer';}
+  else{hideTip();renderer.domElement.style.cursor='grab';}}
+const hideTip=()=>{tip.style.opacity=0;};
+
+/* ───────── UI ───────── */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');build(t.dataset.mode);}));
+const legend=document.getElementById('legend');
+LANES.forEach(p=>{const s=document.createElement('span');s.innerHTML=`<i class="kd" style="background:${PC[p]}"></i>${PNAME[p]}`;legend.appendChild(s);});
+issues.forEach(i=>{const s=document.createElement('span');s.innerHTML=`<i class="kd" style="background:${i.color}"></i>${i.n}. ${i.title}`;legend.appendChild(s);});
+
+try{init();}catch(err){fb.style.display='flex';fb.textContent='3D failed: '+err.message;console.error(err);}
+</script>
+</body>
+</html>
